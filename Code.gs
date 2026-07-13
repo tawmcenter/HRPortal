@@ -1,0 +1,564 @@
+/**
+ * ╔══════════════════════════════════════════════════════════════════╗
+ * ║  WM CENTER — HR PORTAL (Backend Gabungan)                        ║
+ * ║  Modul: Talent Acquisition · Employee Referral · Coaching & SP   ║
+ * ╚══════════════════════════════════════════════════════════════════╝
+ *
+ * CARA SETUP (lakukan sekali):
+ * 1. Buat 1 Google Sheet baru (atau pakai yang sudah ada).
+ * 2. Extensions → Apps Script → hapus isi default → tempel SELURUH file ini.
+ * 3. Isi GOOGLE_CLIENT_ID di bawah (lihat SETUP.md cara membuatnya).
+ * 4. Jalankan fungsi `setupAllSheets` sekali (pilih dari dropdown → Run).
+ *    Ini akan membuat semua tab yang dibutuhkan + mengisi allowlist HR awal.
+ * 5. Deploy → New deployment → Web app.
+ *      Execute as: Me
+ *      Who has access: Anyone
+ * 6. Salin URL "Web app" (…/exec), tempel ke CONFIG.SCRIPT_URL di ketiga
+ *    file HTML (ta.html, referral.html, coaching.html).
+ *
+ * Setiap kali kode ini diubah: Deploy → Manage deployments → Edit →
+ * Version: New version → Deploy.
+ */
+
+// ─────────────────────────────────────────────────────────────────
+// KONFIGURASI
+// ─────────────────────────────────────────────────────────────────
+
+// OAuth Client ID (Web) dari Google Cloud Console. Lihat SETUP.md.
+const GOOGLE_CLIENT_ID = '153758008378-cii671k454a6t5prcrg7u8kisrveg6b3.apps.googleusercontent.com';
+
+// Nama tab sheet
+const SHEET_REQUESTS   = 'Requests';
+const SHEET_PIC        = 'PIC_List';
+const SHEET_OFFERS     = 'Offers';
+const SHEET_BRANCHES   = 'Branches';
+const SHEET_REFERRALS  = 'Referrals';
+const SHEET_ANALYTICS  = 'HR Analytics';
+const SHEET_COACHING   = 'Pengajuan';
+const SHEET_ALLOWLIST  = 'Admin_Allowlist';
+
+const CV_FOLDER_NAME       = 'WM Referral CV';
+const COACHING_FOLDER_NAME = 'WM Coaching - Upload';
+const DEFAULT_REFERRAL_STATUS = 'Submitted';
+
+const REQ_HEADERS = [
+  'ID','SubmittedAt','Nama','Divisi','Email','Posisi','Headcount',
+  'Tipe','Urgensi','Alasan','KualWajib','KualTambahan',
+  'Stage','JobStatus','Kandidat','Hired','PIC',
+  'AlwaysHiring','DateClosed','HoldDays','Cabang','TAStartDate'
+];
+const OFF_HEADERS = ['ID','RequestID','NamaKandidat','Posisi','Divisi','HasilOffer','JoinDate','OfferDate','PIC','Source'];
+const COACHING_HEADERS = ["id","timestamp","namaAtasan","posisiAtasan","divisiAtasan",
+  "namaKaryawan","posisiKaryawan","divisiKaryawan","cabang","jenis","alasan",
+  "tanggalSP","detail","fileUrl"];
+
+// ─────────────────────────────────────────────────────────────────
+// ROUTING UTAMA
+// ─────────────────────────────────────────────────────────────────
+
+function doGet(e) {
+  const p = (e && e.parameter) || {};
+  const callback = p.callback || null;
+  try {
+    const module = p.module || '';
+    const action = p.action || '';
+    let result;
+
+    if (module === 'auth' && action === 'verify') {
+      result = verifyAdmin(p.idToken);
+
+    } else if (module === 'ta') {
+      if (action === 'getBranches')      result = { data: getBranches() };
+      else if (action === 'getPicList')  result = requireAdmin(p.idToken, () => ({ data: getPicList() }));
+      else if (action === 'getRequests') result = requireAdmin(p.idToken, () => getRequests());
+      else if (action === 'getOffers')   result = requireAdmin(p.idToken, () => getOffers());
+      else result = { error: 'Unknown ta action: ' + action };
+
+    } else if (module === 'referral') {
+      if (action === 'getReferrals') result = { ok:true, data: getReferralsPublic() };
+      else result = { error: 'Unknown referral action: ' + action };
+
+    } else if (module === 'coaching') {
+      if (action === 'ping')      result = { ok: true };
+      else if (action === 'list') result = requireAdmin(p.idToken, () => ({ ok:true, data: listCoachingRows() }));
+      else result = { ok:false, error: 'Unknown coaching action: ' + action };
+
+    } else {
+      result = { error: 'Unknown module: ' + module };
+    }
+
+    return out(result, callback);
+  } catch (err) {
+    return out({ ok:false, error: String(err) }, callback);
+  }
+}
+
+function doPost(e) {
+  try {
+    // Coba parse body sebagai JSON dulu (dipakai ta.html & coaching.html, dikirim
+    // via fetch() dengan body string JSON meski Content-Type-nya text/plain).
+    // Kalau gagal, berarti form-urlencoded asli (dipakai referral.html via iframe POST).
+    let body;
+    try {
+      body = JSON.parse((e.postData && e.postData.contents) || 'null') || (e.parameter || {});
+    } catch (parseErr) {
+      body = e.parameter || {};
+    }
+    const module = body.module || '';
+    const action = body.action || (module === 'referral' ? 'submitReferral' : '');
+    const payload = body.payload || body; // dukung format {module,action,payload,idToken} maupun form flat
+    const idToken = body.idToken || (e.parameter && e.parameter.idToken);
+
+    let result;
+
+    if (module === 'ta') {
+      if (action === 'submitRequest') result = submitRequest(payload);
+      else result = requireAdmin(idToken, () => {
+        if      (action === 'updateRow')    return updateRow(payload);
+        else if (action === 'deleteRow')    return deleteRow(payload);
+        else if (action === 'addPic')       return addPic(payload);
+        else if (action === 'removePic')    return removePic(payload);
+        else if (action === 'addOffer')     return addOffer(payload);
+        else if (action === 'updateOffer')  return updateOffer(payload);
+        else if (action === 'deleteOffer')  return deleteOffer(payload);
+        else if (action === 'addBranch')    return addBranch(payload);
+        else if (action === 'removeBranch') return removeBranch(payload);
+        return { error: 'Unknown ta action: ' + action };
+      });
+
+    } else if (module === 'referral') {
+      // submit referral — TETAP TERBUKA UNTUK SEMUA (tanpa login)
+      result = submitReferral(payload);
+
+    } else if (module === 'coaching') {
+      // submit coaching/SP — TETAP TERBUKA UNTUK SEMUA (tanpa login)
+      result = createCoachingRow(payload);
+
+    } else {
+      result = { ok:false, error: 'Unknown module: ' + module };
+    }
+
+    return out(result, null);
+  } catch (err) {
+    return out({ ok:false, error: String(err) }, null);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// AUTH — verifikasi Google ID Token + cek allowlist HR
+// ─────────────────────────────────────────────────────────────────
+
+/** Bungkus fungsi admin: jalankan hanya jika idToken valid & email ada di allowlist. */
+function requireAdmin(idToken, fn) {
+  const v = verifyAdmin(idToken);
+  if (!v.ok) return { ok:false, error: v.error || 'Unauthorized' };
+  return fn();
+}
+
+/**
+ * Verifikasi idToken via endpoint publik Google (tokeninfo) — ini memvalidasi
+ * tanda tangan token tanpa perlu client secret. Lalu cocokkan audience (Client ID)
+ * dan email terhadap tab Admin_Allowlist.
+ */
+function verifyAdmin(idToken) {
+  if (!idToken) return { ok:false, error: 'Tidak ada idToken' };
+  try {
+    const res = UrlFetchApp.fetch('https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(idToken), { muteHttpExceptions: true });
+    if (res.getResponseCode() !== 200) return { ok:false, error: 'Token tidak valid' };
+    const info = JSON.parse(res.getContentText());
+
+    if (GOOGLE_CLIENT_ID.indexOf('PASTE_') === 0) {
+      return { ok:false, error: 'GOOGLE_CLIENT_ID belum diisi di Code.gs' };
+    }
+    if (info.aud !== GOOGLE_CLIENT_ID) return { ok:false, error: 'Client ID tidak cocok' };
+    if (info.email_verified !== 'true' && info.email_verified !== true) return { ok:false, error: 'Email belum terverifikasi Google' };
+
+    const email = String(info.email || '').toLowerCase();
+    const allowlist = getAllowlist();
+    if (allowlist.indexOf(email) === -1) return { ok:false, error: 'Email tidak terdaftar sebagai admin HR' };
+
+    return { ok:true, email: email };
+  } catch (err) {
+    return { ok:false, error: 'Gagal verifikasi: ' + String(err) };
+  }
+}
+
+function getAllowlist() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_ALLOWLIST);
+  if (!sheet || sheet.getLastRow() <= 1) return [];
+  return sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues()
+    .flat()
+    .filter(v => v !== '')
+    .map(v => String(v).trim().toLowerCase());
+}
+
+// ─────────────────────────────────────────────────────────────────
+// MODUL: TALENT ACQUISITION
+// ─────────────────────────────────────────────────────────────────
+
+function normalizeId(val) {
+  if (val === null || val === undefined || val === '') return '';
+  if (typeof val === 'number') return String(Math.round(val));
+  return String(val).trim().replace(/\.0+$/, '');
+}
+
+function getRequests() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_REQUESTS);
+  if (!sheet || sheet.getLastRow() <= 1) return { data: [] };
+  const numCols = Math.max(REQ_HEADERS.length, sheet.getLastColumn());
+  const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, numCols).getValues();
+  const data = rows.filter(r => r[0] !== '' && r[0] !== null).map(r => ({
+    id: normalizeId(r[0]),
+    submittedAt: r[1] instanceof Date ? r[1].toISOString() : String(r[1] || ''),
+    nama: String(r[2] || ''), divisi: String(r[3] || ''), email: String(r[4] || ''),
+    posisi: String(r[5] || ''), headcount: Number(r[6]) || 1,
+    tipe: String(r[7] || 'Full-time'), urgensi: String(r[8] || 'P1'), alasan: String(r[9] || ''),
+    kualWajib: String(r[10] || ''), kualTambahan: String(r[11] || ''),
+    stage: String(r[12] || 'Sourcing'), jobStatus: String(r[13] || 'Open'),
+    kandidat: Number(r[14]) || 0, hired: Number(r[15]) || 0, pic: String(r[16] || ''),
+    alwaysHiring: r[17] === true || r[17] === 'TRUE' || r[17] === 1 || r[17] === '1',
+    dateClosed: r[18] instanceof Date ? r[18].toISOString() : String(r[18] || ''),
+    holdDays: Number(r[19]) || 0, cabang: String(r[20] || ''),
+    taStartDate: r[21] instanceof Date ? r[21].toISOString() : String(r[21] || ''),
+  }));
+  return { data };
+}
+
+function submitRequest(payload) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_REQUESTS);
+  const id = String(Date.now());
+  sheet.appendRow([
+    id, new Date(), payload.nama || '', payload.divisi || '', payload.email || '',
+    payload.posisi || '', Number(payload.headcount) || 1, payload.tipe || 'Full-time',
+    payload.urgensi || 'P1', payload.alasan || '', payload.kualWajib || '', payload.kualTambahan || '',
+    'Sourcing', 'Open', 0, 0, '', false, '', 0, payload.cabang || '', '',
+  ]);
+  return { success: true, id };
+}
+
+function updateRow(payload) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_REQUESTS);
+  if (!sheet || sheet.getLastRow() <= 1) return { error: 'Sheet kosong' };
+  const idCol = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues();
+  const targetId = normalizeId(payload.id);
+  let rowNum = -1;
+  for (let i = 0; i < idCol.length; i++) if (normalizeId(idCol[i][0]) === targetId) { rowNum = i + 2; break; }
+  if (rowNum === -1) return { error: 'ID tidak ditemukan: ' + targetId };
+  const updates = [
+    [13, payload.stage || 'Sourcing'], [14, payload.jobStatus || 'Open'],
+    [15, Number(payload.kandidat) || 0], [16, Number(payload.hired) || 0],
+    [17, payload.pic || ''], [18, payload.alwaysHiring ? true : false],
+    [19, payload.dateClosed || ''], [20, Number(payload.holdDays) || 0],
+    [21, payload.cabang || ''], [22, payload.taStartDate || ''],
+  ];
+  updates.forEach(([col, val]) => sheet.getRange(rowNum, col).setValue(val));
+  if (payload.headcount !== undefined && payload.headcount !== null && payload.headcount !== '') {
+    sheet.getRange(rowNum, 7).setValue(Number(payload.headcount) || 1);
+  }
+  return { success: true, rowNum };
+}
+
+function deleteRow(payload) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_REQUESTS);
+  if (!sheet || sheet.getLastRow() <= 1) return { error: 'Sheet kosong' };
+  const idCol = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues();
+  const targetId = normalizeId(payload.id);
+  for (let i = 0; i < idCol.length; i++) if (normalizeId(idCol[i][0]) === targetId) { sheet.deleteRow(i + 2); return { success: true }; }
+  return { error: 'ID tidak ditemukan' };
+}
+
+function getPicList() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_PIC);
+  if (!sheet || sheet.getLastRow() <= 1) return ['Nanda', 'Fionna', 'Aisy', 'Kirana'];
+  return sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues().flat().filter(n => n !== '');
+}
+function addPic(payload) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_PIC);
+  const existing = sheet.getLastRow() > 1 ? sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues().flat() : [];
+  if (existing.includes(payload.name)) return { error: 'Nama sudah ada' };
+  sheet.appendRow([payload.name]);
+  return { success: true };
+}
+function removePic(payload) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_PIC);
+  if (sheet.getLastRow() <= 1) return { error: 'Sheet kosong' };
+  const names = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues().flat();
+  const idx = names.findIndex(n => n === payload.name);
+  if (idx === -1) return { error: 'Tidak ditemukan' };
+  sheet.deleteRow(idx + 2);
+  return { success: true };
+}
+
+function getOffers() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_OFFERS);
+  if (!sheet || sheet.getLastRow() <= 1) return { data: [] };
+  const numCols = Math.max(OFF_HEADERS.length, sheet.getLastColumn());
+  const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, numCols).getValues();
+  const data = rows.filter(r => r[0] !== '').map(r => ({
+    id: normalizeId(r[0]), requestId: normalizeId(r[1]), namaKandidat: String(r[2] || ''),
+    posisi: String(r[3] || ''), divisi: String(r[4] || ''), hasilOffer: String(r[5] || ''),
+    joinDate: r[6] instanceof Date ? r[6].toISOString() : String(r[6] || ''),
+    offerDate: r[7] instanceof Date ? r[7].toISOString() : String(r[7] || ''),
+    pic: String(r[8] || ''), source: String(r[9] || 'Etc'),
+  }));
+  return { data };
+}
+function addOffer(payload) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_OFFERS);
+  const id = String(Date.now());
+  sheet.appendRow([
+    id, normalizeId(payload.requestId), payload.namaKandidat || '', payload.posisi || '',
+    payload.divisi || '', payload.hasilOffer || '', payload.joinDate || '', new Date(),
+    payload.pic || '', payload.source || 'Etc',
+  ]);
+  return { success: true, id };
+}
+function updateOffer(payload) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_OFFERS);
+  if (!sheet || sheet.getLastRow() <= 1) return { error: 'Sheet kosong' };
+  const ids = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues().flat().map(normalizeId);
+  const idx = ids.findIndex(v => v === normalizeId(payload.id));
+  if (idx === -1) return { error: 'ID tidak ditemukan: ' + normalizeId(payload.id) };
+  const rowNum = idx + 2;
+  const updates = [[3, payload.namaKandidat || ''], [6, payload.hasilOffer || ''], [7, payload.joinDate || ''], [9, payload.pic || '']];
+  updates.forEach(([col, val]) => sheet.getRange(rowNum, col).setValue(val));
+  if (payload.posisi) sheet.getRange(rowNum, 4).setValue(payload.posisi);
+  if (payload.offerDate) sheet.getRange(rowNum, 8).setValue(payload.offerDate);
+  if (payload.source) sheet.getRange(rowNum, 10).setValue(payload.source);
+  return { success: true, rowNum };
+}
+function deleteOffer(payload) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_OFFERS);
+  if (!sheet || sheet.getLastRow() <= 1) return { error: 'Sheet kosong' };
+  const ids = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues().flat().map(normalizeId);
+  const idx = ids.findIndex(v => v === normalizeId(payload.id));
+  if (idx === -1) return { error: 'ID tidak ditemukan' };
+  sheet.deleteRow(idx + 2);
+  return { success: true };
+}
+
+function getBranches() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_BRANCHES);
+  if (!sheet || sheet.getLastRow() <= 1) return ['Menteng', 'Bintaro', 'Kelapa Gading', 'Serpong'];
+  return sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues().flat().filter(n => n !== '');
+}
+function addBranch(payload) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_BRANCHES);
+  const existing = sheet.getLastRow() > 1 ? sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues().flat() : [];
+  if (existing.includes(payload.name)) return { error: 'Cabang sudah ada' };
+  sheet.appendRow([payload.name]);
+  return { success: true };
+}
+function removeBranch(payload) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_BRANCHES);
+  if (sheet.getLastRow() <= 1) return { error: 'Sheet kosong' };
+  const names = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues().flat();
+  const idx = names.findIndex(n => n === payload.name);
+  if (idx === -1) return { error: 'Tidak ditemukan' };
+  sheet.deleteRow(idx + 2);
+  return { success: true };
+}
+
+// ─────────────────────────────────────────────────────────────────
+// MODUL: EMPLOYEE REFERRAL
+// ─────────────────────────────────────────────────────────────────
+
+function fmtDateReferral(v) {
+  if (v instanceof Date) {
+    const dd = ('0' + v.getDate()).slice(-2), mm = ('0' + (v.getMonth() + 1)).slice(-2);
+    return { date: dd + '/' + mm + '/' + v.getFullYear(), ts: v.getTime() };
+  }
+  const s = String(v || '');
+  const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  const ts = m ? new Date(+m[3], +m[2] - 1, +m[1]).getTime() : 0;
+  return { date: s, ts };
+}
+
+/** Data untuk dashboard publik — CV & Notes internal SENGAJA tidak diikutkan (privasi kandidat). */
+function getReferralsPublic() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_REFERRALS);
+  if (!sheet || sheet.getLastRow() <= 1) return [];
+  const rows = sheet.getDataRange().getValues().slice(1);
+  return rows.filter(r => r[1]).map(r => {
+    const d = fmtDateReferral(r[0]);
+    return {
+      date: d.date, ts: d.ts, name: r[1], position: r[2], branch: r[3],
+      status: r[5] || DEFAULT_REFERRAL_STATUS, referrer: r[6], referrerPosition: r[7],
+      referrerBranch: r[8],
+    };
+  });
+}
+
+function submitReferral(p) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_REFERRALS);
+  let cvUrl = '';
+  if (p.cvBase64 && p.cvFilename) {
+    const folder = getOrCreateFolder(CV_FOLDER_NAME);
+    const bytes = Utilities.base64Decode(p.cvBase64);
+    const safeName = (p.candidateName || 'CV').replace(/[^\w\s.-]/g, '').trim();
+    const blob = Utilities.newBlob(bytes, p.cvMimeType || 'application/octet-stream', safeName + ' - ' + p.cvFilename);
+    cvUrl = folder.createFile(blob).getUrl();
+  }
+  sheet.appendRow([
+    new Date(), p.candidateName || '', p.candidatePosition || '', p.candidateBranch || '',
+    cvUrl, DEFAULT_REFERRAL_STATUS, p.referrerName || '', p.referrerPosition || '',
+    p.referrerBranch || '', '',
+  ]);
+  return { ok: true };
+}
+
+// ─────────────────────────────────────────────────────────────────
+// MODUL: COACHING & SURAT PERINGATAN
+// ─────────────────────────────────────────────────────────────────
+
+function listCoachingRows() {
+  const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_COACHING);
+  const last = sh.getLastRow();
+  if (last < 2) return [];
+  const values = sh.getRange(2, 1, last - 1, COACHING_HEADERS.length).getValues();
+  return values.map(row => {
+    const o = {};
+    COACHING_HEADERS.forEach((h, i) => o[h] = row[i]);
+    if (o.tanggalSP instanceof Date) o.tanggalSP = Utilities.formatDate(o.tanggalSP, 'GMT+7', 'yyyy-MM-dd');
+    if (o.timestamp instanceof Date) o.timestamp = Utilities.formatDate(o.timestamp, 'GMT+7', "yyyy-MM-dd'T'HH:mm:ss");
+    return o;
+  });
+}
+
+function createCoachingRow(b) {
+  const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_COACHING);
+  const id = 'WM-' + Utilities.formatDate(new Date(), 'GMT+7', 'yyyyMMdd-HHmmss') + '-' + Math.floor(Math.random() * 900 + 100);
+  let fileUrl = '';
+  if (b.file && b.file.b64) {
+    try { fileUrl = saveCoachingFile(b.file, id); } catch (err) { fileUrl = 'GAGAL UPLOAD: ' + err; }
+  }
+  const row = COACHING_HEADERS.map(h => {
+    if (h === 'id') return id;
+    if (h === 'timestamp') return Utilities.formatDate(new Date(), 'GMT+7', "yyyy-MM-dd'T'HH:mm:ss");
+    if (h === 'fileUrl') return fileUrl;
+    return b[h] != null ? b[h] : '';
+  });
+  sh.appendRow(row);
+  return { ok: true, id, fileUrl };
+}
+
+function saveCoachingFile(file, id) {
+  const folder = getOrCreateFolder(COACHING_FOLDER_NAME);
+  const bytes = Utilities.base64Decode(file.b64);
+  const blob = Utilities.newBlob(bytes, file.mime || 'application/octet-stream', id + ' - ' + (file.name || 'coaching'));
+  const f = folder.createFile(blob);
+  f.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  return f.getUrl();
+}
+
+// ─────────────────────────────────────────────────────────────────
+// HELPER UMUM
+// ─────────────────────────────────────────────────────────────────
+
+function getOrCreateFolder(name) {
+  const it = DriveApp.getFoldersByName(name);
+  return it.hasNext() ? it.next() : DriveApp.createFolder(name);
+}
+
+function out(obj, callback) {
+  const json = JSON.stringify(obj);
+  if (callback) return ContentService.createTextOutput(callback + '(' + json + ')').setMimeType(ContentService.MimeType.JAVASCRIPT);
+  return ContentService.createTextOutput(json).setMimeType(ContentService.MimeType.JSON);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SETUP — jalankan sekali dari editor Apps Script
+// ─────────────────────────────────────────────────────────────────
+
+function setupAllSheets() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  // Requests
+  let req = ss.getSheetByName(SHEET_REQUESTS);
+  if (!req) req = ss.insertSheet(SHEET_REQUESTS);
+  if (req.getLastRow() === 0) {
+    req.appendRow(REQ_HEADERS);
+    req.getRange(1, 1, 1, REQ_HEADERS.length).setFontWeight('bold').setBackground('#0D2D5B').setFontColor('#FFFFFF');
+    req.setFrozenRows(1);
+  }
+
+  // PIC_List
+  let pic = ss.getSheetByName(SHEET_PIC);
+  if (!pic) pic = ss.insertSheet(SHEET_PIC);
+  if (pic.getLastRow() === 0) {
+    pic.appendRow(['Nama PIC']);
+    pic.getRange(1, 1).setFontWeight('bold').setBackground('#0D2D5B').setFontColor('#FFFFFF');
+    pic.setFrozenRows(1);
+    ['Nanda', 'Fionna', 'Aisy', 'Kirana'].forEach(n => pic.appendRow([n]));
+  }
+
+  // Offers
+  let off = ss.getSheetByName(SHEET_OFFERS);
+  if (!off) off = ss.insertSheet(SHEET_OFFERS);
+  if (off.getLastRow() === 0) {
+    off.appendRow(OFF_HEADERS);
+    off.getRange(1, 1, 1, OFF_HEADERS.length).setFontWeight('bold').setBackground('#0D2D5B').setFontColor('#FFFFFF');
+    off.setFrozenRows(1);
+  }
+
+  // Branches
+  let br = ss.getSheetByName(SHEET_BRANCHES);
+  if (!br) br = ss.insertSheet(SHEET_BRANCHES);
+  if (br.getLastRow() === 0) {
+    br.appendRow(['Nama Cabang']);
+    br.getRange(1, 1).setFontWeight('bold').setBackground('#0D2D5B').setFontColor('#FFFFFF');
+    br.setFrozenRows(1);
+    ['Menteng', 'Bintaro', 'Kelapa Gading', 'Serpong'].forEach(n => br.appendRow([n]));
+  }
+
+  // Referrals
+  let ref = ss.getSheetByName(SHEET_REFERRALS);
+  if (!ref) ref = ss.insertSheet(SHEET_REFERRALS);
+  if (ref.getLastRow() === 0) {
+    ref.appendRow(['Date Referred', 'Nama Lengkap', 'Posisi', 'Cabang Preferensi', 'CV', 'Status', 'Referrer', 'Posisi Referrer', 'Cabang Referrer', 'Notes']);
+    ref.getRange('1:1').setFontWeight('bold');
+    ref.setFrozenRows(1);
+    const rule = SpreadsheetApp.newDataValidation()
+      .requireValueInList(['Submitted', 'Shortlisted', 'HR Interview', 'User Interview', 'Offered', 'Rejected'], true)
+      .setAllowInvalid(false).build();
+    ref.getRange('F2:F2000').setDataValidation(rule);
+  }
+
+  // HR Analytics
+  let hr = ss.getSheetByName(SHEET_ANALYTICS);
+  if (!hr) {
+    hr = ss.insertSheet(SHEET_ANALYTICS);
+    hr.getRange('A1').setValue('HR Analytics — Employee Referral').setFontWeight('bold').setFontSize(14);
+    hr.getRange('A3').setValue('Status').setFontWeight('bold');
+    hr.getRange('B3').setValue('Jumlah').setFontWeight('bold');
+    const statuses = ['Submitted', 'Shortlisted', 'HR Interview', 'User Interview', 'Offered', 'Rejected'];
+    statuses.forEach((s, i) => {
+      hr.getRange(4 + i, 1).setValue(s);
+      hr.getRange(4 + i, 2).setFormula('=COUNTIF(Referrals!F:F,"' + s + '")');
+    });
+    hr.getRange('A11').setValue('Total referral').setFontWeight('bold');
+    hr.getRange('B11').setFormula('=COUNTA(Referrals!B2:B)');
+  }
+
+  // Pengajuan (Coaching)
+  let co = ss.getSheetByName(SHEET_COACHING);
+  if (!co) co = ss.insertSheet(SHEET_COACHING);
+  if (co.getLastRow() === 0) {
+    co.getRange(1, 1, 1, COACHING_HEADERS.length).setValues([COACHING_HEADERS]).setFontWeight('bold');
+    co.setFrozenRows(1);
+  }
+
+  // Admin_Allowlist — daftar email HR yang boleh akses admin panel
+  let al = ss.getSheetByName(SHEET_ALLOWLIST);
+  if (!al) al = ss.insertSheet(SHEET_ALLOWLIST);
+  if (al.getLastRow() === 0) {
+    al.appendRow(['Email HR']);
+    al.getRange(1, 1).setFontWeight('bold').setBackground('#0D2D5B').setFontColor('#FFFFFF');
+    al.setFrozenRows(1);
+    ['hr@wmcenter.id', 'ta.wmcenter@gmail.com', 'hrgawmcenter@gmail.com', 'mia@wmcenter.id']
+      .forEach(email => al.appendRow([email]));
+    al.autoResizeColumn(1);
+  }
+
+  SpreadsheetApp.getUi().alert('✅ Setup selesai! Semua tab (Requests, PIC_List, Offers, Branches, Referrals, HR Analytics, Pengajuan, Admin_Allowlist) sudah siap.\n\nJangan lupa isi GOOGLE_CLIENT_ID di bagian atas kode sebelum deploy.');
+}
