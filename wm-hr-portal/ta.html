@@ -1,0 +1,1874 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WM Center — Talent Acquisition</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+  const PORTAL_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzew8o0ru5BUszsxoGYWxbhEEh6AAHkYnRIgCOAorgb9ygPTpcRxlKM597FikkCtAdd/exec'; // GANTI setelah deploy Code.gs gabungan
+  const PORTAL_CLIENT_ID  = '153758008378-cii671k454a6t5prcrg7u8kisrveg6b3.apps.googleusercontent.com'; // GANTI, lihat SETUP.md
+</script>
+<script src="portal-auth.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0E2C57;--navy-dark:#081F42;--navy-mid:#1A4080;--navy-light:#3061A8;
+  --navy-pale:#EEF4FC;--navy-pale2:#D4E2F4;
+  --white:#fff;--off:#fff;
+  --teal:#0E9384;--teal-bg:#E6F5F2;
+  --g50:#F4F7FC;--g100:#E9EEF6;--g200:#CFD8E6;--g400:#7C89A0;--g600:#48566C;--g800:#16233A;
+  --green:#0E7C57;--green-bg:#E4F5EC;
+  --amber:#B45309;--amber-bg:#FEF3C7;
+  --red:#C0392B;--red-bg:#FDECEA;
+  --serif:'DM Serif Display',serif;--sans:'DM Sans',sans-serif;
+  --r:10px;--rl:16px;
+  --sh:0 1px 2px rgba(16,24,40,.04),0 1px 3px rgba(16,24,40,.06);
+  --shm:0 12px 32px -10px rgba(14,44,87,.22);
+  --ring:0 0 0 3px rgba(48,97,168,.18)
+}
+body{font-family:var(--sans);background:var(--off);color:var(--g800);min-height:100vh;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+:focus-visible{outline:none;box-shadow:var(--ring);border-radius:6px}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+/* NAV */
+.nav{background:var(--navy-dark);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:200;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-logo{width:32px;height:32px;background:var(--white);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.nav-brand-text{font-size:14px;font-weight:600;color:var(--white);font-family:var(--sans)}
+.nav-brand-sub{font-size:11px;color:var(--navy-pale2);display:block;margin-top:-2px;font-family:var(--sans)}
+.nav-tabs{display:flex;gap:4px}
+.nav-tab{padding:7px 15px;border-radius:8px;font-size:13px;font-weight:500;color:var(--navy-pale2);cursor:pointer;border:none;background:transparent;transition:all .18s;font-family:var(--sans);display:flex;align-items:center;gap:6px}
+.nav-tab:hover{background:rgba(255,255,255,.1);color:var(--white)}
+.nav-tab.active{background:var(--white);color:var(--navy-dark)}
+.nav-right{display:flex;gap:8px;align-items:center}
+.sync-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500;font-family:var(--sans)}
+.sync-badge.online{background:#DCFCE7;color:#166534}
+.sync-badge.offline{background:#FEF3C7;color:#92400E}
+.sync-badge.syncing{background:#EFF6FF;color:#1E40AF}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.sync-badge.syncing .sync-dot{animation:pulse 1s infinite}
+.nav-admin-btn{padding:7px 13px;border-radius:8px;font-size:13px;font-weight:500;color:var(--navy-pale);cursor:pointer;border:1px solid rgba(255,255,255,.2);background:transparent;transition:all .18s;font-family:var(--sans);display:flex;align-items:center;gap:6px}
+.nav-admin-btn:hover{background:rgba(255,255,255,.1)}
+.nav-admin-btn.active{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.4);color:white}
+.page{display:none}.page.active{display:block}
+/* FORM */
+.form-hero{background:linear-gradient(135deg,var(--navy-dark) 0%,var(--navy) 60%,var(--navy-light) 100%);padding:3rem 2rem 2.5rem;text-align:center}
+.form-hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);color:var(--navy-pale);font-size:12px;font-weight:500;padding:5px 12px;border-radius:20px;margin-bottom:1rem;border:1px solid rgba(255,255,255,.18);letter-spacing:.04em;text-transform:uppercase;font-family:var(--sans)}
+.form-hero h1{font-family:var(--serif);font-size:2rem;color:var(--white);margin-bottom:.5rem;font-weight:400}
+.form-hero p{font-size:14px;color:var(--navy-pale2);max-width:480px;margin:0 auto;font-family:var(--sans)}
+.form-container{max-width:680px;margin:-1.5rem auto 3rem;padding:0 1.5rem}
+.progress-wrap{background:var(--white);border-radius:var(--rl);padding:1.5rem;margin-bottom:1.5rem;box-shadow:var(--sh);border:1px solid var(--g100)}
+.progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
+.progress-label{font-size:13px;color:var(--g400);font-weight:500;font-family:var(--sans)}
+.progress-step-text{font-size:13px;color:var(--navy);font-weight:600;font-family:var(--sans)}
+.progress-bar-bg{background:var(--g100);border-radius:99px;height:6px}
+.progress-bar-fill{background:linear-gradient(90deg,var(--navy) 0%,var(--navy-light) 100%);border-radius:99px;height:6px;transition:width .4s cubic-bezier(.4,0,.2,1)}
+.progress-steps{display:flex;margin-top:1rem}
+.progress-dot-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.progress-dot{width:24px;height:24px;border-radius:50%;border:2px solid var(--g200);background:var(--white);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--g400);transition:all .3s;font-family:var(--sans)}
+.progress-dot.done{background:var(--navy);border-color:var(--navy);color:white}
+.progress-dot.current{border-color:var(--navy-light);color:var(--navy);background:var(--navy-pale)}
+.progress-dot-label{font-size:10px;color:var(--g400);text-align:center;font-family:var(--sans)}
+.form-card{background:var(--white);border-radius:var(--rl);padding:2rem;box-shadow:var(--sh);border:1px solid var(--g100)}
+.form-step{display:none}.form-step.active{display:block}
+.form-section-title{font-family:var(--serif);font-size:1.25rem;color:var(--navy-dark);margin-bottom:.25rem;font-weight:400}
+.form-section-sub{font-size:13px;color:var(--g400);margin-bottom:1.5rem;font-family:var(--sans)}
+.form-group{margin-bottom:1.25rem}
+.form-label{display:block;font-size:13px;font-weight:500;color:var(--g600);margin-bottom:6px;font-family:var(--sans)}.form-label .req{color:var(--red)}
+.form-desc{font-size:12px;color:var(--g400);margin-bottom:6px;font-style:italic;font-family:var(--sans)}
+.form-input,.form-textarea,.form-select{width:100%;padding:10px 14px;border:1.5px solid var(--g200);border-radius:var(--r);font-size:14px;font-family:var(--sans);color:var(--g800);background:var(--white);transition:border-color .18s,box-shadow .18s;outline:none;appearance:none}
+.form-input:focus,.form-textarea:focus,.form-select:focus{border-color:var(--navy-light);box-shadow:0 0 0 3px rgba(46,95,163,.12)}
+.form-textarea{resize:vertical;min-height:90px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:520px){.form-row{grid-template-columns:1fr}}
+.radio-group{display:flex;flex-direction:column;gap:8px}
+.radio-option{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid var(--g100);border-radius:var(--r);cursor:pointer;transition:all .18s;user-select:none}
+.radio-option:hover{border-color:var(--navy-pale2);background:var(--navy-pale)}
+.radio-option input{accent-color:var(--navy);width:16px;height:16px}
+.radio-option.selected{border-color:var(--navy-light);background:var(--navy-pale)}
+.radio-label{font-size:14px;color:var(--g800);flex:1;font-family:var(--sans)}.radio-sub{font-size:11px;color:var(--g400);display:block}
+.pill-group{display:flex;flex-wrap:wrap;gap:8px}
+.pill-option{padding:8px 16px;border:1.5px solid var(--g200);border-radius:99px;font-size:13px;cursor:pointer;transition:all .18s;color:var(--g600);font-family:var(--sans);background:var(--white)}
+.pill-option:hover{border-color:var(--navy-pale2);color:var(--navy)}
+.pill-option.selected{border-color:var(--navy);background:var(--navy);color:white}
+.num-input-wrap{display:flex;align-items:center;max-width:140px}
+.num-btn{width:38px;height:40px;border:1.5px solid var(--g200);background:var(--g50);cursor:pointer;font-size:18px;color:var(--navy);display:flex;align-items:center;justify-content:center;transition:all .15s}
+.num-btn:first-child{border-radius:var(--r) 0 0 var(--r)}.num-btn:last-child{border-radius:0 var(--r) var(--r) 0}
+.num-btn:hover{background:var(--navy-pale)}
+.num-input{width:64px;height:40px;border:1.5px solid var(--g200);border-left:none;border-right:none;text-align:center;font-size:15px;font-weight:600;color:var(--navy);font-family:var(--sans);outline:none}
+.form-nav{display:flex;justify-content:space-between;align-items:center;margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--g100)}
+/* BUTTONS */
+.btn{padding:10px 24px;border-radius:var(--r);font-size:14px;font-weight:600;cursor:pointer;border:none;font-family:var(--sans);display:inline-flex;align-items:center;gap:6px;transition:all .18s}
+.btn-primary{background:var(--navy);color:white}.btn-primary:hover{background:var(--navy-mid);transform:translateY(-1px);box-shadow:0 4px 12px rgba(13,45,91,.25)}
+.btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.btn-ghost{background:transparent;color:var(--g400);border:1.5px solid var(--g200)}.btn-ghost:hover{border-color:var(--g400);color:var(--g600)}
+.btn-success{background:var(--green);color:white}.btn-success:hover{background:#155f45}
+.btn-sm{padding:7px 14px;font-size:12px}
+.btn-danger{background:var(--red-bg);color:var(--red);border:1px solid #FECACA}
+/* SUCCESS */
+.success-card{text-align:center;padding:2.5rem 2rem}
+.success-icon{width:72px;height:72px;background:var(--green-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem}
+.success-title{font-family:var(--serif);font-size:1.5rem;color:var(--navy-dark);margin-bottom:.75rem;font-weight:400}
+.success-desc{font-size:14px;color:var(--g600);line-height:1.7;margin-bottom:1.5rem;max-width:420px;margin-left:auto;margin-right:auto;font-family:var(--sans)}
+.success-contacts{background:var(--navy-pale);border-radius:var(--r);padding:1.25rem 1.5rem;margin:1.25rem auto;max-width:380px;text-align:left;border:1px solid var(--navy-pale2)}
+.success-contacts h4{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--navy);margin-bottom:10px;font-family:var(--sans)}
+.contact-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--g600);margin-bottom:6px;font-family:var(--sans)}
+.contact-name{font-weight:600;color:var(--navy-dark);min-width:52px}
+/* ADMIN LOGIN */
+.login-overlay{min-height:100vh;background:var(--off);display:flex;align-items:center;justify-content:center;padding:2rem}
+.login-card{background:var(--white);border-radius:var(--rl);padding:2.5rem 2rem;box-shadow:var(--shm);border:1px solid var(--g100);width:100%;max-width:380px}
+.login-logo{width:52px;height:52px;background:var(--navy);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem}
+.login-card h2{text-align:center;font-family:var(--serif);font-size:1.4rem;color:var(--navy-dark);font-weight:400;margin-bottom:.25rem}
+.login-card p{text-align:center;font-size:13px;color:var(--g400);margin-bottom:1.75rem;font-family:var(--sans)}
+.login-error{background:var(--red-bg);color:var(--red);font-size:13px;padding:10px 12px;border-radius:var(--r);margin-bottom:1rem;display:none;font-family:var(--sans)}
+/* ADMIN */
+.admin-panel{display:none}.admin-panel.active{display:block}
+.admin-header{background:var(--navy-dark);padding:1.25rem 2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+.admin-header h2{font-family:var(--serif);font-size:1.3rem;color:white;font-weight:400}
+.admin-header p{font-size:12px;color:var(--navy-pale2);font-family:var(--sans)}
+.admin-body{max-width:1300px;margin:0 auto;padding:1.5rem}
+.admin-tabs{display:flex;gap:0;margin-bottom:1.5rem;border-bottom:1.5px solid var(--g100);overflow-x:auto}
+.admin-tab{padding:10px 18px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;color:var(--g400);font-family:var(--sans);border-bottom:2.5px solid transparent;margin-bottom:-1.5px;transition:all .18s;white-space:nowrap}
+.admin-tab:hover{color:var(--navy)}
+.admin-tab.active{color:var(--navy);border-bottom-color:var(--navy)}
+.admin-tab-panel{display:none}.admin-tab-panel.active{display:block}
+.dash-subtabs{display:inline-flex;gap:4px;margin-bottom:1.25rem;background:var(--white);padding:4px;border-radius:12px;border:1px solid var(--g100);box-shadow:var(--sh);flex-wrap:wrap}
+.dash-subtab{padding:8px 20px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--g400);font-family:var(--sans);border-radius:9px;transition:all .18s}
+.dash-subtab:hover{color:var(--navy)}
+.dash-subtab.active{background:var(--navy);color:#fff}
+.dash-sub-panel{display:none}.dash-sub-panel.active{display:block}
+.hc-split{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:700px){.hc-split{grid-template-columns:1fr}}
+.hc-box{background:var(--white);border-radius:12px;padding:1.1rem 1.2rem;border:1px solid var(--g100);box-shadow:var(--sh)}
+.hc-box-label{font-size:12px;color:var(--g600);font-family:var(--sans);font-weight:600;display:flex;align-items:center;gap:6px;margin-bottom:.6rem}
+.hc-box-val{font-size:1.9rem;color:var(--navy-dark);font-family:var(--serif);line-height:1}
+.hc-box-sub{font-size:11px;color:var(--g400);font-family:var(--sans);margin-top:4px}
+.src-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.src-label{font-size:12px;color:var(--g600);font-family:var(--sans);width:90px;flex-shrink:0;font-weight:500}
+.src-bg{flex:1;height:22px;background:var(--g100);border-radius:6px;overflow:hidden}
+.src-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:8px;color:#fff;font-size:11px;font-weight:600;font-family:var(--sans);min-width:24px;transition:width .3s}
+.src-n{font-size:12px;color:var(--g600);font-family:var(--sans);width:52px;text-align:right;flex-shrink:0}
+.pic-recap{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1rem}
+.pic-chip{background:var(--navy-pale);border:1px solid var(--navy-pale2);border-radius:20px;padding:5px 13px;font-size:12px;font-family:var(--sans);color:var(--navy-dark);display:flex;align-items:center;gap:6px}
+.pic-chip b{font-weight:600}
+.pic-chip .chip-n{background:var(--navy);color:#fff;border-radius:10px;padding:1px 8px;font-size:11px;font-weight:600}
+/* CARDS */
+.card{background:var(--white);border-radius:var(--rl);padding:1.4rem;box-shadow:var(--sh);border:1px solid var(--g100);margin-bottom:1rem}
+.card-title{font-size:14px;font-weight:600;color:var(--g800);margin-bottom:.25rem;font-family:var(--sans);letter-spacing:-.01em}
+.card-sub{font-size:12px;color:var(--g400);margin-bottom:1rem;font-family:var(--sans)}
+/* METRICS */
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:1.25rem}
+.metric-card{background:var(--white);border-radius:var(--rl);padding:1.15rem 1.2rem 1rem;box-shadow:var(--sh);border:1px solid var(--g100);position:relative;overflow:hidden;transition:transform .18s ease,box-shadow .18s ease}
+.metric-card:hover{transform:translateY(-2px);box-shadow:var(--shm)}
+.metric-accent{position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--rl) var(--rl) 0 0}
+.metric-icon{font-size:19px;margin-bottom:11px;display:block;opacity:.9}
+.metric-value{font-size:2.3rem;font-weight:400;color:var(--navy-dark);line-height:1;margin-bottom:5px;font-family:var(--serif);letter-spacing:-.01em}
+.metric-label{font-size:12px;color:var(--g600);font-weight:600;font-family:var(--sans);letter-spacing:.01em}
+.metric-sub{font-size:11px;color:var(--g400);margin-top:3px;font-family:var(--sans)}
+/* CHARTS */
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:1rem}
+@media(max-width:700px){.charts-grid{grid-template-columns:1fr}}
+.chart-wrap{position:relative;height:200px}.chart-wrap-tall{position:relative;height:240px}
+/* FUNNEL */
+.funnel-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.funnel-label{font-size:12px;color:var(--g600);min-width:80px;font-weight:500;font-family:var(--sans)}
+.funnel-bg{flex:1;background:var(--g100);border-radius:99px;height:18px;overflow:hidden}
+.funnel-fill{height:100%;border-radius:99px;display:flex;align-items:center;padding-left:7px;font-size:10px;font-weight:600;color:white;transition:width .6s ease;font-family:var(--sans)}
+.funnel-n{font-size:12px;font-weight:600;color:var(--g600);min-width:20px;text-align:right;font-family:var(--sans)}
+/* TABLE */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{padding:10px 12px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--g400);border-bottom:1.5px solid var(--g100);white-space:nowrap;background:var(--white);font-family:var(--sans)}
+td{padding:11px 12px;border-bottom:1px solid var(--g100);color:var(--g600);vertical-align:middle;font-family:var(--sans)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--g50)}
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;font-family:var(--sans)}
+.bp0{background:#FEE2E2;color:#991B1B}.bp1{background:#FEF3C7;color:#92400E}.bp2{background:#D1FAE5;color:#065F46}
+.bopen{background:#DCFCE7;color:#166534}.bhold{background:#FEF3C7;color:#92400E}.bclosed{background:#F1EFE8;color:#5F5E5A}
+.balways{background:#EFF6FF;color:#1E40AF}
+.bsourcing{background:#EFF6FF;color:#1E40AF}.binterview{background:#F5F3FF;color:#5B21B6}
+.boffering{background:#ECFDF5;color:#065F46}.bhired{background:#D1FAE5;color:#065F46}
+.bscreening{background:#FDF4FF;color:#86198F}
+.stage-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px}
+/* PIPELINE TABS */
+.pipe-tabs{display:flex;gap:4px;margin-bottom:1rem;flex-wrap:wrap}
+.pipe-tab{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:1.5px solid var(--g200);background:transparent;color:var(--g400);font-family:var(--sans);display:flex;align-items:center;gap:6px;transition:all .18s}
+.pipe-tab.active{background:var(--navy);border-color:var(--navy);color:white}
+.pipe-tab-count{background:rgba(255,255,255,.25);border-radius:99px;padding:1px 7px;font-size:11px}
+.pipe-tab:not(.active) .pipe-tab-count{background:var(--g100);color:var(--g600)}
+/* OFFER TRACKER */
+.offer-filter{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem}
+.offer-row-item{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--g100)}
+.offer-row-item:last-child{border-bottom:none}
+.accept{background:var(--green-bg);color:var(--green);padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;font-family:var(--sans)}
+.reject{background:var(--red-bg);color:var(--red);padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;font-family:var(--sans)}
+/* AGING */
+.aging-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--g100)}
+.aging-row:last-child{border-bottom:none}
+/* REQ CARDS */
+.req-card{background:var(--white);border-radius:var(--rl);border:1px solid var(--g100);margin-bottom:10px;overflow:hidden;box-shadow:var(--sh)}
+.req-card-header{padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:background .15s}
+.req-card-header:hover{background:var(--g50)}
+.req-card-title{font-weight:600;color:var(--navy-dark);font-size:14px;font-family:var(--sans)}
+.req-card-meta{font-size:12px;color:var(--g400);margin-top:2px;font-family:var(--sans)}
+.req-card-body{padding:0 1.25rem 1.25rem;border-top:1px solid var(--g100);display:none}
+.req-card-body.open{display:block}
+.req-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:1rem}
+.req-detail-key{color:var(--g400);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;font-family:var(--sans)}
+.req-detail-val{color:var(--g800);font-size:13px;font-family:var(--sans)}
+.admin-edit-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:1rem;padding-top:1rem;border-top:1px dashed var(--g100)}
+.admin-select,.admin-input{padding:8px 11px;border:1.5px solid var(--g200);border-radius:var(--r);font-size:13px;font-family:var(--sans);color:var(--g800);outline:none;background:var(--white);transition:border-color .15s,box-shadow .15s}
+.admin-select:focus,.admin-input:focus{border-color:var(--navy);box-shadow:var(--ring)}
+.admin-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1.25rem}
+.admin-stat{background:var(--navy-pale);border-radius:12px;padding:1rem 1.1rem;border:1px solid var(--navy-pale2)}
+.admin-stat-val{font-size:1.9rem;font-weight:400;color:var(--navy-dark);font-family:var(--serif);line-height:1.1;letter-spacing:-.01em}
+.admin-stat-label{font-size:12px;color:var(--navy);font-family:var(--sans);font-weight:500;margin-top:2px}
+/* PIC MANAGER */
+.pic-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:var(--navy-pale);border-radius:99px;font-size:13px;color:var(--navy);font-weight:500;border:1px solid var(--navy-pale2);font-family:var(--sans)}
+.pic-chip-del{cursor:pointer;color:var(--g400);font-size:17px;line-height:1;border:none;background:none;padding:0;transition:color .15s}
+.pic-chip-del:hover{color:var(--red)}
+.pic-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1rem}
+/* EXPAND */
+.expand-parent td{background:var(--navy-pale);font-weight:600;cursor:pointer}
+.expand-parent td:hover{filter:brightness(.97)}
+.expand-child td:first-child{padding-left:28px;color:var(--g600)}
+/* HC BAR */
+.hc-wrap{display:flex;align-items:center;gap:6px}
+.hc-bg{flex:1;background:var(--g100);border-radius:99px;height:7px;overflow:hidden;min-width:40px}
+.hc-fill{height:100%;border-radius:99px}
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem}
+.modal-box{background:var(--white);border-radius:var(--rl);padding:2rem;width:100%;max-width:640px;max-height:90vh;overflow-y:auto;box-shadow:var(--shm)}
+.modal-title{font-family:var(--serif);font-size:1.3rem;color:var(--navy-dark);font-weight:400;margin-bottom:.25rem}
+.modal-sub{font-size:13px;color:var(--g400);margin-bottom:1.5rem;font-family:var(--sans)}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--g100)}
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--navy-dark);color:white;padding:12px 20px;border-radius:var(--r);font-size:13px;font-weight:500;z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.4,0,.2,1);box-shadow:var(--shm);display:flex;align-items:center;gap:8px;font-family:var(--sans)}
+.toast.show{transform:translateY(0);opacity:1}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-state{text-align:center;padding:2.5rem 1rem;color:var(--g400);font-size:14px;font-family:var(--sans)}
+select.dash-filter{padding:8px 13px;border-radius:9px;font-size:13px;font-family:var(--sans);background:var(--white);border:1.5px solid var(--g200);color:var(--g800);cursor:pointer;outline:none;transition:border-color .15s,box-shadow .15s}
+select.dash-filter:hover{border-color:var(--navy-light)}
+select.dash-filter:focus{border-color:var(--navy);box-shadow:var(--ring)}
+.divider-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--g400);padding:8px 0 6px;border-bottom:1px solid var(--g100);margin-bottom:6px;font-family:var(--sans)}
+.info-tip{background:var(--navy-pale);border-radius:var(--r);padding:.75rem 1rem;border:1px solid var(--navy-pale2);font-size:12.5px;color:var(--navy);font-family:var(--sans);margin-bottom:1rem}
+</style>
+</head>
+<body data-portal-page="ta">
+
+<!-- NAV -->
+<nav class="nav">
+  <a class="nav-brand" href="#" onclick="return false">
+    <div class="nav-logo">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0D2D5B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+    </div>
+    <div><span class="nav-brand-text">WM Center</span><span class="nav-brand-sub">Talent Acquisition</span></div>
+  </a>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('form')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+      Man Power Request
+    </button>
+  </div>
+  <div class="nav-right">
+    <div id="sync-status" class="sync-badge offline"><div class="sync-dot"></div> Belum terhubung</div>
+    <button class="nav-admin-btn" id="adminNavBtn" onclick="showPage('admin')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Admin
+    </button>
+  </div>
+</nav>
+
+<!-- ═══ FORM PAGE ═══ -->
+<div class="page active" id="page-form">
+  <div class="form-hero">
+    <div class="form-hero-badge">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Recruitment Request
+    </div>
+    <h1>Man Power Request</h1>
+    <p>Isi form ini untuk mengajukan kebutuhan rekrutmen ke Tim Talent Acquisition.</p>
+  </div>
+  <div class="form-container">
+    <div class="progress-wrap">
+      <div class="progress-header">
+        <span class="progress-label" id="step-label">Langkah 1 dari 4</span>
+        <span class="progress-step-text" id="step-name">Informasi Dasar</span>
+      </div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill" style="width:25%"></div></div>
+      <div class="progress-steps">
+        <div class="progress-dot-wrap"><div class="progress-dot current" id="dot-1">1</div><div class="progress-dot-label">Info</div></div>
+        <div class="progress-dot-wrap"><div class="progress-dot" id="dot-2">2</div><div class="progress-dot-label">Posisi</div></div>
+        <div class="progress-dot-wrap"><div class="progress-dot" id="dot-3">3</div><div class="progress-dot-label">Kualifikasi</div></div>
+        <div class="progress-dot-wrap"><div class="progress-dot" id="dot-4">4</div><div class="progress-dot-label">Konfirmasi</div></div>
+      </div>
+    </div>
+    <div class="form-card">
+      <!-- Step 1 -->
+      <div class="form-step active" id="step-1">
+        <div class="form-section-title">Informasi Dasar</div>
+        <div class="form-section-sub">Data Hiring Manager yang mengajukan request ini.</div>
+        <div class="form-group"><label class="form-label">Nama Hiring Manager <span class="req">*</span></label><input type="text" class="form-input" id="f-nama" placeholder="Contoh: Nanda Putri Ayu Ramadhani"></div>
+        <div class="form-group">
+          <label class="form-label">Divisi <span class="req">*</span></label>
+          <div class="pill-group" id="divisi-pills">
+            <button class="pill-option" onclick="selectDivisi(this,'HRGA')">HRGA</button>
+            <button class="pill-option" onclick="selectDivisi(this,'Operations')">Operations</button>
+            <button class="pill-option" onclick="selectDivisi(this,'Finance & IT')">Finance & IT</button>
+            <button class="pill-option" onclick="selectDivisi(this,'Creative Marketing')">Creative Marketing</button>
+            <button class="pill-option" onclick="selectDivisi(this,'Business Development')">Business Development</button>
+            <button class="pill-option" onclick="selectDivisi(this,'Fisioterapis')">Fisioterapis</button>
+            <button class="pill-option" onclick="selectDivisi(this,'Other')">Lainnya...</button>
+          </div>
+          <div id="other-divisi-wrap" style="display:none;margin-top:8px"><input type="text" class="form-input" id="f-divisi-other" placeholder="Tuliskan nama divisi Anda"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Email <span class="req">*</span></label><div class="form-desc">Silakan cantumkan email yang dapat di-invite ke Google Meet</div><input type="email" class="form-input" id="f-email" placeholder="nama@wellnessmedical.id"></div>
+        <div class="form-nav"><div></div><button class="btn btn-primary" onclick="nextStep(1)">Selanjutnya <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button></div>
+      </div>
+      <!-- Step 2 -->
+      <div class="form-step" id="step-2">
+        <div class="form-section-title">Detail Posisi</div>
+        <div class="form-section-sub">Spesifikasi posisi yang dibutuhkan.</div>
+        <div class="form-group"><label class="form-label">Posisi yang Dibutuhkan <span class="req">*</span></label><div class="form-desc">Contoh: Fisioterapi, Front Office, Tax Staff, dll.</div><input type="text" class="form-input" id="f-posisi" placeholder="Nama posisi / jabatan"></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Jumlah Headcount <span class="req">*</span></label><div class="num-input-wrap"><button class="num-btn" onclick="changeHC(-1)">−</button><input type="number" class="num-input" id="f-headcount" value="1" min="1" max="50"><button class="num-btn" onclick="changeHC(1)">+</button></div></div>
+          <div class="form-group"><label class="form-label">Tipe Pekerjaan <span class="req">*</span></label><div class="pill-group" id="tipe-pills"><button class="pill-option" onclick="selectPill('tipe',this,'Full-time')">Full-time</button><button class="pill-option" onclick="selectPill('tipe',this,'Part-time')">Part-time</button><button class="pill-option" onclick="selectPill('tipe',this,'Freelance')">Freelance</button><button class="pill-option" onclick="selectPill('tipe',this,'Intern')">Intern</button></div></div>
+        </div>
+        <div class="form-group"><label class="form-label">Urgensi Kebutuhan <span class="req">*</span></label>
+          <div class="radio-group" id="urgensi-group">
+            <label class="radio-option" onclick="selectRadio('urgensi',this,'P0')"><input type="radio" name="urgensi" value="P0"><div class="radio-label"><strong>P0: Perlu segera</strong><span class="radio-sub">1–2 minggu dari sekarang</span></div><span class="badge bp0">P0</span></label>
+            <label class="radio-option" onclick="selectRadio('urgensi',this,'P1')"><input type="radio" name="urgensi" value="P1"><div class="radio-label"><strong>P1: Segera</strong><span class="radio-sub">Dalam 1 bulan</span></div><span class="badge bp1">P1</span></label>
+            <label class="radio-option" onclick="selectRadio('urgensi',this,'P2')"><input type="radio" name="urgensi" value="P2"><div class="radio-label"><strong>P2: Tidak mendesak</strong><span class="radio-sub">Lebih dari 1 bulan</span></div><span class="badge bp2">P2</span></label>
+          </div>
+        </div>
+        <div class="form-group"><label class="form-label">Alasan Kebutuhan <span class="req">*</span></label>
+          <div class="radio-group" id="alasan-group">
+            <label class="radio-option" onclick="selectRadio('alasan',this,'Posisi Baru')"><input type="radio" name="alasan" value="Posisi Baru"><div class="radio-label">Posisi Baru</div></label>
+            <label class="radio-option" onclick="selectRadio('alasan',this,'Replacement')"><input type="radio" name="alasan" value="Replacement"><div class="radio-label">Replacement</div></label>
+            <label class="radio-option" onclick="selectRadio('alasan',this,'Tambahan Headcount')"><input type="radio" name="alasan" value="Tambahan Headcount"><div class="radio-label">Tambahan Headcount</div></label>
+          </div>
+        </div>
+        <div class="form-nav"><button class="btn btn-ghost" onclick="prevStep(2)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg> Kembali</button><button class="btn btn-primary" onclick="nextStep(2)">Selanjutnya <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button></div>
+      </div>
+      <!-- Step 3 -->
+      <div class="form-step" id="step-3">
+        <div class="form-section-title">Kualifikasi Kandidat</div>
+        <div class="form-section-sub">Bantu kami temukan kandidat yang tepat.</div>
+        <div class="form-group"><label class="form-label">Kualifikasi Wajib <span class="req">*</span></label><div class="form-desc">Hal yang harus dimiliki kandidat, misalnya: lulusan S1/D4, pengalaman minimal 2 tahun, dll.</div><textarea class="form-textarea" id="f-kual-wajib" placeholder="Tuliskan kualifikasi yang mutlak dibutuhkan..."></textarea></div>
+        <div class="form-group"><label class="form-label">Kualifikasi Tambahan</label><div class="form-desc">Hal yang diinginkan tapi bukan keharusan, misalnya: prefer perempuan, ada background di klinik, dll.</div><textarea class="form-textarea" id="f-kual-tambahan" placeholder="Tuliskan kualifikasi yang diinginkan (opsional)..."></textarea></div>
+        <div class="form-nav"><button class="btn btn-ghost" onclick="prevStep(3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg> Kembali</button><button class="btn btn-primary" onclick="nextStep(3)">Selanjutnya <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button></div>
+      </div>
+      <!-- Step 4 -->
+      <div class="form-step" id="step-4">
+        <div class="form-section-title">Konfirmasi & Submit</div>
+        <div class="form-section-sub">Periksa kembali ringkasan request sebelum dikirim.</div>
+        <div style="background:var(--navy-pale);border-radius:var(--r);padding:1.25rem;border:1px solid var(--navy-pale2);margin-bottom:1.25rem">
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--navy);margin-bottom:10px;font-family:var(--sans)">Ringkasan Request</div>
+          <div id="review-summary" style="font-size:13px;color:var(--g600);line-height:1.8;font-family:var(--sans)"></div>
+        </div>
+        <div class="form-nav"><button class="btn btn-ghost" onclick="prevStep(4)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg> Kembali</button><button class="btn btn-success" id="submit-btn" onclick="submitForm()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Submit Request</button></div>
+      </div>
+      <!-- Step 5 -->
+      <div class="form-step" id="step-5">
+        <div class="success-card">
+          <div class="success-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#1A7F5A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="36" height="36"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="success-title">Request Berhasil Dikirim!</div>
+          <div class="success-desc">Terima kasih! Dengan mengisi form ini, kamu menyetujui bahwa rekrutmen hanya akan diproses setelah form terisi lengkap. Tim TA akan menghubungimu dalam 1×24 jam setelah submission.</div>
+          <div class="success-contacts"><h4>📞 Contact Person TA</h4><div class="contact-item"><span class="contact-name">Nanda</span><span>0895-3301-40644</span></div><div class="contact-item"><span class="contact-name">Fionna</span><span>0821-1343-6026</span></div><div class="contact-item"><span class="contact-name">Aisy</span><span>0822-4758-5509</span></div></div>
+          <button class="btn btn-primary" onclick="resetForm()" style="margin:0 auto">Buat Request Baru</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ADMIN PAGE ═══ -->
+<div class="page" id="page-admin">
+  <div class="login-overlay" id="admin-login">
+    <div class="login-card">
+      <div class="login-logo"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <h2>Admin Panel</h2>
+      <p>Login dengan email Google yang terdaftar sebagai admin HR.</p>
+      <div class="login-error" id="login-error">Email ini belum terdaftar sebagai admin HR.</div>
+      <div id="google-signin-btn" style="display:flex;justify-content:center;margin-top:.75rem"></div>
+    </div>
+  </div>
+  <div class="admin-panel" id="admin-panel">
+    <div class="admin-header">
+      <div><h2>Admin Panel — Talent Acquisition</h2><p id="dash-date"></p></div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn btn-ghost" style="background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);color:white;font-size:12px;padding:7px 12px" onclick="refreshData(true)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg> Refresh
+        </button>
+        <button class="btn btn-ghost" style="color:var(--navy-pale2);border-color:rgba(255,255,255,.2)" onclick="doLogout()">Keluar</button>
+      </div>
+    </div>
+    <div class="admin-body">
+      <div class="admin-tabs">
+        <button class="admin-tab active" onclick="switchAdminTab('dashboard')">📊 Dashboard</button>
+        <button class="admin-tab" onclick="switchAdminTab('requests')">📋 Semua Request</button>
+        <button class="admin-tab" onclick="switchAdminTab('pipeline')">🗂️ Pipeline</button>
+        <button class="admin-tab" onclick="switchAdminTab('offers')">🤝 Kelola Offer</button>
+        <button class="admin-tab" onclick="switchAdminTab('pic')">👥 Kelola PIC</button>
+        <button class="admin-tab" onclick="switchAdminTab('data')">⚙️ Data & Pengaturan</button>
+      </div>
+
+      <!-- DASHBOARD TAB -->
+      <div class="admin-tab-panel active" id="admin-tab-dashboard">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
+          <div style="font-size:13px;color:var(--g400);font-family:var(--sans)">Filter periode:</div>
+          <select class="dash-filter" id="monthFilter" onchange="renderDashboard()">
+            <option value="all">Semua Bulan</option>
+            <option value="0">Januari</option><option value="1">Februari</option><option value="2">Maret</option>
+            <option value="3">April</option><option value="4">Mei</option><option value="5">Juni</option>
+            <option value="6">Juli</option><option value="7">Agustus</option><option value="8">September</option>
+            <option value="9">Oktober</option><option value="10">November</option><option value="11">Desember</option>
+          </select>
+        </div>
+        <div class="dash-subtabs">
+          <button class="dash-subtab active" id="dsub-btn-ringkasan" onclick="switchDashSub('ringkasan')">Ringkasan</button>
+          <button class="dash-subtab" id="dsub-btn-analisis" onclick="switchDashSub('analisis')">Analisis Mendalam</button>
+        </div>
+
+        <!-- SUB: RINGKASAN -->
+        <div class="dash-sub-panel active" id="dsub-ringkasan">
+          <div class="metrics-grid" id="dash-metrics"></div>
+          <div class="charts-grid">
+            <div class="card"><div class="card-title">Request per Bulan</div><div class="card-sub">Total MPR masuk tahun ini</div><div class="chart-wrap-tall"><canvas id="chartMonthly"></canvas></div></div>
+            <div class="card"><div class="card-title">Request per Divisi</div><div class="card-sub">Distribusi berdasarkan divisi</div><div class="chart-wrap"><canvas id="chartDivisi"></canvas></div></div>
+          </div>
+          <div class="card">
+            <div class="card-title">HC Fulfillment Breakdown</div>
+            <div class="card-sub">Pemisahan kebutuhan reguler vs Fisioterapis (always hiring)</div>
+            <div class="hc-split" id="hc-breakdown"></div>
+          </div>
+        </div>
+
+        <!-- SUB: ANALISIS MENDALAM -->
+        <div class="dash-sub-panel" id="dsub-analisis">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:1rem">
+            <div class="card"><div class="card-title">Recruitment Funnel</div><div class="card-sub">Progress kandidat periode ini</div><div id="funnel-wrap"></div></div>
+            <div class="card"><div class="card-title">Aging Report</div><div class="card-sub">Posisi terlama belum terisi</div><div id="aging-wrap"></div></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Source Channel Breakdown</div>
+            <div class="card-sub">Dari mana kandidat yang di-offer berasal (periode terpilih)</div>
+            <div id="source-wrap" style="margin-top:.75rem"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REQUESTS TAB -->
+      <div class="admin-tab-panel" id="admin-tab-requests">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.75rem">
+          <div class="admin-stat-grid" id="admin-stats" style="margin-bottom:0;flex:1"></div>
+          <button class="btn btn-primary" onclick="openNewRequestModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Tambah Request Manual
+          </button>
+        </div>
+        <div class="info-tip">💡 <strong>Tip:</strong> Kamu juga bisa input dan edit data langsung di Google Sheets, lalu klik <strong>Refresh</strong> di navbar untuk sync ke dashboard.</div>
+        <div class="pipe-tabs" id="req-filter-chips" style="margin-top:1rem"></div>
+        <div id="requests-list"></div>
+      </div>
+
+      <!-- PIPELINE TAB -->
+      <div class="admin-tab-panel" id="admin-tab-pipeline">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.5rem;margin-bottom:.75rem">
+            <div><div class="card-title" style="margin-bottom:.25rem">Pipeline Tracker</div><div class="card-sub" style="margin-bottom:0">Status posisi per periode — klik tab untuk filter status</div></div>
+            <select class="dash-filter" id="pipeMonthFilter" onchange="switchPipeTab(curPipeTab)">
+              <option value="all">Semua Bulan</option>
+              <option value="0">Januari</option><option value="1">Februari</option><option value="2">Maret</option>
+              <option value="3">April</option><option value="4">Mei</option><option value="5">Juni</option>
+              <option value="6">Juli</option><option value="7">Agustus</option><option value="8">September</option>
+              <option value="9">Oktober</option><option value="10">November</option><option value="11">Desember</option>
+            </select>
+          </div>
+          <div class="pipe-tabs">
+            <button class="pipe-tab active" onclick="switchPipeTab('Open')">🟢 Open <span class="pipe-tab-count" id="cnt-open">0</span></button>
+            <button class="pipe-tab" onclick="switchPipeTab('Hold')">🟡 On Hold <span class="pipe-tab-count" id="cnt-hold">0</span></button>
+            <button class="pipe-tab" onclick="switchPipeTab('Closed')">⚫ Closed <span class="pipe-tab-count" id="cnt-closed">0</span></button>
+          </div>
+          <div class="table-wrap"><table><thead id="pipe-thead"></thead><tbody id="pipe-tbody"></tbody></table></div>
+        </div>
+        <div class="info-tip">💡 <strong>Tip Sheets:</strong> Edit kolom Stage, JobStatus, PIC, Kandidat, Hired, AlwaysHiring, DateClosed langsung di tab <em>Requests</em> di Google Sheets kamu, lalu klik Refresh.</div>
+        <div class="card" style="overflow:hidden;padding:0">
+          <div class="table-wrap">
+            <table><thead><tr><th>Posisi</th><th>Divisi</th><th>Cabang</th><th>PIC</th><th>Stage</th><th>Status</th><th>Kandidat</th><th>Hired</th><th>Always Hiring</th><th>Date Closed</th><th>Aksi</th></tr></thead><tbody id="admin-pipeline-body"></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- OFFERS TAB -->
+      <div class="admin-tab-panel" id="admin-tab-offers">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
+            <div><div class="card-title" style="margin-bottom:0">Kelola Kandidat yang Di-Offer</div><div class="card-sub" style="margin-bottom:0">Tambah, lihat, dan hapus data offer per posisi</div></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <select class="dash-filter" id="offerTabMonth" onchange="renderOfferTab()">
+                <option value="all">Semua Bulan</option>
+                <option value="0">Januari</option><option value="1">Februari</option><option value="2">Maret</option>
+                <option value="3">April</option><option value="4">Mei</option><option value="5">Juni</option>
+                <option value="6">Juli</option><option value="7">Agustus</option><option value="8">September</option>
+                <option value="9">Oktober</option><option value="10">November</option><option value="11">Desember</option>
+              </select>
+              <select class="dash-filter" id="offerTabPic" onchange="renderOfferTab()">
+                <option value="all">Semua PIC</option>
+              </select>
+              <select class="dash-filter" id="offerTabFilter" onchange="renderOfferTab()">
+                <option value="all">Semua Posisi</option>
+              </select>
+            </div>
+          </div>
+          <div id="offer-recap-wrap" style="display:none">
+            <div style="font-size:12px;color:var(--g600);font-family:var(--sans);font-weight:600;margin-bottom:8px" id="offer-recap-label">Rekap Hire per PIC</div>
+            <div class="pic-recap" id="offer-pic-recap"></div>
+          </div>
+          <div id="offer-tab-list"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Tambah Offer Baru</div>
+          <div class="card-sub" style="margin-bottom:1rem">Pilih posisi, isi nama kandidat, hasil, dan join date.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+            <div class="form-group" style="margin-bottom:0"><label class="form-label">Posisi (Request)</label><select class="admin-select" id="new-off-req" style="width:100%"><option value="">— Pilih posisi —</option></select></div>
+            <div class="form-group" style="margin-bottom:0"><label class="form-label">Nama Kandidat</label><input type="text" class="admin-input" id="new-off-nama" placeholder="Nama kandidat" style="width:100%"></div>
+            <div class="form-group" style="margin-bottom:0"><label class="form-label">Hasil Offer</label><select class="admin-select" id="new-off-hasil" style="width:100%"><option value="Accept">Accept</option><option value="Reject">Reject</option></select></div>
+            <div class="form-group" style="margin-bottom:0"><label class="form-label">Source Channel</label><select class="admin-select" id="new-off-source" style="width:100%"><option value="Glints">Glints</option><option value="LinkedIn">LinkedIn</option><option value="Email">Email</option><option value="Referral">Referral</option><option value="Etc">Etc / Lainnya</option></select></div>
+            <div class="form-group" style="margin-bottom:0"><label class="form-label">Join Date (jika Accept)</label><input type="date" class="admin-input" id="new-off-join" style="width:100%"></div>
+          </div>
+          <button class="btn btn-primary" onclick="addOfferManual()">+ Tambah Offer</button>
+        </div>
+      </div>
+
+      <!-- PIC TAB -->
+      <div class="admin-tab-panel" id="admin-tab-pic">
+        <div class="card">
+          <div class="card-title">Daftar PIC</div>
+          <div class="card-sub">Tambah atau hapus anggota tim TA.</div>
+          <div class="pic-list" id="pic-list-display"></div>
+          <div style="display:flex;gap:8px"><input type="text" class="admin-input" id="pic-new-name" placeholder="Nama anggota baru..." style="flex:1" onkeydown="if(event.key==='Enter')addPicMember()"><button class="btn btn-primary btn-sm" onclick="addPicMember()">+ Tambah</button></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Daftar Cabang Fisioterapis</div>
+          <div class="card-sub">Tambah atau hapus cabang klinik untuk posisi Always Hiring.</div>
+          <div class="pic-list" id="branch-list-display"></div>
+          <div style="display:flex;gap:8px"><input type="text" class="admin-input" id="branch-new-name" placeholder="Nama cabang baru..." style="flex:1" onkeydown="if(event.key==='Enter')addBranchMember()"><button class="btn btn-primary btn-sm" onclick="addBranchMember()">+ Tambah Cabang</button></div>
+        </div>
+      </div>
+
+      <!-- DATA TAB -->
+      <div class="admin-tab-panel" id="admin-tab-data">
+        <div class="card">
+          <div class="card-title">Integrasi Google Sheets</div>
+          <div class="card-sub" style="margin-bottom:.75rem">URL Apps Script sudah di-hardcode. Edit langsung di Sheets, lalu Refresh untuk sync.</div>
+          <div id="current-url-display" style="font-size:12px;color:var(--g400);font-family:var(--sans);background:var(--g50);padding:10px 12px;border-radius:var(--r);word-break:break-all"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Tambah Data Demo</div>
+          <div class="card-sub" style="margin-bottom:1rem">Tambahkan beberapa request contoh agar dashboard terlihat berisi.</div>
+          <button class="btn btn-primary" onclick="addDummyData()">Tambah Data Contoh</button>
+        </div>
+        <div class="card">
+          <div class="card-title">Hapus Cache Lokal</div>
+          <div class="card-sub" style="margin-bottom:1rem">Hapus data cache di browser ini. Data di Google Sheets tidak terpengaruh.</div>
+          <button class="btn btn-danger btn-sm" onclick="clearLocalData()">Hapus Cache</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: TAMBAH REQUEST MANUAL -->
+<div class="modal-overlay" id="modal-new-req" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-title">Tambah Request Manual</div>
+    <div class="modal-sub">Admin dapat mengisi seluruh field termasuk status pipeline.</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Nama HM <span class="req">*</span></label><input type="text" class="form-input" id="m-nama" placeholder="Nama Hiring Manager"></div>
+      <div class="form-group"><label class="form-label">Email <span class="req">*</span></label><input type="email" class="form-input" id="m-email" placeholder="email@wmc.id"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Divisi <span class="req">*</span></label><select class="form-select" id="m-divisi"><option value="">Pilih divisi...</option><option>HRGA</option><option>Operations</option><option>Finance & IT</option><option>Creative Marketing</option><option>Business Development</option><option>Fisioterapis</option><option>Other</option></select></div>
+      <div class="form-group"><label class="form-label">Posisi <span class="req">*</span></label><input type="text" class="form-input" id="m-posisi" placeholder="Nama posisi"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Cabang</label><div class="form-desc">Isi jika Fisioterapis</div><select class="form-select" id="m-cabang"><option value="">— Tidak ada —</option></select></div>
+      <div class="form-group"><label class="form-label">Headcount <span class="req">*</span></label><input type="number" class="form-input" id="m-headcount" value="1" min="1" max="50"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Tipe Pekerjaan</label><select class="form-select" id="m-tipe"><option>Full-time</option><option>Part-time</option><option>Freelance</option><option>Intern</option></select></div>
+      <div class="form-group"><label class="form-label">Urgensi</label><select class="form-select" id="m-urgensi"><option>P0</option><option>P1</option><option>P2</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Alasan</label><select class="form-select" id="m-alasan"><option>Posisi Baru</option><option>Replacement</option><option>Tambahan Headcount</option></select></div>
+      <div class="form-group"><label class="form-label">PIC</label><select class="form-select" id="m-pic"><option value="">— Pilih PIC —</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Stage</label><select class="form-select" id="m-stage"><option>Sourcing</option><option>Screening</option><option>Interview</option><option>Offering</option><option>Hired</option><option>Hold</option></select></div>
+      <div class="form-group"><label class="form-label">Job Status</label><select class="form-select" id="m-status"><option>Open</option><option>Hold</option><option>Closed</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Kandidat</label><input type="number" class="form-input" id="m-kandidat" value="0" min="0"></div>
+      <div class="form-group"><label class="form-label">Hired</label><input type="number" class="form-input" id="m-hired" value="0" min="0"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Date Closed</label><input type="date" class="form-input" id="m-dateclosed"></div>
+      <div class="form-group" style="display:flex;align-items:center;padding-top:1.5rem"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--sans);font-size:14px;color:var(--g600)"><input type="checkbox" id="m-always" style="width:16px;height:16px;accent-color:var(--navy)"> Always Hiring</label></div>
+    </div>
+    <div class="form-group"><label class="form-label">Kualifikasi Wajib</label><textarea class="form-textarea" id="m-kualwajib" placeholder="Tuliskan kualifikasi yang dibutuhkan..." style="min-height:70px"></textarea></div>
+    <div class="form-group"><label class="form-label">Kualifikasi Tambahan</label><textarea class="form-textarea" id="m-kualtambahan" placeholder="(Opsional)" style="min-height:60px"></textarea></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Batal</button>
+      <button class="btn btn-primary" onclick="saveNewRequest()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Simpan Request
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-edit-offer" style="display:none" onclick="if(event.target===this)closeOfferEdit()">
+  <div class="modal-box" style="max-width:520px">
+    <div class="modal-title">Edit Data Offer</div>
+    <div class="modal-sub">Ubah penempatan posisi/cabang, tanggal offer, dan join date kandidat.</div>
+    <input type="hidden" id="eo-id">
+    <div class="form-group"><label class="form-label">Nama Kandidat</label><input type="text" class="form-input" id="eo-nama" placeholder="Nama kandidat"></div>
+    <div class="form-group"><label class="form-label">Posisi / Penempatan</label><div class="form-desc">Boleh sertakan cabang, mis. "Fisioterapis — Bekasi"</div><input type="text" class="form-input" id="eo-posisi" placeholder="Posisi penempatan"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Hasil Offer</label><select class="form-select" id="eo-hasil"><option value="Accept">Accept</option><option value="Reject">Reject</option></select></div>
+      <div class="form-group"><label class="form-label">Source Channel</label><select class="form-select" id="eo-source"><option value="Glints">Glints</option><option value="LinkedIn">LinkedIn</option><option value="Email">Email</option><option value="Referral">Referral</option><option value="Etc">Etc / Lainnya</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Tanggal Offer</label><input type="date" class="form-input" id="eo-offerdate"></div>
+      <div class="form-group"><label class="form-label">Join Date</label><input type="date" class="form-input" id="eo-joindate"></div>
+    </div>
+    <div class="form-group"><label class="form-label">PIC</label><select class="form-select" id="eo-pic"><option value="">— Pilih PIC —</option></select></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeOfferEdit()">Batal</button>
+      <button class="btn btn-primary" onclick="saveOfferEdit()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Simpan Perubahan
+      </button>
+    </div>
+  </div>
+</div><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span id="toast-text">Saved!</span></div>
+
+<script>
+// ══════════════════════════════
+// CONFIG
+// ══════════════════════════════
+const SCRIPT_URL = PORTAL_SCRIPT_URL;
+const SK          = 'wm_ta_req_v3';
+const OK          = 'wm_ta_off_v3';
+const PK          = 'wm_ta_pic';
+const BK          = 'wm_ta_br';
+const STAGE_OPTS  = ['Sourcing','Shortlisted','HR Interview','User Interview','Study Case','Offering'];
+const STATUS_OPTS = ['Open','Hold','Closed'];
+const MONTHS_ID   = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+const SC          = {Sourcing:'#2563EB',Shortlisted:'#0891B2','HR Interview':'#7C3AED','User Interview':'#86198F','Study Case':'#D97706',Offering:'#EA580C'};
+
+let charts={}, picList=[], branchList=[], offerList=[], curPipeTab='Open', fisioOpen=false, reqIdxMap={}, reqStatusFilter='all';
+let selDiv='',selTipe='',selUrg='',selAlas='';
+
+// STORAGE
+const getReqs    =()=>JSON.parse(localStorage.getItem(SK)||'[]');
+const saveReqs   =d=>localStorage.setItem(SK,JSON.stringify(d));
+const getOffers  =()=>JSON.parse(localStorage.getItem(OK)||'[]');
+const saveOffers =d=>localStorage.setItem(OK,JSON.stringify(d));
+const nid        =id=>String(id==null?'':id).trim().replace(/\.0$/,'');
+const getLocalPic=()=>JSON.parse(localStorage.getItem(PK)||'["Nanda","Fionna","Aisy","Kirana"]');
+const setLocalPic=d=>localStorage.setItem(PK,JSON.stringify(d));
+const getLocalBr =()=>JSON.parse(localStorage.getItem(BK)||'["Menteng","Bintaro","Kelapa Gading","Serpong"]');
+const setLocalBr =d=>localStorage.setItem(BK,JSON.stringify(d));
+
+// API
+function setSyncStatus(s,msg){
+  const el=document.getElementById('sync-status');
+  el.className='sync-badge '+s;
+  el.innerHTML=`<div class="sync-dot"></div> ${msg||{online:'Terhubung ke Sheets',offline:'Mode Lokal',syncing:'Menyinkronkan...'}[s]}`;
+}
+async function apiGet(a){
+  const tok=(typeof WMAuth!=='undefined')?WMAuth.getToken():'';
+  const r=await fetch(`${SCRIPT_URL}?module=ta&action=${a}&idToken=${encodeURIComponent(tok)}`);
+  return r.json();
+}
+async function apiPost(a,p){
+  const tok=(typeof WMAuth!=='undefined')?WMAuth.getToken():'';
+  const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({module:'ta',action:a,payload:p,idToken:tok})});
+  return r.json();
+}
+
+async function refreshData(forAdmin){
+  setSyncStatus('syncing');
+  try{
+    const [rR,rP,rO,rB]=await Promise.all([apiGet('getRequests'),apiGet('getPicList'),apiGet('getOffers'),apiGet('getBranches')]);
+    if(rR.data){
+      // Normalize IDs from Sheets (could be floats like 1.748e+12)
+      const normalized = rR.data.map((r,i) => ({
+        ...r,
+        id: r.id ? String(r.id).trim().replace(/\.0$/, '') : String(i+1)
+      }));
+      saveReqs(normalized);
+    }
+    if(rP.data){picList=rP.data;setLocalPic(picList);}
+    if(rO.data){
+      const normalizedOffs = rO.data.map(o => ({
+        ...o,
+        id: o.id ? String(o.id).trim().replace(/\.0$/, '') : String(Date.now()),
+        requestId: o.requestId ? String(o.requestId).trim().replace(/\.0$/, '') : ''
+      }));
+      offerList=normalizedOffs;saveOffers(normalizedOffs);
+    }
+    if(rB.data){branchList=rB.data;setLocalBr(branchList);}
+    setSyncStatus('online');
+  }catch(e){
+    setSyncStatus('offline','Gagal terhubung');
+    picList=getLocalPic();branchList=getLocalBr();offerList=getOffers();
+  }
+  if(forAdmin){renderDashboard();renderRequests();renderPicTab();renderBranchTab();}
+}
+
+// NAVIGATION
+function showPage(p){
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('active'));
+  document.getElementById('adminNavBtn').classList.remove('active');
+  document.getElementById('page-'+p).classList.add('active');
+  if(p==='form') document.querySelectorAll('.nav-tab')[0].classList.add('active');
+  if(p==='admin'){document.getElementById('adminNavBtn').classList.add('active');initAdmin();}
+}
+
+// ══════════════════════════════
+// FORM
+// ══════════════════════════════
+const stepMeta=['','Informasi Dasar','Detail Posisi','Kualifikasi','Konfirmasi'];
+function updateProgress(s){
+  document.getElementById('progress-fill').style.width=(s/4*100)+'%';
+  document.getElementById('step-label').textContent=`Langkah ${s} dari 4`;
+  document.getElementById('step-name').textContent=stepMeta[s];
+  for(let i=1;i<=4;i++){
+    const d=document.getElementById('dot-'+i);
+    d.classList.remove('done','current');
+    if(i<s){d.classList.add('done');d.innerHTML='✓';}
+    else if(i===s){d.classList.add('current');d.textContent=i;}
+    else d.textContent=i;
+  }
+}
+function selectDivisi(btn,val){
+  document.querySelectorAll('#divisi-pills .pill-option').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');selDiv=val;
+  document.getElementById('other-divisi-wrap').style.display=val==='Other'?'block':'none';
+}
+function selectPill(g,btn,val){
+  document.getElementById(g+'-pills').querySelectorAll('.pill-option').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');if(g==='tipe')selTipe=val;
+}
+function selectRadio(g,label,val){
+  document.getElementById(g+'-group').querySelectorAll('.radio-option').forEach(l=>l.classList.remove('selected'));
+  label.classList.add('selected');
+  if(g==='urgensi')selUrg=val;if(g==='alasan')selAlas=val;
+}
+function changeHC(d){const e=document.getElementById('f-headcount');e.value=Math.max(1,Math.min(50,parseInt(e.value||1)+d));}
+function validateStep(s){
+  if(s===1){
+    if(!document.getElementById('f-nama').value.trim())return alert('Nama Hiring Manager harus diisi.'),false;
+    if(!selDiv)return alert('Pilih divisi terlebih dahulu.'),false;
+    if(selDiv==='Other'&&!document.getElementById('f-divisi-other').value.trim())return alert('Tuliskan nama divisi Anda.'),false;
+    if(!document.getElementById('f-email').value.trim())return alert('Email harus diisi.'),false;
+  }
+  if(s===2){
+    if(!document.getElementById('f-posisi').value.trim())return alert('Nama posisi harus diisi.'),false;
+    if(!selTipe)return alert('Pilih tipe pekerjaan.'),false;
+    if(!selUrg)return alert('Pilih urgensi kebutuhan.'),false;
+    if(!selAlas)return alert('Pilih alasan kebutuhan.'),false;
+  }
+  if(s===3&&!document.getElementById('f-kual-wajib').value.trim())return alert('Kualifikasi wajib harus diisi.'),false;
+  return true;
+}
+function nextStep(cur){
+  if(!validateStep(cur))return;
+  document.getElementById('step-'+cur).classList.remove('active');
+  document.getElementById('step-'+(cur+1)).classList.add('active');
+  updateProgress(cur+1);
+  if(cur+1===4)buildReview();
+}
+function prevStep(cur){
+  document.getElementById('step-'+cur).classList.remove('active');
+  document.getElementById('step-'+(cur-1)).classList.add('active');
+  updateProgress(cur-1);
+}
+function buildReview(){
+  const div=selDiv==='Other'?document.getElementById('f-divisi-other').value:selDiv;
+  document.getElementById('review-summary').innerHTML=`<strong>${document.getElementById('f-nama').value}</strong> — ${div}<br>Posisi: <strong>${document.getElementById('f-posisi').value}</strong> (${document.getElementById('f-headcount').value} orang)<br>Tipe: ${selTipe} &nbsp;|&nbsp; Urgensi: ${selUrg} &nbsp;|&nbsp; Alasan: ${selAlas}`;
+}
+async function submitForm(){
+  const btn=document.getElementById('submit-btn');
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Mengirim...';
+  const div=selDiv==='Other'?document.getElementById('f-divisi-other').value:selDiv;
+  const payload={
+    id:String(Date.now()),submittedAt:new Date().toISOString(),
+    nama:document.getElementById('f-nama').value,divisi:div,
+    email:document.getElementById('f-email').value,
+    posisi:document.getElementById('f-posisi').value,
+    headcount:parseInt(document.getElementById('f-headcount').value),
+    tipe:selTipe,urgensi:selUrg,alasan:selAlas,
+    kualWajib:document.getElementById('f-kual-wajib').value,
+    kualTambahan:document.getElementById('f-kual-tambahan').value,
+    stage:'Sourcing',jobStatus:'Open',kandidat:0,hired:0,pic:'',
+    alwaysHiring:false,dateClosed:'',holdDays:0,cabang:'',
+  };
+  const reqs=getReqs();reqs.push(payload);saveReqs(reqs);
+  try{await apiPost('submitRequest',payload);}catch(e){}
+  btn.disabled=false;
+  btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Submit Request';
+  document.getElementById('step-4').classList.remove('active');
+  document.getElementById('step-5').classList.add('active');
+  document.querySelector('.progress-wrap').style.display='none';
+}
+function resetForm(){
+  selDiv='';selTipe='';selUrg='';selAlas='';
+  ['f-nama','f-email','f-posisi','f-kual-wajib','f-kual-tambahan'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.getElementById('f-headcount').value=1;
+  document.querySelectorAll('.pill-option,.radio-option').forEach(el=>el.classList.remove('selected'));
+  document.getElementById('other-divisi-wrap').style.display='none';
+  for(let i=2;i<=5;i++)document.getElementById('step-'+i).classList.remove('active');
+  document.getElementById('step-1').classList.add('active');
+  document.querySelector('.progress-wrap').style.display='block';
+  updateProgress(1);
+}
+
+// ══════════════════════════════
+// DASHBOARD
+// ══════════════════════════════
+function switchDashSub(sub){
+  ['ringkasan','analisis'].forEach(s=>{
+    document.getElementById('dsub-'+s)?.classList.toggle('active',s===sub);
+    document.getElementById('dsub-btn-'+s)?.classList.toggle('active',s===sub);
+  });
+  // Re-render supaya chart di Ringkasan ke-size dengan benar setelah tampil
+  if(sub==='ringkasan') renderDashboard();
+}
+
+function calcDaysOpen(r){
+  if(r.alwaysHiring)return Infinity;
+  if(r.jobStatus==='Closed'&&r.dateClosed)return Math.floor((new Date(r.dateClosed)-new Date(r.submittedAt))/86400000);
+  const raw=Math.floor((Date.now()-new Date(r.submittedAt))/86400000);
+  return raw-(Number(r.holdDays)||0);
+}
+
+function renderDashboard(){
+  const reqs=getReqs(),now=new Date();
+  const fm=document.getElementById('monthFilter').value;
+  let filtered=reqs;
+  if(fm!=='all'){
+    const mi=parseInt(fm);
+    filtered=reqs.filter(r=>{
+      // Always hiring: selalu muncul di semua bulan
+      if(r.alwaysHiring) return true;
+      const d=new Date(r.submittedAt);
+      if(d.getFullYear()!==now.getFullYear())return false;
+      // Open/Hold lintas bulan: muncul dari bulan request sampai bulan yang dipilih
+      if(r.jobStatus==='Open'||r.jobStatus==='Hold')return d.getMonth()<=mi;
+      // Closed: muncul di bulan dia di-closed
+      if(r.jobStatus==='Closed'&&r.dateClosed&&r.dateClosed!==''){
+        const cd=new Date(r.dateClosed);
+        if(cd.getFullYear()===now.getFullYear()) return cd.getMonth()===mi;
+      }
+      return d.getMonth()===mi;
+    });
+  }
+
+  // Open: fisio (always hiring) dihitung sebagai 1 kesatuan, sisanya per posisi
+  const openNonFisio=filtered.filter(r=>r.jobStatus==='Open'&&!r.alwaysHiring&&r.divisi!=='Fisioterapis').length;
+  const anyFisioOpen=filtered.some(r=>r.jobStatus==='Open'&&(r.alwaysHiring||r.divisi==='Fisioterapis'));
+  const openC=openNonFisio+(anyFisioOpen?1:0);
+  const holdC=filtered.filter(r=>r.jobStatus==='Hold').length;
+  const closedC=filtered.filter(r=>r.jobStatus==='Closed').length;
+  // Overdue: hanya posisi Open, exclude Hold dan Always Hiring
+  const overdueC=filtered.filter(r=>{
+    if(r.jobStatus!=='Open'||r.alwaysHiring) return false;
+    const d=calcDaysOpen(r);
+    const lim=r.urgensi==='P0'?14:r.urgensi==='P1'?30:60;
+    return d>lim;
+  }).length;
+  // Time to fill: exclude Always Hiring (fisio) dan Hold
+  const closedR=filtered.filter(r=>r.jobStatus==='Closed'&&r.dateClosed&&r.submittedAt&&!r.alwaysHiring);
+  const avgFill=closedR.length?Math.round(closedR.reduce((s,r)=>{
+    const start=new Date(r.taStartDate&&r.taStartDate!==''?r.taStartDate:r.submittedAt);
+    return s+Math.max(0,Math.floor((new Date(r.dateClosed)-start)/86400000));
+  },0)/closedR.length)+'d':'—';
+  // Offer acceptance & total hire: ikut filter bulan (by offerDate)
+  let offs=getOffers().filter(o=>o.namaKandidat);
+  if(fm!=='all'){
+    const moff=parseInt(fm);
+    offs=offs.filter(o=>{const d=new Date(o.offerDate);return d.getMonth()===moff&&d.getFullYear()===now.getFullYear();});
+  }
+  const totalOff=offs.length,acceptOff=offs.filter(o=>o.hasilOffer==='Accept').length;
+  const oar=totalOff>0?Math.round(acceptOff/totalOff*100)+'%':'—';
+  const totalHire=acceptOff; // 1 offer accept = 1 hire
+  // HC Fulfillment: exclude Hold. Dipisah reguler vs fisio (always hiring)
+  const hcFiltered=filtered.filter(r=>r.jobStatus!=='Hold');
+  const isFisio=r=>r.alwaysHiring||r.divisi==='Fisioterapis';
+  const hcReg=hcFiltered.filter(r=>!isFisio(r));
+  const hcFis=hcFiltered.filter(r=>isFisio(r));
+  const regReq=hcReg.reduce((s,r)=>s+(Number(r.headcount)||0),0);
+  const regFill=hcReg.reduce((s,r)=>s+(Number(r.hired)||0),0);
+  const fisReq=hcFis.reduce((s,r)=>s+(Number(r.headcount)||0),0);
+  const fisFill=hcFis.reduce((s,r)=>s+(Number(r.hired)||0),0);
+  const totalHC=regReq+fisReq, filledHC=regFill+fisFill;
+  const hcr=totalHC>0?Math.round(filledHC/totalHC*100)+'%':'—';
+  const regPct=regReq>0?Math.round(regFill/regReq*100):0;
+  const fisPct=fisReq>0?Math.round(fisFill/fisReq*100):0;
+
+  document.getElementById('dash-metrics').innerHTML=[
+    mc2('Open', openC, '', '#059669', '🟢'),
+    mc2('Total Hire', totalHire, '', '#0D9488', '🎉'),
+    mc2('On Hold', holdC, '', '#D97706', '🟡'),
+    mc2('Closed', closedC, '', '#6B7280', '⚫'),
+    mc2('Avg. Time to Fill', avgFill, '', '#7C3AED', '⏱'),
+    mc2('HC Fulfillment', hcr, `${filledHC}/${totalHC}`, '#059669', '🎯'),
+    mc2('Offer Acceptance', oar, `${acceptOff} accept / ${totalOff} offer`, '#0891B2', '✅'),
+  ].join('');
+
+  // HC breakdown: reguler vs fisio
+  const hcBox=document.getElementById('hc-breakdown');
+  if(hcBox){
+    hcBox.innerHTML=`
+      <div class="hc-box">
+        <div class="hc-box-label">👥 HC Reguler <span style="color:var(--g400);font-weight:400">(non-fisio)</span></div>
+        <div class="hc-box-val">${regFill}<span style="font-size:1rem;color:var(--g400)">/${regReq}</span></div>
+        <div class="hc-box-sub">Terpenuhi ${regPct}% · posisi yang tidak always-hiring</div>
+        <div class="hc-bg" style="margin-top:8px;height:8px"><div class="hc-fill" style="width:${regPct}%;background:#1D4ED8"></div></div>
+      </div>
+      <div class="hc-box">
+        <div class="hc-box-label">🩺 HC Fisioterapis <span style="color:var(--g400);font-weight:400">(always hiring)</span></div>
+        <div class="hc-box-val">${fisFill}<span style="font-size:1rem;color:var(--g400)">/${fisReq}</span></div>
+        <div class="hc-box-sub">Terpenuhi ${fisPct}% · kebutuhan berjalan terus</div>
+        <div class="hc-bg" style="margin-top:8px;height:8px"><div class="hc-fill" style="width:${fisPct}%;background:#0D9488"></div></div>
+      </div>`;
+  }
+
+  // Charts
+  const mc=Array(12).fill(0);
+  reqs.forEach(r=>{const d=new Date(r.submittedAt);if(d.getFullYear()===now.getFullYear())mc[d.getMonth()]++;});
+  if(charts.monthly)charts.monthly.destroy();
+  charts.monthly=new Chart(document.getElementById('chartMonthly').getContext('2d'),{
+    type:'bar',data:{labels:MONTHS_ID,datasets:[{label:'Request',data:mc,backgroundColor:mc.map((_,i)=>i===now.getMonth()?'#0D2D5B':'#C8D8EF'),borderRadius:5}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,font:{size:11}},grid:{color:'#F0F0F0'}},x:{ticks:{font:{size:11}},grid:{display:false}}}}
+  });
+  const dm={};filtered.forEach(r=>{dm[r.divisi]=(dm[r.divisi]||0)+1;});
+  if(charts.divisi)charts.divisi.destroy();
+  const dL=Object.keys(dm),dV=Object.values(dm);
+  charts.divisi=new Chart(document.getElementById('chartDivisi').getContext('2d'),{
+    type:'doughnut',data:{labels:dL.length?dL:['Belum ada'],datasets:[{data:dV.length?dV:[1],backgroundColor:['#0D2D5B','#2E5FA3','#1A4080','#4B8BD4','#7AAEE0','#C8D8EF','#059669'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:11},boxWidth:12,padding:8}}},cutout:'65%'}
+  });
+
+  // Funnel
+  const ht=filtered.reduce((s,r)=>s+(Number(r.hired)||0),0);
+  const fD=[
+    {l:'Total Request',n:filtered.length},
+    {l:'Sourcing',n:filtered.filter(r=>['Sourcing','Shortlisted','HR Interview','User Interview','Study Case','Offering'].includes(r.stage)).length+ht},
+    {l:'Shortlisted',n:filtered.filter(r=>['Shortlisted','HR Interview','User Interview','Study Case','Offering'].includes(r.stage)).length+ht},
+    {l:'HR Interview',n:filtered.filter(r=>['HR Interview','User Interview','Study Case','Offering'].includes(r.stage)).length+ht},
+    {l:'User Interview',n:filtered.filter(r=>['User Interview','Study Case','Offering'].includes(r.stage)).length+ht},
+    {l:'Study Case',n:filtered.filter(r=>['Study Case','Offering'].includes(r.stage)).length+ht},
+    {l:'Offering',n:filtered.filter(r=>['Offering'].includes(r.stage)).length+ht},
+    {l:'Hired',n:ht},
+  ];
+  const maxF=fD[0].n||1;
+  const fC=['#0D2D5B','#1A4080','#2E5FA3','#4B8BD4','#7C3AED','#D97706','#EA580C','#059669'];
+  document.getElementById('funnel-wrap').innerHTML=fD.map((f,i)=>{
+    const pct=Math.round(f.n/maxF*100);
+    return `<div class="funnel-row"><div class="funnel-label">${f.l}</div><div class="funnel-bg"><div class="funnel-fill" style="width:${pct}%;background:${fC[i]}">${f.n>0?pct+'%':''}</div></div><div class="funnel-n">${f.n}</div></div>`;
+  }).join('');
+
+  // Aging
+  const openR=filtered.filter(r=>r.jobStatus==='Open').sort((a,b)=>{
+    if(a.alwaysHiring&&!b.alwaysHiring)return 1;
+    if(!a.alwaysHiring&&b.alwaysHiring)return -1;
+    return calcDaysOpen(b)-calcDaysOpen(a);
+  }).slice(0,6);
+  document.getElementById('aging-wrap').innerHTML=openR.length?openR.map(r=>{
+    const d=calcDaysOpen(r);
+    const lim=r.urgensi==='P0'?14:r.urgensi==='P1'?30:60;
+    const col=r.alwaysHiring?'#185FA5':d>lim?'#A32D2D':d>lim*.7?'#854F0B':'#3B6D11';
+    const bc=r.urgensi==='P0'?'bp0':r.urgensi==='P1'?'bp1':'bp2';
+    return `<div class="aging-row"><div><div style="font-size:12px;font-weight:600;color:var(--g800);font-family:var(--sans)">${r.posisi}${r.cabang?' — '+r.cabang:''}</div><div style="font-size:11px;color:var(--g400);font-family:var(--sans)">${r.divisi} · <span class="badge ${bc}">${r.urgensi}</span></div></div><div style="font-size:14px;font-weight:600;color:${col};font-family:var(--sans)">${r.alwaysHiring?'∞':d+'d'}</div></div>`;
+  }).join(''):'<div class="empty-state" style="padding:1rem">Tidak ada posisi open.</div>';
+
+  renderSourceChannel(offs);
+}
+
+function renderSourceChannel(offs){
+  const wrap=document.getElementById('source-wrap');
+  if(!wrap)return;
+  const CH=['Glints','LinkedIn','Email','Referral','Etc'];
+  const COL={Glints:'#0D9488',LinkedIn:'#1D4ED8',Email:'#D97706',Referral:'#7C3AED',Etc:'#6B7280'};
+  const counts={}; CH.forEach(c=>counts[c]=0);
+  let other=0;
+  offs.forEach(o=>{const s=o.source||'Etc'; if(counts[s]!==undefined)counts[s]++; else other++;});
+  counts['Etc']+=other;
+  const total=CH.reduce((s,c)=>s+counts[c],0);
+  if(!total){wrap.innerHTML='<div class="empty-state" style="padding:1rem">Belum ada data source channel. Tambahkan saat input offer di tab Kelola Offer.</div>';return;}
+  wrap.innerHTML=CH.map(c=>{
+    const n=counts[c], pct=Math.round(n/total*100);
+    return `<div class="src-row"><div class="src-label">${c}</div><div class="src-bg"><div class="src-fill" style="width:${Math.max(pct,n>0?6:0)}%;background:${COL[c]}">${pct>0?pct+'%':''}</div></div><div class="src-n">${n} offer</div></div>`;
+  }).join('')+`<div style="font-size:11px;color:var(--g400);font-family:var(--sans);margin-top:6px">Total ${total} offer pada periode terpilih</div>`;
+}
+
+function mc2(label,val,sub,color,icon){
+  return `<div class="metric-card"><div class="metric-accent" style="background:${color}"></div><span class="metric-icon">${icon}</span><div class="metric-value">${val}</div><div class="metric-label">${label}</div>${sub?`<div class="metric-sub">${sub}</div>`:''}</div>`;
+}
+
+function renderOfferTracker(showAll){
+  const fmEl=document.getElementById('offerMonthFilter');
+  const el0=document.getElementById('offer-list');
+  if(!fmEl||!el0) return; // Offer Tracker dipindah ke tab Kelola Offer
+  const fm=fmEl.value;
+  const now=new Date();
+  let offs=getOffers().filter(o=>o.namaKandidat&&o.requestId);
+  if(fm!=='all')offs=offs.filter(o=>{const d=new Date(o.offerDate);return d.getMonth()===parseInt(fm)&&d.getFullYear()===now.getFullYear();});
+  const el=document.getElementById('offer-list');
+  if(!offs.length){el.innerHTML='<div class="empty-state" style="padding:1rem">Belum ada data offer.</div>';return;}
+  const LIMIT=10;
+  const visible=showAll?offs:offs.slice(0,LIMIT);
+  const remaining=offs.length-LIMIT;
+  el.innerHTML=visible.map(o=>`<div class="offer-row-item">
+    <div><div style="font-size:13px;font-weight:500;color:var(--g800);font-family:var(--sans)">${o.namaKandidat}</div><div style="font-size:11px;color:var(--g400);font-family:var(--sans)">${o.posisi} · ${o.pic||'—'}</div></div>
+    <div style="text-align:right"><span class="${o.hasilOffer==='Accept'?'accept':'reject'}">${o.hasilOffer}</span><div style="font-size:11px;color:var(--g400);margin-top:2px;font-family:var(--sans)">${o.hasilOffer==='Accept'&&o.joinDate?'Join: '+new Date(o.joinDate).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}):'—'}</div></div>
+  </div>`).join('')+
+  (!showAll&&remaining>0?`<div style="text-align:center;padding:.75rem 0;border-top:1px solid var(--g100)"><button onclick="renderOfferTracker(true)" style="background:none;border:1.5px solid var(--g200);border-radius:8px;padding:6px 20px;font-size:13px;font-family:var(--sans);color:var(--navy);cursor:pointer;font-weight:500">Tampilkan ${remaining} lainnya ▾</button></div>`:'');
+}
+function switchPipeTab(tab){
+  curPipeTab=tab;
+  document.querySelectorAll('.pipe-tab').forEach((el,i)=>el.classList.toggle('active',['Open','Hold','Closed'][i]===tab));
+  const reqs=getReqs(), now=new Date();
+  const fm=document.getElementById('pipeMonthFilter')?.value||'all';
+  let filtered=reqs;
+  if(fm!=='all'){
+    const mi=parseInt(fm);
+    filtered=reqs.filter(r=>{
+      if(r.alwaysHiring) return true;
+      const d=new Date(r.submittedAt);
+      if(d.getFullYear()!==now.getFullYear()) return false;
+      if(r.jobStatus==='Open'||r.jobStatus==='Hold') return d.getMonth()<=mi;
+      if(r.jobStatus==='Closed'&&r.dateClosed&&r.dateClosed!==''){
+        const cd=new Date(r.dateClosed);
+        if(cd.getFullYear()===now.getFullYear()) return cd.getMonth()===mi;
+      }
+      return d.getMonth()===mi;
+    });
+  }
+  renderPipelineTracker(filtered);
+}
+
+function renderPipelineTracker(reqs){
+  const now=new Date();
+  const allReqs=getReqs();
+  const fm2=document.getElementById('pipeMonthFilter')?.value||'all';
+
+  // Update tab counts (based on all reqs, not filtered)
+  document.getElementById('cnt-open').textContent  =reqs.filter(r=>r.jobStatus==='Open').length;
+  document.getElementById('cnt-hold').textContent  =reqs.filter(r=>r.jobStatus==='Hold').length;
+  document.getElementById('cnt-closed').textContent=reqs.filter(r=>r.jobStatus==='Closed').length;
+
+  // Filter by current tab status
+  const byStatus=reqs.filter(r=>r.jobStatus===curPipeTab);
+  const thead=document.getElementById('pipe-thead');
+  const tbody=document.getElementById('pipe-tbody');
+
+  // ── CLOSED TAB ──
+  if(curPipeTab==='Closed'){
+    thead.innerHTML='<tr><th>Posisi</th><th>Cabang</th><th>Divisi</th><th>HC</th><th>Time to Fill</th><th>Closed Date</th><th>PIC</th></tr>';
+    // Group by posisi
+    const grouped={}; 
+    byStatus.forEach(r=>{
+      if(!grouped[r.posisi]) grouped[r.posisi]={rows:[],divisi:r.divisi};
+      grouped[r.posisi].rows.push(r);
+    });
+    let rows='';
+    Object.entries(grouped).forEach(([posisi,g])=>{
+      if(g.rows.length===1){
+        const r=g.rows[0];
+        const pct=r.headcount>0?Math.min(100,Math.round((r.hired||0)/r.headcount*100)):0;
+        rows+=`<tr>
+          <td style="font-weight:600;color:var(--g800)">${r.posisi}</td>
+          <td style="color:var(--g400)">${r.cabang||'—'}</td>
+          <td>${r.divisi}</td>
+          <td><div class="hc-wrap"><div class="hc-bg"><div class="hc-fill" style="width:${pct}%;background:#059669"></div></div><span style="font-size:11px;color:var(--g400)">${r.hired||0}/${r.headcount}</span></div></td>
+          <td>${calcDaysOpen(r)}d</td>
+          <td style="color:var(--g400)">${r.dateClosed?new Date(r.dateClosed).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}):'—'}</td>
+          <td>${r.pic||'—'}</td></tr>`;
+      } else {
+        // Multiple — group expand
+        const totalHC=g.rows.reduce((s,r)=>s+(Number(r.headcount)||0),0);
+        const totalHired=g.rows.reduce((s,r)=>s+(Number(r.hired)||0),0);
+        const pct=totalHC>0?Math.min(100,Math.round(totalHired/totalHC*100)):0;
+        const gKey='grp-closed-'+posisi.replace(/[^a-zA-Z0-9]/g,'_');
+        rows+=`<tr class="expand-parent" onclick="toggleGroup('${gKey}')">
+          <td><span id="${gKey}-chev" style="margin-right:5px">▸</span>${posisi} <span style="font-size:11px;color:var(--g400)">(${g.rows.length} request)</span></td>
+          <td style="color:var(--g400)">Berbagai cabang</td>
+          <td>${g.divisi}</td>
+          <td><div class="hc-wrap"><div class="hc-bg"><div class="hc-fill" style="width:${pct}%;background:#059669"></div></div><span style="font-size:11px;color:var(--g400)">${totalHired}/${totalHC}</span></div></td>
+          <td>—</td><td>—</td><td>—</td></tr>`;
+        rows+=`<tbody id="${gKey}-body" style="display:none">${g.rows.map(r=>{
+          const p2=r.headcount>0?Math.min(100,Math.round((r.hired||0)/r.headcount*100)):0;
+          return `<tr class="expand-child">
+            <td>└ ${r.posisi}</td>
+            <td style="color:var(--g600)">${r.cabang||'—'}</td>
+            <td style="color:var(--g400)">${r.divisi}</td>
+            <td><div class="hc-wrap"><div class="hc-bg"><div class="hc-fill" style="width:${p2}%;background:#059669"></div></div><span style="font-size:11px;color:var(--g400)">${r.hired||0}/${r.headcount}</span></div></td>
+            <td>${calcDaysOpen(r)}d</td>
+            <td style="color:var(--g400)">${r.dateClosed?new Date(r.dateClosed).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}):'—'}</td>
+            <td>${r.pic||'—'}</td></tr>`;
+        }).join('')}</tbody>`;
+      }
+    });
+    tbody.innerHTML=rows||'<tr><td colspan="7" style="text-align:center;color:var(--g400);padding:2rem">Belum ada posisi closed.</td></tr>';
+    return;
+  }
+
+  // ── OPEN / HOLD TAB ──
+  thead.innerHTML='<tr><th>Posisi</th><th>Cabang</th><th>Urgensi</th><th>Stage</th><th>HC</th><th>Days Open</th><th>PIC</th></tr>';
+
+  // Separate fisio (always hiring) from regular
+  let fisioR;
+  if(fm2!=='all'){
+    const mi2=parseInt(fm2);
+    fisioR=allReqs.filter(r=>{
+      if(r.divisi!=='Fisioterapis'&&!r.alwaysHiring) return false;
+      if(r.jobStatus==='Closed') return false;
+      const d=new Date(r.submittedAt);
+      if(d.getFullYear()===now.getFullYear()) return d.getMonth()<=mi2;
+      return d.getFullYear()<now.getFullYear();
+    });
+  } else {
+    fisioR=allReqs.filter(r=>(r.divisi==='Fisioterapis'||r.alwaysHiring)&&r.jobStatus!=='Closed');
+  }
+  const regularR=byStatus.filter(r=>r.divisi!=='Fisioterapis'&&!r.alwaysHiring);
+
+  // Group regular positions by posisi name
+  const grouped={};
+  regularR.forEach(r=>{
+    if(!grouped[r.posisi]) grouped[r.posisi]={rows:[],divisi:r.divisi};
+    grouped[r.posisi].rows.push(r);
+  });
+
+  let rows='';
+
+  Object.entries(grouped).forEach(([posisi,g])=>{
+    const bc_urg=g.rows[0]?.urgensi==='P0'?'bp0':g.rows[0]?.urgensi==='P1'?'bp1':'bp2';
+
+    if(g.rows.length===1){
+      // Single request — show as normal row
+      const r=g.rows[0];
+      const d=calcDaysOpen(r), lim=r.urgensi==='P0'?14:r.urgensi==='P1'?30:60;
+      const dc=d>lim?'#A32D2D':d>lim*.7?'#854F0B':'var(--g600)';
+      const bc=r.urgensi==='P0'?'bp0':r.urgensi==='P1'?'bp1':'bp2';
+      const stcMap={'Sourcing':'bsourcing','Shortlisted':'bshort','HR Interview':'bhr','User Interview':'buser','Study Case':'bcase','Offering':'boffering'};
+      const stc=stcMap[r.stage]||'bsourcing';
+      const pct=r.headcount>0?Math.min(100,Math.round((r.hired||0)/r.headcount*100)):0;
+      rows+=`<tr>
+        <td style="font-weight:600;color:var(--g800)">${r.posisi}</td>
+        <td style="color:var(--g400)">${r.cabang||'—'}</td>
+        <td><span class="badge ${bc}">${r.urgensi}</span></td>
+        <td><span class="badge ${stc}"><span class="stage-dot" style="background:${SC[r.stage]||'#888'}"></span>${r.stage}</span></td>
+        <td><div class="hc-wrap"><div class="hc-bg"><div class="hc-fill" style="width:${pct}%;background:#059669"></div></div><span style="font-size:11px;color:var(--g400)">${r.hired||0}/${r.headcount}</span></div></td>
+        <td style="color:${dc};font-weight:500">${d}d</td>
+        <td>${r.pic||'—'}</td></tr>`;
+    } else {
+      // Multiple requests for same posisi — group with expand
+      // For each cabang, show the most recent active request
+      const cabangMap={};
+      g.rows.forEach(r=>{
+        const cab=r.cabang||'(no cabang)';
+        if(!cabangMap[cab]){
+          cabangMap[cab]=r;
+        } else {
+          // Keep the most recent (Open > Hold, then by submittedAt)
+          const prev=cabangMap[cab];
+          const prevPriority=prev.jobStatus==='Open'?2:prev.jobStatus==='Hold'?1:0;
+          const curPriority=r.jobStatus==='Open'?2:r.jobStatus==='Hold'?1:0;
+          if(curPriority>prevPriority) cabangMap[cab]=r;
+          else if(curPriority===prevPriority && new Date(r.submittedAt)>new Date(prev.submittedAt)) cabangMap[cab]=r;
+        }
+      });
+      const activeRows=Object.values(cabangMap);
+      const totalHC=activeRows.reduce((s,r)=>s+(Number(r.headcount)||0),0);
+      const totalHired=activeRows.reduce((s,r)=>s+(Number(r.hired)||0),0);
+      const pct=totalHC>0?Math.min(100,Math.round(totalHired/totalHC*100)):0;
+      const maxDays=Math.max(...activeRows.map(r=>calcDaysOpen(r)));
+      const lim=g.rows[0]?.urgensi==='P0'?14:g.rows[0]?.urgensi==='P1'?30:60;
+      const dc=maxDays>lim?'#A32D2D':maxDays>lim*.7?'#854F0B':'var(--g600)';
+      const gKey='grp-'+curPipeTab+'-'+posisi.replace(/[^a-zA-Z0-9]/g,'_');
+      const isOpen=window.groupExpanded&&window.groupExpanded[gKey];
+
+      rows+=`<tr class="expand-parent" onclick="toggleGroup('${gKey}')">
+        <td><span id="${gKey}-chev" style="margin-right:5px">${isOpen?'▾':'▸'}</span>${posisi} <span style="font-size:11px;color:var(--g400)">(${activeRows.length} cabang)</span></td>
+        <td style="color:var(--g400)">Berbagai cabang</td>
+        <td><span class="badge ${bc_urg}">${g.rows[0]?.urgensi||'—'}</span></td>
+        <td style="color:var(--g400)">Lihat detail</td>
+        <td><div class="hc-wrap"><div class="hc-bg"><div class="hc-fill" style="width:${pct}%;background:#059669"></div></div><span style="font-size:11px;color:var(--g400)">${totalHired}/${totalHC}</span></div></td>
+        <td style="color:${dc};font-weight:500">${maxDays===Infinity?'∞':maxDays+'d'}</td>
+        <td>—</td></tr>`;
+
+      if(isOpen){
+        rows+=activeRows.map(r=>{
+          const d2=calcDaysOpen(r), lim2=r.urgensi==='P0'?14:r.urgensi==='P1'?30:60;
+          const dc2=d2>lim2?'#A32D2D':d2>lim2*.7?'#854F0B':'var(--g600)';
+          const stcMap2={'Sourcing':'bsourcing','Shortlisted':'bshort','HR Interview':'bhr','User Interview':'buser','Study Case':'bcase','Offering':'boffering'};
+          const stc2=stcMap2[r.stage]||'bsourcing';
+          const pct2=r.headcount>0?Math.min(100,Math.round((r.hired||0)/r.headcount*100)):0;
+          const sc2=r.jobStatus==='Open'?'bopen':r.jobStatus==='Hold'?'bhold':'bclosed';
+          return `<tr class="expand-child">
+            <td>└ ${r.posisi}${r.cabang?' — '+r.cabang:''}</td>
+            <td style="color:var(--g600)">${r.cabang||'—'}</td>
+            <td><span class="badge ${sc2}">${r.jobStatus}</span></td>
+            <td><span class="badge ${stc2}"><span class="stage-dot" style="background:${SC[r.stage]||'#888'}"></span>${r.stage}</span></td>
+            <td><div class="hc-wrap"><div class="hc-bg"><div class="hc-fill" style="width:${pct2}%;background:#059669"></div></div><span style="font-size:11px;color:var(--g400)">${r.hired||0}/${r.headcount}</span></div></td>
+            <td style="color:${dc2};font-weight:500">${d2}d</td>
+            <td>${r.pic||'—'}</td></tr>`;
+        }).join('');
+      }
+    }
+  });
+
+  // Fisioterapis group (always hiring)
+  if(fisioR.length&&curPipeTab==='Open'){
+    const fHC={req:fisioR.reduce((s,r)=>s+(Number(r.headcount)||0),0),hired:fisioR.reduce((s,r)=>s+(Number(r.hired)||0),0)};
+    const fpct=fHC.req>0?Math.min(100,Math.round(fHC.hired/fHC.req*100)):0;
+    rows+=`<tr class="expand-parent" onclick="toggleFisio()">
+      <td><span style="margin-right:5px">${fisioOpen?'▾':'▸'}</span>Fisioterapis <span class="badge balways" style="margin-left:4px">Always Hiring</span></td>
+      <td style="color:var(--g400)">Berbagai cabang</td>
+      <td><span class="badge balways">∞</span></td>
+      <td><span class="badge bopen">Active</span></td>
+      <td><div class="hc-wrap"><div class="hc-bg"><div class="hc-fill" style="width:${fpct}%;background:#059669"></div></div><span style="font-size:11px;color:var(--g400)">${fHC.hired}/${fHC.req}</span></div></td>
+      <td style="color:#059669;font-weight:600">∞</td><td>—</td></tr>`;
+    if(fisioOpen) rows+=fisioR.map(r=>{
+      const pct=r.headcount>0?Math.min(100,Math.round((r.hired||0)/r.headcount*100)):0;
+      return `<tr class="expand-child">
+        <td>└ ${r.cabang||r.posisi}</td>
+        <td style="color:var(--g600)">${r.cabang||'—'}</td>
+        <td><span class="badge balways">∞</span></td>
+        <td><span class="badge bopen">Open</span></td>
+        <td><div class="hc-wrap"><div class="hc-bg"><div class="hc-fill" style="width:${pct}%;background:#059669"></div></div><span style="font-size:11px;color:var(--g400)">${r.hired||0}/${r.headcount}</span></div></td>
+        <td style="color:#059669">∞</td>
+        <td>${r.pic||'—'}</td></tr>`;
+    }).join('');
+  }
+
+  tbody.innerHTML=rows||'<tr><td colspan="7" style="text-align:center;color:var(--g400);padding:2rem">Tidak ada data.</td></tr>';
+}
+// State for group expand/collapse
+window.groupExpanded = window.groupExpanded || {};
+
+function toggleGroup(key){
+  window.groupExpanded[key] = !window.groupExpanded[key];
+  // Re-render pipeline with current filtered data
+  const reqs=getReqs(), now=new Date();
+  const fm=document.getElementById('monthFilter')?.value||'all';
+  let filtered=reqs;
+  if(fm!=='all'){
+    const mi=parseInt(fm);
+    filtered=reqs.filter(r=>{
+      if(r.alwaysHiring) return true;
+      const d=new Date(r.submittedAt);
+      if(d.getFullYear()!==now.getFullYear()) return false;
+      if(r.jobStatus==='Open'||r.jobStatus==='Hold') return d.getMonth()<=mi;
+      if(r.jobStatus==='Closed'&&r.dateClosed&&r.dateClosed!==''){
+        const cd=new Date(r.dateClosed);
+        if(cd.getFullYear()===now.getFullYear()) return cd.getMonth()===mi;
+      }
+      return d.getMonth()===mi;
+    });
+  }
+  renderPipelineTracker(filtered);
+}
+
+function toggleFisio(){
+  fisioOpen=!fisioOpen;
+  switchPipeTab(curPipeTab);
+}
+
+// ══════════════════════════════
+// REQUESTS TAB
+// ══════════════════════════════
+function setReqFilter(s){reqStatusFilter=s;renderRequests();}
+function renderRequests(){
+  const reqs=getReqs();
+  document.getElementById('admin-stats').innerHTML=`
+    <div class="admin-stat"><div class="admin-stat-val">${reqs.length}</div><div class="admin-stat-label">Total Request</div></div>
+    <div class="admin-stat"><div class="admin-stat-val">${reqs.filter(r=>r.jobStatus==='Open').length}</div><div class="admin-stat-label">Open Positions</div></div>
+    <div class="admin-stat"><div class="admin-stat-val">${reqs.reduce((s,r)=>s+(Number(r.hired)||0),0)}</div><div class="admin-stat-label">Total Hired</div></div>
+    <div class="admin-stat"><div class="admin-stat-val">${reqs.filter(r=>r.pic).length}</div><div class="admin-stat-label">Assigned PIC</div></div>`;
+
+  // Filter chips per status kategori
+  const chips=document.getElementById('req-filter-chips');
+  if(chips){
+    const counts={all:reqs.length,Open:reqs.filter(r=>r.jobStatus==='Open').length,Hold:reqs.filter(r=>r.jobStatus==='Hold').length,Closed:reqs.filter(r=>r.jobStatus==='Closed').length};
+    const defs=[['all','Semua','📋'],['Open','Open','🟢'],['Hold','On Hold','🟡'],['Closed','Closed','⚫']];
+    chips.innerHTML=defs.map(([k,label,ic])=>`<button class="pipe-tab${reqStatusFilter===k?' active':''}" onclick="setReqFilter('${k}')">${ic} ${label} <span class="pipe-tab-count">${counts[k]}</span></button>`).join('');
+  }
+
+  if(!reqs.length){document.getElementById('requests-list').innerHTML='<div class="empty-state">📋 Belum ada request masuk.<br>Klik "Tambah Request Manual" atau tunggu HM mengisi form.</div>';return;}
+  const picOpts=picList.map(p=>`<option value="${p}">${p}</option>`).join('');
+  const reversed=reqs.slice().reverse();
+  const shown=reqStatusFilter==='all'?reversed:reversed.filter(r=>r.jobStatus===reqStatusFilter);
+  cardData = shown; // store for saveCard lookup (index harus match daftar yang tampil)
+  if(!shown.length){document.getElementById('requests-list').innerHTML=`<div class="empty-state">Tidak ada request berstatus <strong>${reqStatusFilter}</strong>.</div>`;return;}
+  document.getElementById('requests-list').innerHTML=shown.map((r,idx)=>{
+    const date=new Date(r.submittedAt).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    const bc=r.urgensi==='P0'?'bp0':r.urgensi==='P1'?'bp1':'bp2';
+    const sc=r.jobStatus==='Open'?'bopen':r.jobStatus==='Hold'?'bhold':'bclosed';
+    const pOpts=`<option value="">— PIC —</option>${picList.map(p=>`<option ${r.pic===p?'selected':''} value="${p}">${p}</option>`).join('')}`;
+    reqIdxMap[String(r.id)]=idx;
+    return `<div class="req-card">
+      <div class="req-card-header" onclick="toggleReq(${idx})">
+        <div><div class="req-card-title">${r.posisi}${r.cabang?' — '+r.cabang:''} · ${r.divisi}</div><div class="req-card-meta">Oleh ${r.nama} · ${date} · <span class="badge ${bc}">${r.urgensi}</span></div></div>
+        <span class="badge ${sc}">${r.jobStatus}</span>
+      </div>
+      <div class="req-card-body" id="reqbody-${idx}">
+        <div class="req-detail-grid">
+          <div><div class="req-detail-key">Nama HM</div><div class="req-detail-val">${r.nama}</div></div>
+          <div><div class="req-detail-key">Email</div><div class="req-detail-val">${r.email}</div></div>
+          <div><div class="req-detail-key">Tipe</div><div class="req-detail-val">${r.tipe}</div></div>
+          <div><div class="req-detail-key">Headcount</div><div class="req-detail-val">${r.headcount} orang</div></div>
+          <div><div class="req-detail-key">Alasan</div><div class="req-detail-val">${r.alasan}</div></div>
+          <div><div class="req-detail-key">Days Open</div><div class="req-detail-val">${r.alwaysHiring?'Always Hiring':calcDaysOpen(r)+'d'}</div></div>
+          <div style="grid-column:span 2"><div class="req-detail-key">Kualifikasi Wajib</div><div class="req-detail-val">${r.kualWajib||'—'}</div></div>
+          ${r.kualTambahan?`<div style="grid-column:span 2"><div class="req-detail-key">Kualifikasi Tambahan</div><div class="req-detail-val">${r.kualTambahan}</div></div>`:''}
+        </div>
+        <div class="admin-edit-row">
+          <span style="font-size:12px;font-weight:600;color:var(--g600);font-family:var(--sans)">Update:</span>
+          <select class="admin-select" id="c-pic-${idx}"><option value="">— PIC —</option>${picList.map(p=>`<option ${r.pic===p?'selected':''} value="${p}">${p}</option>`).join('')}</select>
+          <select class="admin-select" id="c-stage-${idx}">${STAGE_OPTS.map(s=>`<option ${r.stage===s?'selected':''} value="${s}">${s}</option>`).join('')}</select>
+          <select class="admin-select" id="c-status-${idx}">${STATUS_OPTS.map(s=>`<option ${r.jobStatus===s?'selected':''} value="${s}">${s}</option>`).join('')}</select>
+          <input type="number" class="admin-input" id="c-kand-${idx}" value="${r.kandidat||0}" min="0" placeholder="Kandidat" style="width:80px">
+          <input type="number" class="admin-input" id="c-hired-${idx}" value="${r.hired||0}" min="0" placeholder="Hired" style="width:70px">
+          <input type="date" class="admin-input" id="c-dc-${idx}" value="${r.dateClosed?r.dateClosed.split('T')[0]:''}" title="Date Closed">
+          <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--g600);cursor:pointer;font-family:var(--sans)"><input type="checkbox" ${r.alwaysHiring?'checked':''} id="c-alw-${idx}"> Always</label>
+          <button class="btn btn-primary btn-sm" onclick="saveCard(${idx})">Simpan</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteCard(${idx})">Hapus</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderOfferItems(reqId){
+  if(!reqId) return '<div style="font-size:12px;color:var(--g400);font-family:var(--sans)">Belum ada kandidat yang di-offer.</div>';
+  const cleanReqId=String(reqId).trim().replace(/\.0$/,'');
+  const offs=getOffers().filter(o=>o.requestId&&String(o.requestId).trim().replace(/\.0$/,'')===cleanReqId);
+  if(!offs.length)return '<div style="font-size:12px;color:var(--g400);font-family:var(--sans)">Belum ada kandidat yang di-offer.</div>';
+  return offs.map(o=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--g100)">
+    <div><span style="font-size:13px;font-weight:500;color:var(--g800);font-family:var(--sans)">${o.namaKandidat}</span> <span class="${o.hasilOffer==='Accept'?'accept':'reject'}" style="margin-left:6px">${o.hasilOffer}</span>${o.joinDate?`<span style="font-size:11px;color:var(--g400);margin-left:6px">Join: ${new Date(o.joinDate).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})}</span>`:''}</div>
+    <button class="btn btn-danger btn-sm" style="padding:3px 8px;font-size:11px" data-oid="${o.id}" data-rid="${reqId}" onclick="deleteOfferFromBtn(this)">×</button>
+  </div>`).join('');
+}
+
+function toggleReq(idx){document.getElementById('reqbody-'+idx).classList.toggle('open');}
+
+// Wrapper functions untuk hindari nested quote bug di onclick HTML
+// (removed - now handled by Kelola Offer tab)
+// (removed - now handled by Kelola Offer tab)
+
+// cardData stores the reversed request list for card lookups
+let cardData = [];
+
+// saveCard: simpan berdasarkan index card (bukan r.id) — lebih reliable
+async function saveCard(idx){
+  const r = cardData[idx];
+  if(!r){ showToast('❌ Data tidak ditemukan. Coba Refresh.'); return; }
+
+  const picVal    = document.getElementById('c-pic-'+idx)?.value    || '';
+  const stageVal  = document.getElementById('c-stage-'+idx)?.value  || 'Sourcing';
+  const statusVal = document.getElementById('c-status-'+idx)?.value || 'Open';
+  const kandVal   = parseInt(document.getElementById('c-kand-'+idx)?.value)  || 0;
+  const hiredVal  = parseInt(document.getElementById('c-hired-'+idx)?.value) || 0;
+  const dcVal     = document.getElementById('c-dc-'+idx)?.value  || '';
+  const alwVal    = document.getElementById('c-alw-'+idx)?.checked || false;
+
+  const reqs = getReqs();
+  const cleanId = String(r.id).trim().replace(/\.0$/,'');
+  const dataIdx = reqs.findIndex(x => String(x.id).trim().replace(/\.0$/,'') === cleanId);
+
+  const updated = dataIdx > -1 ? reqs[dataIdx] : r;
+  updated.pic          = picVal;
+  updated.stage        = stageVal;
+  updated.jobStatus    = statusVal;
+  updated.kandidat     = kandVal;
+  updated.hired        = hiredVal;
+  updated.dateClosed   = dcVal;
+  updated.alwaysHiring = alwVal;
+
+  if(dataIdx > -1){ reqs[dataIdx] = updated; saveReqs(reqs); }
+
+  try{
+    await apiPost('updateRow', {id: cleanId, ...updated});
+    showToast('✅ Tersimpan ke Sheets!');
+  } catch {
+    showToast('✅ Tersimpan lokal.');
+  }
+  renderRequests();
+  renderDashboard();
+}
+
+async function deleteCard(idx){
+  const r = cardData[idx];
+  if(!r || !confirm('Hapus request ini?')) return;
+  const cleanId = String(r.id).trim().replace(/\.0$/,'');
+  let reqs = getReqs();
+  reqs = reqs.filter(x => String(x.id).trim().replace(/\.0$/,'') !== cleanId);
+  saveReqs(reqs);
+  try{ await apiPost('deleteRow', {id: cleanId}); } catch{}
+  renderRequests(); renderDashboard(); showToast('Request dihapus.');
+}
+
+// Keep old functions as aliases for compatibility
+async function saveReqUpdate(id,cardIdx){ await saveCard(cardIdx); }
+async function deleteReq(id){
+  const cleanId = String(id).trim().replace(/\.0$/,'');
+  const idx = cardData.findIndex(r => String(r.id).trim().replace(/\.0$/,'') === cleanId);
+  if(idx > -1) await deleteCard(idx);
+}
+async function deleteReq(id){
+  if(!confirm('Hapus request ini?'))return;
+  const cleanId=String(id).trim().replace(/\.0$/,'');
+  let reqs=getReqs();
+  reqs=reqs.filter(r=>String(r.id).trim().replace(/\.0$/,'')!==cleanId);
+  saveReqs(reqs);
+  try{await apiPost('deleteRow',{id:cleanId});}catch{}
+  renderRequests();renderDashboard();showToast('Request dihapus.');
+}
+async function addOffer(reqId,cardIdx,posisi,divisi,pic){
+  const nama=document.getElementById('on-'+cardIdx).value.trim();
+  const hasil=document.getElementById('oh-'+cardIdx).value;
+  const joinDate=document.getElementById('oj-'+cardIdx).value;
+  if(!nama)return alert('Nama kandidat harus diisi.');
+  const off={id:String(Date.now()),requestId:String(reqId).trim().replace(/\.0$/,''),namaKandidat:nama,posisi,divisi,hasilOffer:hasil,source:'Etc',joinDate:joinDate||'',offerDate:new Date().toISOString(),pic};
+  const offs=getOffers();offs.push(off);saveOffers(offs);offerList=offs;
+  try{await apiPost('addOffer',off);}catch{}
+  document.getElementById('on-'+cardIdx).value='';
+  document.getElementById('oj-'+cardIdx).value='';
+  document.getElementById('oi-'+cardIdx).innerHTML=renderOfferItems(reqId);
+  try{renderDashboard();}catch(e){}showToast('Offer ditambahkan!');
+}
+async function deleteOffer(offId,reqId){
+  if(!confirm('Hapus data offer ini?'))return;
+  let offs=getOffers();offs=offs.filter(o=>String(o.id)!==String(offId));saveOffers(offs);offerList=offs;
+  try{await apiPost('deleteOffer',{id:String(offId)});}catch{}
+  const cardIdx=reqIdxMap[String(reqId)];
+  if(cardIdx!==undefined) document.getElementById('oi-'+cardIdx).innerHTML=renderOfferItems(reqId);
+  try{renderDashboard();}catch(e){}showToast('Offer dihapus.');
+}
+
+// ══════════════════════════════
+// MODAL: TAMBAH REQUEST MANUAL
+// ══════════════════════════════
+function openNewRequestModal(){
+  // Populate PIC dropdown & cabang dropdown
+  const mPic=document.getElementById('m-pic');
+  mPic.innerHTML='<option value="">— Pilih PIC —</option>'+picList.map(p=>`<option value="${p}">${p}</option>`).join('');
+  const mCab=document.getElementById('m-cabang');
+  mCab.innerHTML='<option value="">— Tidak ada —</option>'+branchList.map(b=>`<option value="${b}">${b}</option>`).join('');
+  // Reset form
+  ['m-nama','m-email','m-posisi','m-kualwajib','m-kualtambahan'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.getElementById('m-headcount').value=1;
+  document.getElementById('m-kandidat').value=0;
+  document.getElementById('m-hired').value=0;
+  document.getElementById('m-dateclosed').value='';
+  document.getElementById('m-always').checked=false;
+  document.getElementById('modal-new-req').style.display='flex';
+}
+function closeModal(){document.getElementById('modal-new-req').style.display='none';}
+
+async function saveNewRequest(){
+  const nama=document.getElementById('m-nama').value.trim();
+  const email=document.getElementById('m-email').value.trim();
+  const divisi=document.getElementById('m-divisi').value;
+  const posisi=document.getElementById('m-posisi').value.trim();
+  if(!nama||!email||!divisi||!posisi)return alert('Nama HM, email, divisi, dan posisi wajib diisi.');
+  const payload={
+    id:String(Date.now()),submittedAt:new Date().toISOString(),
+    nama,email,divisi,posisi,
+    headcount:parseInt(document.getElementById('m-headcount').value)||1,
+    tipe:document.getElementById('m-tipe').value,
+    urgensi:document.getElementById('m-urgensi').value,
+    alasan:document.getElementById('m-alasan').value,
+    pic:document.getElementById('m-pic').value,
+    stage:document.getElementById('m-stage').value,
+    jobStatus:document.getElementById('m-status').value,
+    kandidat:parseInt(document.getElementById('m-kandidat').value)||0,
+    hired:parseInt(document.getElementById('m-hired').value)||0,
+    dateClosed:document.getElementById('m-dateclosed').value||'',
+    alwaysHiring:document.getElementById('m-always').checked,
+    kualWajib:document.getElementById('m-kualwajib').value,
+    kualTambahan:document.getElementById('m-kualtambahan').value,
+    holdDays:0,cabang:document.getElementById('m-cabang').value,
+  };
+  const reqs=getReqs();reqs.push(payload);saveReqs(reqs);
+  try{await apiPost('submitRequest',payload);showToast('Request tersimpan ke Sheets!');}
+  catch{showToast('Request tersimpan lokal.');}
+  closeModal();renderRequests();renderDashboard();
+}
+
+// PIPELINE TAB
+function renderAdminPipeline(){
+  const reqs=getReqs();
+  const tbody=document.getElementById('admin-pipeline-body');
+  if(!reqs.length){tbody.innerHTML='<tr><td colspan="11" style="text-align:center;color:var(--g400);padding:2rem">Belum ada data.</td></tr>';return;}
+  // Simpan ke pipeData untuk lookup by index
+  window.pipeData = reqs;
+  tbody.innerHTML=reqs.map((r,pi)=>{
+    const pOpts=picList.map(p=>`<option ${r.pic===p?'selected':''} value="${p}">${p}</option>`).join('');
+    return `<tr>
+      <td style="font-weight:500">${r.posisi}${r.cabang?' — '+r.cabang:''}</td><td>${r.divisi}</td>
+      <td><input type="text" class="admin-input" id="pcab-${pi}" value="${r.cabang||''}" placeholder="Cabang" style="width:90px"></td>
+      <td><select class="admin-select" id="ppic-${pi}"><option value="">—</option>${pOpts}</select></td>
+      <td><select class="admin-select" id="pst-${pi}">${STAGE_OPTS.map(s=>`<option ${r.stage===s?'selected':''} value="${s}">${s}</option>`).join('')}</select></td>
+      <td><select class="admin-select" id="pjs-${pi}">${STATUS_OPTS.map(s=>`<option ${r.jobStatus===s?'selected':''} value="${s}">${s}</option>`).join('')}</select></td>
+      <td><input type="number" class="admin-input" id="pk-${pi}" value="${r.kandidat||0}" min="0" style="width:55px"></td>
+      <td><input type="number" class="admin-input" id="ph-${pi}" value="${r.hired||0}" min="0" style="width:55px"></td>
+      <td><input type="checkbox" ${r.alwaysHiring?'checked':''} id="pa-${pi}"></td>
+      <td><input type="date" class="admin-input" id="pd-${pi}" value="${r.dateClosed?r.dateClosed.split('T')[0]:''}" style="width:120px"></td>
+      <td><button class="btn btn-primary btn-sm" onclick="savePipeRow(${pi})">💾 Simpan</button></td>
+    </tr>`;
+  }).join('');
+}
+async function savePipeRow(pi){
+  const r = (window.pipeData||[])[pi];
+  if(!r){ showToast('❌ Data tidak ditemukan. Coba Refresh.'); return; }
+  const cleanId = String(r.id).trim().replace(/\.0$/,'');
+
+  const reqs = getReqs();
+  const idx  = reqs.findIndex(x => String(x.id).trim().replace(/\.0$/,'') === cleanId);
+  const updated = idx > -1 ? reqs[idx] : {...r};
+
+  updated.cabang       = document.getElementById('pcab-'+pi)?.value||'';
+  updated.pic          = document.getElementById('ppic-'+pi)?.value||'';
+  updated.stage        = document.getElementById('pst-'+pi)?.value||'Sourcing';
+  updated.jobStatus    = document.getElementById('pjs-'+pi)?.value||'Open';
+  updated.kandidat     = parseInt(document.getElementById('pk-'+pi)?.value)||0;
+  updated.hired        = parseInt(document.getElementById('ph-'+pi)?.value)||0;
+  updated.alwaysHiring = document.getElementById('pa-'+pi)?.checked||false;
+  updated.dateClosed   = document.getElementById('pd-'+pi)?.value||'';
+
+  if(idx > -1){ reqs[idx] = updated; saveReqs(reqs); }
+
+  try{
+    await apiPost('updateRow', {id: cleanId, ...updated});
+    showToast('✅ Pipeline tersimpan ke Sheets!');
+  } catch{
+    showToast('✅ Tersimpan lokal.');
+  }
+  renderDashboard();
+}
+
+// PIC & BRANCH
+function renderPicTab(){
+  const el=document.getElementById('pic-list-display');if(!el)return;
+  el.innerHTML=picList.map(n=>`<div class="pic-chip">${n}<button class="pic-chip-del" onclick="removePicMember('${n}')">×</button></div>`).join('');
+}
+async function addPicMember(){
+  const input=document.getElementById('pic-new-name');const name=input.value.trim();if(!name)return;
+  if(picList.includes(name)){showToast('Nama sudah ada!');return;}
+  try{await apiPost('addPic',{name});}catch{}
+  picList.push(name);setLocalPic(picList);input.value='';renderPicTab();showToast(`${name} ditambahkan.`);
+}
+async function removePicMember(name){
+  if(!confirm(`Hapus ${name}?`))return;
+  try{await apiPost('removePic',{name});}catch{}
+  picList=picList.filter(n=>n!==name);setLocalPic(picList);renderPicTab();showToast(`${name} dihapus.`);
+}
+function renderBranchTab(){
+  const el=document.getElementById('branch-list-display');if(!el)return;
+  el.innerHTML=branchList.map(n=>`<div class="pic-chip">${n}<button class="pic-chip-del" onclick="removeBranchMember('${n}')">×</button></div>`).join('');
+}
+async function addBranchMember(){
+  const input=document.getElementById('branch-new-name');const name=input.value.trim();if(!name)return;
+  if(branchList.includes(name)){showToast('Cabang sudah ada!');return;}
+  try{await apiPost('addBranch',{name});}catch{}
+  branchList.push(name);setLocalBr(branchList);input.value='';renderBranchTab();showToast(`Cabang ${name} ditambahkan.`);
+}
+async function removeBranchMember(name){
+  if(!confirm(`Hapus cabang ${name}?`))return;
+  try{await apiPost('removeBranch',{name});}catch{}
+  branchList=branchList.filter(n=>n!==name);setLocalBr(branchList);renderBranchTab();showToast(`Cabang ${name} dihapus.`);
+}
+
+// KELOLA OFFER TAB
+function renderOfferTab(showAll){
+  const reqs=getReqs(), now=new Date();
+  const offs=getOffers().filter(o=>o.namaKandidat&&o.requestId);
+
+  // Posisi filter
+  const filterSel=document.getElementById('offerTabFilter');
+  const cur=filterSel.value;
+  filterSel.innerHTML='<option value="all">Semua Posisi</option>'+reqs.map(r=>`<option value="${nid(r.id)}">${r.posisi}${r.cabang?' — '+r.cabang:''} (${r.divisi})</option>`).join('');
+  filterSel.value=cur;
+  // Month filter
+  const monthSel=document.getElementById('offerTabMonth');
+  const curMonth=monthSel?monthSel.value:'all';
+  // PIC filter (populate from offers + master pic list)
+  const picSel=document.getElementById('offerTabPic');
+  const curPic=picSel?picSel.value:'all';
+  if(picSel){
+    const picsInUse=[...new Set(offs.map(o=>o.pic).filter(Boolean))];
+    const allPics=[...new Set([...(picList||[]),...picsInUse])].sort();
+    picSel.innerHTML='<option value="all">Semua PIC</option>'+allPics.map(p=>`<option value="${p}">${p}</option>`).join('');
+    picSel.value=curPic;
+  }
+  // Add-offer position dropdown
+  const reqSel=document.getElementById('new-off-req');
+  if(reqSel) reqSel.innerHTML='<option value="">— Pilih posisi —</option>'+reqs.map(r=>`<option value="${nid(r.id)}" data-pos="${r.posisi}" data-div="${r.divisi}" data-pic="${r.pic||''}">${r.posisi}${r.cabang?' — '+r.cabang:''} · ${r.divisi}</option>`).join('');
+
+  // Apply filters
+  let filtered=offs;
+  if(cur&&cur!=='all') filtered=filtered.filter(o=>nid(o.requestId)===cur);
+  if(curMonth&&curMonth!=='all') filtered=filtered.filter(o=>{const d=new Date(o.offerDate);return d.getMonth()===parseInt(curMonth)&&d.getFullYear()===now.getFullYear();});
+  if(curPic&&curPic!=='all') filtered=filtered.filter(o=>o.pic===curPic);
+
+  // PIC recap — hanya tampil kalau PIC tertentu dipilih (bukan "Semua PIC")
+  const recapWrap=document.getElementById('offer-recap-wrap');
+  const recapEl=document.getElementById('offer-pic-recap');
+  const recapLabel=document.getElementById('offer-recap-label');
+  if(recapWrap&&recapEl){
+    if(curPic&&curPic!=='all'){
+      recapWrap.style.display='block';
+      const base=offs.filter(o=>{
+        if(o.pic!==curPic) return false;
+        if(cur&&cur!=='all'&&nid(o.requestId)!==cur) return false;
+        if(curMonth&&curMonth!=='all'){const d=new Date(o.offerDate);if(d.getMonth()!==parseInt(curMonth)||d.getFullYear()!==now.getFullYear())return false;}
+        return true;
+      });
+      const acc=base.filter(o=>o.hasilOffer==='Accept').length, tot=base.length;
+      const periode=curMonth==='all'?'semua bulan':['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'][parseInt(curMonth)];
+      if(recapLabel) recapLabel.innerHTML=`Rekap Hire — <span style="color:var(--navy)">${curPic}</span> <span style="color:var(--g400);font-weight:400">(${periode})</span>`;
+      recapEl.innerHTML=tot?`<div class="pic-chip"><b>${curPic}</b><span class="chip-n">${acc} hire</span><span style="color:var(--g400)">dari ${tot} offer</span></div>`:'<div style="font-size:12px;color:var(--g400);font-family:var(--sans)">Belum ada offer untuk PIC ini pada periode terpilih.</div>';
+    } else {
+      recapWrap.style.display='none';
+    }
+  }
+
+  const el=document.getElementById('offer-tab-list');
+  if(!filtered.length){el.innerHTML='<div class="empty-state">Belum ada data offer sesuai filter.</div>';return;}
+
+  const LIMIT=10;
+  const visible=showAll?filtered:filtered.slice(0,LIMIT);
+  const remaining=filtered.length-LIMIT;
+  const SRCCOL={Glints:'#0D9488',LinkedIn:'#1D4ED8',Email:'#D97706',Referral:'#7C3AED',Etc:'#6B7280'};
+
+  const grouped={};
+  visible.forEach(o=>{const k=nid(o.requestId);if(!grouped[k])grouped[k]={posisi:o.posisi,divisi:o.divisi,offers:[]};grouped[k].offers.push(o);});
+  el.innerHTML=Object.entries(grouped).map(([rid,g])=>`
+    <div style="margin-bottom:1.25rem">
+      <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:8px;font-family:var(--sans);padding-bottom:6px;border-bottom:1.5px solid var(--navy-pale2)">${g.posisi} · <span style="color:var(--g400)">${g.divisi}</span></div>
+      ${g.offers.map(o=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--g100)">
+        <div><span style="font-size:13px;font-weight:500;color:var(--g800);font-family:var(--sans)">${o.namaKandidat}</span>
+        <span class="${o.hasilOffer==='Accept'?'accept':'reject'}" style="margin-left:8px">${o.hasilOffer}</span>
+        ${o.source?`<span style="font-size:11px;color:#fff;background:${SRCCOL[o.source]||'#6B7280'};margin-left:8px;font-family:var(--sans);padding:1px 8px;border-radius:10px">${o.source}</span>`:''}
+        ${o.joinDate?`<span style="font-size:11px;color:var(--g400);margin-left:8px;font-family:var(--sans)">Join: ${new Date(o.joinDate).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})}</span>`:''}
+        ${o.pic?`<span style="font-size:11px;color:var(--g400);margin-left:8px;font-family:var(--sans)">PIC: ${o.pic}</span>`:''}
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          <button class="btn btn-ghost btn-sm" style="padding:3px 12px;font-size:11px" onclick="editOfferManual('${o.id}')">Edit</button>
+          <button class="btn btn-danger btn-sm" style="padding:3px 10px;font-size:11px" onclick="deleteOfferManual('${o.id}')">×</button>
+        </div>
+      </div>`).join('')}
+    </div>`).join('')+
+  (!showAll&&remaining>0?`<div style="text-align:center;padding:.75rem 0"><button onclick="renderOfferTab(true)" style="background:none;border:1.5px solid var(--g200);border-radius:8px;padding:6px 20px;font-size:13px;font-family:var(--sans);color:var(--navy);cursor:pointer;font-weight:500">Tampilkan ${remaining} lainnya ▾</button></div>`:'');
+}
+async function addOfferManual(){
+  const reqSel = document.getElementById('new-off-req');
+  const reqId  = reqSel?.value;
+  const opt    = reqSel?.selectedOptions[0];
+  const nama   = document.getElementById('new-off-nama')?.value.trim();
+  const hasil  = document.getElementById('new-off-hasil')?.value;
+  const source = document.getElementById('new-off-source')?.value || 'Etc';
+  const join   = document.getElementById('new-off-join')?.value;
+
+  if(!reqId)   return alert('Pilih posisi terlebih dahulu.');
+  if(!nama)    return alert('Nama kandidat harus diisi.');
+
+  const off = {
+    id:           String(Date.now()),
+    requestId:    String(reqId).trim().replace(/\.0$/,''),
+    namaKandidat: nama,
+    posisi:       opt?.dataset.pos || '',
+    divisi:       opt?.dataset.div || '',
+    hasilOffer:   hasil,
+    source:       source,
+    joinDate:     join || '',
+    offerDate:    new Date().toISOString(),
+    pic:          opt?.dataset.pic || '',
+  };
+
+  const offs = getOffers();
+  offs.push(off);
+  saveOffers(offs);
+  offerList = offs;
+
+  try{ await apiPost('addOffer', off); showToast('✅ Offer tersimpan ke Sheets!'); }
+  catch{ showToast('✅ Offer tersimpan lokal.'); }
+
+  // Reset form
+  document.getElementById('new-off-nama').value = '';
+  document.getElementById('new-off-join').value = '';
+  renderOfferTab();
+  try{renderDashboard();}catch(e){}
+}
+
+async function deleteOfferManual(offId){
+  if(!confirm('Hapus data offer ini?')) return;
+  let offs = getOffers();
+  offs = offs.filter(o => String(o.id) !== String(offId));
+  saveOffers(offs);
+  offerList = offs;
+  try{ await apiPost('deleteOffer', {id: String(offId)}); } catch{}
+  renderOfferTab();
+  try{renderDashboard();}catch(e){}
+  showToast('Offer dihapus.');
+}
+
+// EDIT OFFER
+const toDateInput=v=>{ if(!v) return ''; const d=new Date(v); return isNaN(d)?'':`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+function editOfferManual(offId){
+  const o=getOffers().find(x=>String(x.id)===String(offId));
+  if(!o){showToast('Data offer tidak ditemukan.');return;}
+  document.getElementById('eo-id').value=o.id;
+  document.getElementById('eo-nama').value=o.namaKandidat||'';
+  document.getElementById('eo-posisi').value=o.posisi||'';
+  document.getElementById('eo-hasil').value=o.hasilOffer==='Reject'?'Reject':'Accept';
+  document.getElementById('eo-source').value=['Glints','LinkedIn','Email','Referral','Etc'].includes(o.source)?o.source:'Etc';
+  document.getElementById('eo-offerdate').value=toDateInput(o.offerDate);
+  document.getElementById('eo-joindate').value=toDateInput(o.joinDate);
+  const picSel=document.getElementById('eo-pic');
+  picSel.innerHTML='<option value="">— Pilih PIC —</option>'+(picList||[]).map(p=>`<option value="${p}">${p}</option>`).join('');
+  picSel.value=o.pic||'';
+  document.getElementById('modal-edit-offer').style.display='flex';
+}
+function closeOfferEdit(){document.getElementById('modal-edit-offer').style.display='none';}
+async function saveOfferEdit(){
+  const id=document.getElementById('eo-id').value;
+  const offs=getOffers();
+  const o=offs.find(x=>String(x.id)===String(id));
+  if(!o){showToast('Data offer tidak ditemukan.');return;}
+  const nama=document.getElementById('eo-nama').value.trim();
+  if(!nama){alert('Nama kandidat harus diisi.');return;}
+  const offDateVal=document.getElementById('eo-offerdate').value;
+  const joinVal=document.getElementById('eo-joindate').value;
+  o.namaKandidat=nama;
+  o.posisi=document.getElementById('eo-posisi').value.trim();
+  o.hasilOffer=document.getElementById('eo-hasil').value;
+  o.source=document.getElementById('eo-source').value;
+  o.pic=document.getElementById('eo-pic').value;
+  o.offerDate=offDateVal?new Date(offDateVal+'T12:00:00').toISOString():(o.offerDate||new Date().toISOString());
+  o.joinDate=joinVal||'';
+  saveOffers(offs); offerList=offs;
+  const payload={id:String(o.id),namaKandidat:o.namaKandidat,posisi:o.posisi,hasilOffer:o.hasilOffer,source:o.source,pic:o.pic,offerDate:o.offerDate,joinDate:o.joinDate};
+  try{ await apiPost('updateOffer',payload); showToast('✅ Perubahan tersimpan ke Sheets!'); }
+  catch{ showToast('✅ Perubahan tersimpan lokal.'); }
+  closeOfferEdit();
+  renderOfferTab();
+  try{renderDashboard();}catch(e){}
+}
+
+// ADMIN TABS
+function switchAdminTab(tab){
+  const tabs=['dashboard','requests','pipeline','offers','pic','data'];
+  document.querySelectorAll('.admin-tab').forEach((el,i)=>el.classList.toggle('active',tabs[i]===tab));
+  document.querySelectorAll('.admin-tab-panel').forEach(el=>el.classList.remove('active'));
+  document.getElementById('admin-tab-'+tab).classList.add('active');
+  if(tab==='pipeline'){renderAdminPipeline();switchPipeTab(curPipeTab);}
+  if(tab==='offers')renderOfferTab();
+  if(tab==='pic'){renderPicTab();renderBranchTab();}
+}
+
+// ADMIN AUTH (Google Sign-In + allowlist HR, verifikasi di backend)
+function doLogout(){
+  WMAuth.logout();
+  document.getElementById('admin-panel').classList.remove('active');
+  document.getElementById('admin-login').style.display='flex';
+  window.dispatchEvent(new Event('wm-auth-changed'));
+}
+function initAdmin(){
+  if(typeof WMAuth!=='undefined' && WMAuth.isLoggedIn()){
+    document.getElementById('admin-login').style.display='none';
+    document.getElementById('admin-panel').classList.add('active');
+    const disp=document.getElementById('current-url-display');
+    if(disp)disp.textContent='Login sebagai: '+WMAuth.getEmail();
+    refreshData(true);
+  }else{
+    document.getElementById('admin-login').style.display='flex';
+    document.getElementById('admin-panel').classList.remove('active');
+    WMAuth.renderButton('google-signin-btn',
+      (email)=>{ document.getElementById('login-error').style.display='none'; initAdmin(); window.dispatchEvent(new Event('wm-auth-changed')); },
+      (err)=>{ document.getElementById('login-error').textContent=err; document.getElementById('login-error').style.display='block'; WMAuth.logout(); }
+    );
+  }
+}
+
+// DATA
+function clearLocalData(){
+  if(!confirm('Hapus semua cache lokal di browser ini?\nData di Google Sheets tidak terpengaruh.'))return;
+  // Hapus semua key yang dikenal
+  [SK, OK, PK, BK].forEach(k => {
+    try { localStorage.removeItem(k); } catch(e){}
+  });
+  // Juga hapus key-key versi lama yang mungkin masih tersimpan
+  ['wm_ta_requests','wm_ta_offers_v2','wm_ta_req_v2','wm_ta_pic','wm_ta_br',
+   'wm_ta_req_v3','wm_ta_off_v3','wm_ta_script_url'].forEach(k => {
+    try { localStorage.removeItem(k); } catch(e){}
+  });
+  // Reset semua state ke default
+  picList    = ['Nanda','Fionna','Aisy','Kirana'];
+  branchList = ['Menteng','Bintaro','Kelapa Gading','Serpong'];
+  offerList  = [];
+  cardData   = [];
+  // Re-render
+  try { renderRequests(); } catch(e){}
+  try { renderDashboard(); } catch(e){}
+  try { renderPicTab(); } catch(e){}
+  try { renderBranchTab(); } catch(e){}
+  showToast('✅ Cache lokal berhasil dihapus!');
+}
+function addDummyData(){
+  const n=Date.now();
+  const d=[
+    {id:String(n-6e6),submittedAt:new Date(n-25*864e5).toISOString(),nama:'dr. Rini Wulandari',divisi:'Operations',email:'rini@wmc.id',posisi:'Front Office',headcount:3,tipe:'Full-time',urgensi:'P0',alasan:'Posisi Baru',kualWajib:'Min. D3, komunikasi baik',kualTambahan:'Pengalaman di klinik',stage:'Interview',jobStatus:'Open',kandidat:5,hired:0,pic:'Nanda',alwaysHiring:false,dateClosed:'',holdDays:0,cabang:''},
+    {id:String(n-5e6),submittedAt:new Date(n-18*864e5).toISOString(),nama:'Budi Hartono',divisi:'Finance & IT',email:'budi@wmc.id',posisi:'Tax Staff',headcount:1,tipe:'Full-time',urgensi:'P1',alasan:'Replacement',kualWajib:'S1 Akuntansi, Brevet A&B',kualTambahan:'',stage:'Sourcing',jobStatus:'Hold',kandidat:2,hired:0,pic:'Aisy',alwaysHiring:false,dateClosed:'',holdDays:12,cabang:''},
+    {id:String(n-4e6),submittedAt:new Date(n-10*864e5).toISOString(),nama:'Sari Dewi',divisi:'Fisioterapis',email:'sari@wmc.id',posisi:'Fisioterapis',headcount:2,tipe:'Full-time',urgensi:'P0',alasan:'Posisi Baru',kualWajib:'STR aktif, pengalaman min. 1 tahun',kualTambahan:'',stage:'Sourcing',jobStatus:'Open',kandidat:3,hired:1,pic:'Fionna',alwaysHiring:true,dateClosed:'',holdDays:0,cabang:'Bintaro'},
+    {id:String(n-3e6),submittedAt:new Date(n-30*864e5).toISOString(),nama:'Ahmad Fauzi',divisi:'Fisioterapis',email:'ahmad@wmc.id',posisi:'Fisioterapis',headcount:3,tipe:'Full-time',urgensi:'P0',alasan:'Posisi Baru',kualWajib:'STR aktif',kualTambahan:'',stage:'Sourcing',jobStatus:'Open',kandidat:4,hired:2,pic:'Kirana',alwaysHiring:true,dateClosed:'',holdDays:0,cabang:'Menteng'},
+    {id:String(n-2e6),submittedAt:new Date(n-35*864e5).toISOString(),nama:'Lina Kurnia',divisi:'Creative Marketing',email:'lina@wmc.id',posisi:'Content Creator',headcount:1,tipe:'Freelance',urgensi:'P1',alasan:'Tambahan Headcount',kualWajib:'Portofolio video editing',kualTambahan:'',stage:'Hired',jobStatus:'Closed',kandidat:6,hired:1,pic:'Fionna',alwaysHiring:false,dateClosed:new Date(n-5*864e5).toISOString(),holdDays:0,cabang:''},
+  ];
+  const offs=getOffers();
+  offs.push({id:String(n-1e6),requestId:String(n-2e6),namaKandidat:'Dinda Maharani',posisi:'Content Creator',divisi:'Creative Marketing',hasilOffer:'Accept',source:'LinkedIn',joinDate:new Date(n-3*864e5).toISOString(),offerDate:new Date(n-8*864e5).toISOString(),pic:'Fionna'});
+  offs.push({id:String(n-9e5),requestId:String(n-6e6),namaKandidat:'Rizky Aditya',posisi:'Front Office',divisi:'Operations',hasilOffer:'Reject',source:'Glints',joinDate:'',offerDate:new Date(n-5*864e5).toISOString(),pic:'Nanda'});
+  saveReqs([...getReqs(),...d]);saveOffers(offs);offerList=offs;
+  renderRequests();renderDashboard();showToast('Data contoh ditambahkan!');
+}
+
+// TOAST
+function showToast(msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toast-text').textContent=msg;
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// INIT
+updateProgress(1);
+document.getElementById('dash-date').textContent=new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+picList=getLocalPic();branchList=getLocalBr();offerList=getOffers();
+setSyncStatus('syncing');
+refreshData();
+</script>
+<script src="portal-nav.js"></script>
+</body>
+</html>
