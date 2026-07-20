@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coaching Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  :root{
+    --ink:#0e2b28; --ink-soft:#3d5652; --muted:#6b827e;
+    --brand:#0f766e; --brand-600:#0d8f83; --brand-050:#e7f2f0;
+    --bg:#f3f7f6; --surface:#ffffff; --line:#e0ebe8; --line-strong:#c9dcd8;
+    --ok:#0f9d6f; --ok-bg:#e6f6ef; --ok-line:#bfe8d7;
+    --danger:#d02525; --danger-bg:#fbe9e9; --danger-line:#f3c8c8;
+    --radius:14px; --shadow:0 1px 2px rgba(14,43,40,.04),0 10px 30px rgba(14,43,40,.06);
+    --font-d:'Plus Jakarta Sans',system-ui,sans-serif;
+    --font-b:'Inter',system-ui,sans-serif;
+    --sidebar-w:256px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{font-family:var(--font-b);background:var(--bg);color:var(--ink);font-size:14px;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3,.font-display{font-family:var(--font-d);letter-spacing:-.01em;color:var(--ink);}
+  a{color:var(--brand);}
+  input,select,textarea,button{font-family:var(--font-b);}
+
+  /* ---------- SIDEBAR ---------- */
+  .sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:linear-gradient(180deg,var(--ink) 0%, #123833 100%);color:#fff;display:flex;flex-direction:column;z-index:20;}
+  .sb-brand{padding:22px 20px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.08);}
+  .sb-mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(150deg,var(--brand),#0b5c55);display:flex;align-items:center;justify-content:center;font-family:var(--font-d);font-weight:800;font-size:14px;color:#fff;box-shadow:0 4px 12px rgba(15,118,110,.35);}
+  .sb-title{font-family:var(--font-d);font-weight:700;font-size:14.5px;line-height:1.2;}
+  .sb-sub{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px;}
+  .sb-nav{padding:16px 12px;flex:1;}
+  .sb-section-label{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.35);padding:6px 10px 8px;}
+  .sb-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;font-size:13.5px;font-weight:500;color:rgba(255,255,255,.72);cursor:pointer;margin-bottom:2px;transition:background .12s ease,color .12s ease;}
+  .sb-item svg{flex-shrink:0;opacity:.85;}
+  .sb-item:hover{background:rgba(255,255,255,.07);color:#fff;}
+  .sb-item.active{background:var(--brand);color:#fff;}
+  .sb-item.active svg{opacity:1;}
+  .sb-foot{padding:14px 16px 18px;border-top:1px solid rgba(255,255,255,.08);}
+  .sb-role-label{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:8px;}
+  .role-toggle{display:flex;background:rgba(255,255,255,.08);border-radius:9px;padding:3px;gap:3px;margin-bottom:12px;}
+  .role-toggle button{flex:1;border:none;background:transparent;color:rgba(255,255,255,.55);font-size:12.5px;font-weight:600;padding:7px 0;border-radius:6px;cursor:pointer;}
+  .role-toggle button.active{background:#fff;color:var(--ink);}
+  .sync-status{display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:600;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.75);cursor:pointer;}
+  .sync-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+  .sync-status:hover{background:rgba(255,255,255,.1);}
+
+  /* ---------- MAIN ---------- */
+  .main{margin-left:var(--sidebar-w);min-height:100vh;}
+  .topbar{background:rgba(255,255,255,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:18px 32px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;position:sticky;top:0;z-index:10;flex-wrap:wrap;}
+  .page-title{font-family:var(--font-d);font-weight:700;font-size:19px;color:var(--ink);}
+  .page-desc{font-size:13px;color:var(--muted);margin-top:3px;max-width:580px;}
+  .content{padding:26px 32px 56px;}
+  .banner{display:flex;align-items:center;gap:10px;padding:11px 16px;border-radius:10px;font-size:12.5px;font-weight:600;margin-bottom:18px;border:1px solid transparent;}
+  .banner-warn{background:#fdf3e2;color:#8a5a06;border-color:#f2ddac;}
+  .banner-ok{background:var(--ok-bg);color:#0a7a56;border-color:var(--ok-line);}
+
+  /* ---------- COMPONENTS ---------- */
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);}
+  .stat-card{padding:16px 18px;}
+  .stat-label{font-size:11px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+  .stat-value{font-family:var(--font-d);font-weight:700;font-size:24px;color:var(--ink);}
+
+  .template-card{display:flex;align-items:center;gap:14px;padding:16px 18px;margin-bottom:18px;background:var(--brand-050);border:1px solid #cfe6e2;}
+  .template-icon{width:42px;height:42px;border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center;color:var(--brand);flex-shrink:0;box-shadow:var(--shadow);}
+  .template-title{font-family:var(--font-d);font-weight:700;font-size:14px;color:var(--ink);}
+  .template-sub{font-size:12px;color:var(--ink-soft);margin-top:1px;}
+
+  table{border-collapse:collapse;width:100%;}
+  thead th{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);text-align:left;padding:11px 16px;white-space:nowrap;background:#FAFCFB;border-bottom:1px solid var(--line);}
+  tbody td{padding:13px 16px;font-size:13.5px;color:var(--ink);border-bottom:1px solid var(--line);vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:#FAFCFB;}
+  .cell-sub{font-size:12px;color:var(--muted);margin-top:1px;}
+  .cell-muted{color:var(--muted);}
+
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:6px;font-size:12px;font-weight:600;border:1px solid transparent;}
+  .badge-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+  .badge-ok{background:var(--ok-bg);color:var(--ok);border-color:var(--ok-line);}
+  .badge-ok .badge-dot{background:var(--ok);}
+  .badge-danger{background:var(--danger-bg);color:var(--danger);border-color:var(--danger-line);}
+  .badge-danger .badge-dot{background:var(--danger);}
+
+  .btn{font-family:var(--font-b);font-weight:600;font-size:13px;padding:9px 16px;border-radius:10px;cursor:pointer;border:1px solid transparent;transition:all .13s ease;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
+  .btn-primary{background:var(--brand);color:#fff;box-shadow:0 6px 14px rgba(15,118,110,.22);}
+  .btn-primary:hover{background:var(--brand-600);transform:translateY(-1px);}
+  .btn-outline{background:#fff;color:var(--ink);border-color:var(--line-strong);}
+  .btn-outline:hover{background:#F7FAF9;border-color:var(--brand);color:var(--brand);}
+  .btn-sm{padding:6px 12px;font-size:12.5px;}
+  .btn-disabled{background:#EEF2F1;color:var(--muted);cursor:not-allowed;border-color:var(--line);}
+  .btn-link-sm{font-size:12px;font-weight:600;color:var(--brand);cursor:pointer;display:inline-flex;align-items:center;gap:4px;}
+  .btn-link-sm:hover{text-decoration:underline;}
+
+  .icon-btn{width:30px;height:30px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink-soft);transition:all .12s ease;}
+  .icon-btn:hover{background:#F5FAF9;border-color:var(--brand);color:var(--brand);}
+
+  input[type=text],input[type=date],select,textarea{width:100%;padding:10px 13px;border:1px solid var(--line-strong);border-radius:10px;font-size:13.5px;font-family:var(--font-b);background:#fcfefe;color:var(--ink);transition:.13s;}
+  input:focus,textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(15,118,110,.13);background:#fff;}
+  input:disabled,textarea:disabled{background:#F4F6F5;color:var(--ink-soft);}
+  ::placeholder{color:#a7b6b2;}
+  label.field-label{font-size:11.5px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.03em;display:block;margin-bottom:6px;}
+  .field-hint{font-size:11.5px;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;margin-top:5px;}
+
+  .section-title{font-family:var(--font-d);font-weight:700;font-size:14.5px;color:var(--ink);display:flex;align-items:center;gap:10px;}
+  .section-num{width:26px;height:26px;border-radius:8px;background:var(--brand-050);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;}
+
+  .modal-backdrop{position:fixed;inset:0;background:rgba(14,43,40,.5);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;overflow-y:auto;}
+  .progress-track{height:7px;border-radius:99px;background:#E9EFEE;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--brand);border-radius:99px;transition:width .4s ease;}
+  .file-drop{border:1.5px dashed var(--line-strong);border-radius:11px;padding:15px;background:#fbfdfd;text-align:left;}
+  .file-chip{display:inline-flex;align-items:center;gap:8px;padding:9px 13px;border:1px solid var(--line);border-radius:9px;background:#fbfdfd;font-size:13px;}
+  .empty-state{text-align:center;padding:56px 20px;color:var(--muted);}
+  .divider{border-top:1px solid var(--line);}
+
+  .pagination{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 16px;flex-wrap:wrap;border-top:1px solid var(--line);}
+  .pagination-info{font-size:12.5px;color:var(--muted);}
+  .pagination-pages{display:flex;align-items:center;gap:4px;}
+  .page-btn{min-width:30px;height:30px;padding:0 6px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink-soft);font-size:12.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
+  .page-btn:hover:not(:disabled){border-color:var(--brand);color:var(--brand);}
+  .page-btn.active{background:var(--brand);border-color:var(--brand);color:#fff;}
+  .page-btn:disabled{opacity:.4;cursor:not-allowed;}
+  .page-ellipsis{color:var(--muted);font-size:12.5px;padding:0 2px;}
+
+  .login-gate{max-width:400px;margin:60px auto;text-align:center;padding:36px 30px;}
+  .login-gate .login-icon{width:52px;height:52px;border-radius:14px;background:var(--brand-050);color:var(--brand);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;}
+  .login-gate h2{font-size:17px;margin-bottom:6px;}
+  .login-gate p{font-size:13px;color:var(--muted);margin-bottom:22px;line-height:1.6;}
+  .login-gate-btn-wrap{display:flex;justify-content:center;}
+  .login-denied{background:var(--danger-bg);border:1px solid var(--danger-line);color:var(--danger);border-radius:10px;padding:12px 14px;font-size:12.5px;text-align:left;margin-top:16px;line-height:1.6;}
+  .hr-account-chip{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:9px;background:rgba(255,255,255,.06);margin-bottom:8px;}
+  .hr-account-chip .avatar{width:26px;height:26px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+  .hr-account-chip .email{font-size:11px;color:rgba(255,255,255,.75);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
+  .hr-signout{font-size:11px;color:rgba(255,255,255,.5);cursor:pointer;flex-shrink:0;}
+  .hr-signout:hover{color:#fff;}
+
+  /* ---------- MODUL SURAT PERINGATAN & TEGURAN ---------- */
+  .sp-sev-sp1{--sev:#d19a00;} .sp-sev-sp2{--sev:#e2620d;} .sp-sev-sp3{--sev:#d02525;}
+  .sp-sev-teguran{--sev:#0e7490;} .sp-sev-phk{--sev:#7d1a2f;} .sp-sev-other{--sev:#64748b;}
+
+  .sp-chips{display:flex;flex-wrap:wrap;gap:9px;}
+  .sp-chip{position:relative;display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border:1px solid var(--line-strong);border-radius:999px;background:#fcfefe;font-size:13px;font-weight:500;cursor:pointer;transition:.15s;user-select:none;}
+  .sp-chip:hover{border-color:var(--brand);}
+  .sp-chip input{position:absolute;opacity:0;pointer-events:none;}
+  .sp-chip .box{width:15px;height:15px;border-radius:5px;border:1.5px solid var(--line-strong);display:inline-flex;align-items:center;justify-content:center;transition:.15s;flex-shrink:0;}
+  .sp-chip.on{background:var(--brand-050);border-color:var(--brand);color:#0b5c55;}
+  .sp-chip.on .box{background:var(--brand);border-color:var(--brand);}
+  .sp-chip.on .box::after{content:"";width:7px;height:4px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translateY(-1px);}
+
+  .sp-jenis-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
+  .sp-jenis{position:relative;border:1.5px solid var(--line-strong);border-radius:11px;padding:13px 12px;cursor:pointer;transition:.15s;background:#fcfefe;}
+  .sp-jenis:hover{border-color:var(--sev);}
+  .sp-jenis input{position:absolute;opacity:0;}
+  .sp-jenis .tag{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--sev);margin-bottom:7px;}
+  .sp-jenis .name{display:block;font-family:var(--font-d);font-weight:700;font-size:14px;line-height:1.15;}
+  .sp-jenis .sub{font-size:11px;color:var(--muted);}
+  .sp-jenis.on{border-color:var(--sev);background:color-mix(in srgb,var(--sev) 8%,#fff);box-shadow:0 0 0 3px color-mix(in srgb,var(--sev) 16%,transparent);}
+
+  .sp-reveal{margin-top:10px;display:none;}.sp-reveal.show{display:block;}
+
+  .sp-stat-row{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:18px;}
+  .sp-stat{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:14px 14px 12px;box-shadow:var(--shadow);border-top:3px solid var(--sev);}
+  .sp-stat .lbl{font-size:11px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:6px;}
+  .sp-stat .lbl .d{width:7px;height:7px;border-radius:50%;background:var(--sev);flex-shrink:0;}
+  .sp-stat .num{font-family:var(--font-d);font-weight:800;font-size:24px;line-height:1;margin:7px 0 2px;}
+  .sp-stat .pct{font-size:11px;color:var(--muted);}
+
+  .sp-panels{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+  .sp-panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:20px;}
+  .sp-panel.full{grid-column:1/-1;}
+  .sp-panel h3{font-size:14.5px;margin-bottom:2px;}
+  .sp-panel .ph{font-size:11.5px;color:var(--muted);margin-bottom:14px;}
+
+  .sp-donut-wrap{display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+  .sp-donut{width:140px;height:140px;flex:none;}
+  .sp-dn-num{font-family:var(--font-d);font-weight:800;font-size:23px;fill:var(--ink);text-anchor:middle;}
+  .sp-dn-lbl{font-size:8px;fill:var(--muted);text-anchor:middle;font-weight:600;text-transform:uppercase;letter-spacing:.06em;}
+  .sp-donut-legend{display:flex;flex-direction:column;gap:9px;min-width:140px;flex:1;}
+  .sp-dl-item{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink);}
+  .sp-dl-item i{width:10px;height:10px;border-radius:3px;flex:none;}
+  .sp-dl-item b{font-weight:600;flex:1;white-space:nowrap;}
+  .sp-dl-item em{font-style:normal;color:var(--muted);font-size:11.5px;}
+
+  .sp-bars{display:flex;flex-direction:column;gap:11px;}
+  .sp-bar-row{display:grid;grid-template-columns:110px 1fr auto;align-items:center;gap:10px;}
+  .sp-bar-name{font-size:12.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .sp-bar-track{height:22px;background:#eef4f3;border-radius:6px;overflow:hidden;}
+  .sp-bar-fill{height:100%;border-radius:6px;min-width:3px;transition:width .5s ease;display:flex;}
+  .sp-bar-seg{height:100%;}
+  .sp-bar-val{font-size:12.5px;font-weight:700;color:var(--ink-soft);white-space:nowrap;}
+
+  .sp-colorkey{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:11px 15px;margin-bottom:18px;box-shadow:var(--shadow);font-size:11.5px;color:var(--ink-soft);}
+  .sp-colorkey .kt{font-weight:700;color:var(--ink);}
+  .sp-colorkey span.k{display:inline-flex;align-items:center;gap:6px;}
+  .sp-colorkey i{width:9px;height:9px;border-radius:3px;display:inline-block;}
+  .sp-empty-mini{color:var(--muted);font-size:12.5px;padding:12px 0;text-align:center;width:100%;}
+
+  @media(max-width:900px){
+    .sidebar{width:72px;}
+    .sb-title,.sb-sub,.sb-section-label,.sb-item span,.sb-role-label,.role-toggle,.sync-status span{display:none;}
+    .sb-item{justify-content:center;}
+    .main{margin-left:72px;}
+    .sb-foot{display:none;}
+    .sp-jenis-grid{grid-template-columns:repeat(2,1fr);}
+    .sp-panels{grid-template-columns:1fr;}
+    .sp-stat-row{grid-template-columns:repeat(3,1fr);}
+  }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-mark">CT</div>
+    <div>
+      <div class="sb-title">Coaching Tracker</div>
+      <div class="sb-sub">Kompilasi form coaching</div>
+    </div>
+  </div>
+  <div class="sb-nav" id="sbNav"></div>
+  <div class="sb-foot">
+    <div id="sbHrAccount"></div>
+    <div class="sb-role-label">Login sebagai</div>
+    <div class="role-toggle">
+      <button id="roleBtnHr" onclick="setRole('hr')">HR</button>
+      <button id="roleBtnAtasan" onclick="setRole('atasan')">Atasan</button>
+    </div>
+    <div class="sync-status" id="syncStatus" onclick="manualSync()"></div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar" id="topbar"></div>
+  <div class="content" id="app"></div>
+</div>
+
+<div id="modalRoot"></div>
+
+<script>
+/* =========================================================================
+   KONFIGURASI GOOGLE SHEETS
+   1. Deploy Code.gs (terlampir terpisah) sebagai Web App di Apps Script.
+   2. Salin URL Web App hasil deploy, tempel di bawah ini.
+   3. Kalau dikosongkan, dashboard tetap jalan dengan data dummy lokal.
+   ========================================================================= */
+const SHEETS_API_URL = "https://script.google.com/macros/s/AKfycbz1TSgbF4wh-M_IBhbpI-SFfRKUYbo2iI5b6sNOdIdTH1GE9dW7zhSNujZhtx_PqGHz/exec"; // <-- TEMPEL URL WEB APP APPS SCRIPT DI SINI
+
+const TEMPLATE_FILE_B64 = "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";
+const TEMPLATE_FILE_NAME = "Form_Coaching_Karyawan_-_WM_Center.docx";
+
+const PAGE_SIZE = 30;
+
+/* =========================================================================
+   KONFIGURASI GOOGLE SIGN-IN (AKSES HALAMAN HR)
+   1. Buat OAuth Client ID di Google Cloud Console (lihat panduan terpisah).
+   2. Tempel Client ID di bawah ini.
+   3. Daftar email yang boleh akses Layer 1 (HR) ada di ALLOWED_HR_EMAILS.
+      Email yang sama HARUS juga ditempel di Code.gs (ALLOWED_HR_EMAILS)
+      supaya validasinya juga jalan di server, bukan cuma di tampilan.
+   ========================================================================= */
+const GOOGLE_CLIENT_ID = "113626255388-sscgtea5u31dvevv48jb3dv2mlg0cjfv.apps.googleusercontent.com";
+const ALLOWED_HR_EMAILS = ["hr@wmcenter.id", "mia@wmcenter.id", "peopledevelopment.wmcenter@gmail.com", "legal@wmcenter.id", "legalwmcenter@gmail.com"];
+
+/* =========================================================================
+   KONFIGURASI MODUL SURAT PERINGATAN & TEGURAN
+   ========================================================================= */
+const SP_PERIOD_MONTHS = 6;  // masa berlaku SP (bulan)
+const SP_SOON_DAYS = 30;     // ambang "akan berakhir"
+
+const SP_JENIS = {
+  "Surat Peringatan 1": { cls: "sp-sev-sp1", short: "SP 1", sub: "Peringatan pertama", color: "#d19a00" },
+  "Surat Peringatan 2": { cls: "sp-sev-sp2", short: "SP 2", sub: "Peringatan kedua", color: "#e2620d" },
+  "Surat Peringatan 3": { cls: "sp-sev-sp3", short: "SP 3", sub: "Peringatan ketiga", color: "#d02525" },
+  "Surat Teguran": { cls: "sp-sev-teguran", short: "Teguran", sub: "Teguran tertulis", color: "#0e7490" },
+  "Surat PHK": { cls: "sp-sev-phk", short: "PHK", sub: "Pemutusan kerja", color: "#7d1a2f" },
+};
+const SP_JENIS_KEYS = Object.keys(SP_JENIS);
+const SP_TYPES = ["Surat Peringatan 1", "Surat Peringatan 2", "Surat Peringatan 3"];
+const SP_OTHER_COLOR = "#64748b";
+const spSevOf = (j) => SP_JENIS[j] || { cls: "sp-sev-other", short: j || "Lainnya", sub: "", color: SP_OTHER_COLOR };
+
+const SP_ALASAN_OPTIONS = [
+  "Pelanggaran SOP & Prosedur", "Pelanggaran Kedisiplinan Kerja", "Kelalaian Tanggung Jawab Kerja",
+  "Pelanggaran Jadwal Kerja", "Handling Complain", "Underperform", "Tindakan Kriminal"
+];
+const SP_CABANG_OPTIONS = ["Office", "Pemuda", "Bandung", "BSD", "Kemang", "Cibubur", "Kebayoran", "Puri", "Surabaya", "Alam Sutera", "Kuningan", "Bekasi"];
+
+const STORAGE = {
+  records: [
+    {id:1, namaAtasan:"Budi Santoso", jabatan:"Manager", divisi:"Sales", namaKaryawan:"Andi Prasetyo", posisiKaryawan:"Sales Executive", divisiKaryawan:"Sales", penempatan:"Jakarta Pusat", periode:"2026-07-10", submission:null, status:"uncomplete"},
+    {id:2, namaAtasan:"Budi Santoso", jabatan:"Manager", divisi:"Sales", namaKaryawan:"Rina Wulandari", posisiKaryawan:"Sales Executive", divisiKaryawan:"Sales", penempatan:"Jakarta Pusat", periode:"2026-07-12",
+      submission:{areaCoaching:"Penanganan Komplain", alasan:"Penurunan target penjualan Q2 dan beberapa komplain pelanggan terkait respons yang lambat.", fileName:"form-coaching-rina.pdf", fileDataUrl:null, fileUrl:null, catatan:"Karyawan kooperatif, akan dievaluasi kembali bulan depan.", penempatan:"Jakarta Pusat"}, status:"complete"},
+    {id:3, namaAtasan:"Siti Aminah", jabatan:"Assistant Manager", divisi:"Finance", namaKaryawan:"Dedi Kurniawan", posisiKaryawan:"Finance Staff", divisiKaryawan:"Finance", penempatan:"Surabaya", periode:"2026-07-15", submission:null, status:"uncomplete"},
+    {id:4, namaAtasan:"Siti Aminah", jabatan:"Assistant Manager", divisi:"Finance", namaKaryawan:"Maya Sari", posisiKaryawan:"Finance Staff", divisiKaryawan:"Finance", penempatan:"Surabaya", periode:"2026-07-08",
+      submission:{areaCoaching:"NPS", alasan:"Kesalahan input laporan berulang yang berdampak pada skor kepuasan pelanggan.", fileName:"form-coaching-maya.pdf", fileDataUrl:null, fileUrl:null, catatan:"Perlu pendampingan tambahan 2 minggu ke depan.", penempatan:"Surabaya"}, status:"complete"},
+    {id:5, namaAtasan:"Hendra Wijaya", jabatan:"Team Leader", divisi:"Operasional", namaKaryawan:"Fajar Nugroho", posisiKaryawan:"Staff Operasional", divisiKaryawan:"Operasional", penempatan:"Bandung", periode:"2026-07-18", submission:null, status:"uncomplete"},
+    {id:6, namaAtasan:"Hendra Wijaya", jabatan:"Team Leader", divisi:"Operasional", namaKaryawan:"Lestari Handayani", posisiKaryawan:"Staff Operasional", divisiKaryawan:"Operasional", penempatan:"Bandung", periode:"2026-07-20", submission:null, status:"uncomplete"},
+  ],
+  nextId: 7,
+  suratTindakan: [
+    {id:"SP-1", timestamp:"2026-06-18T09:00:00", namaAtasan:"Budi Santoso", posisiAtasan:"Manager", divisiAtasan:"Sales", namaKaryawan:"Rian Saputra", posisiKaryawan:"Sales Executive", divisiKaryawan:"Sales", cabang:"Kemang", jenis:"Surat Peringatan 2", alasan:"Pelanggaran Jadwal Kerja, Underperform", tanggalSP:"2026-06-18", detail:"Keterlambatan berulang dan pencapaian target di bawah standar selama 2 bulan berturut-turut."},
+    {id:"SP-2", timestamp:"2026-05-08T09:00:00", namaAtasan:"Siti Aminah", posisiAtasan:"Assistant Manager", divisiAtasan:"Finance", namaKaryawan:"Yuni Kartika", posisiKaryawan:"Finance Staff", divisiKaryawan:"Finance", cabang:"BSD", jenis:"Surat Peringatan 1", alasan:"Kelalaian Tanggung Jawab Kerja", tanggalSP:"2026-05-08", detail:"Kesalahan input data laporan bulanan yang menyebabkan selisih pencatatan."},
+    {id:"SP-3", timestamp:"2026-06-05T09:00:00", namaAtasan:"Hendra Wijaya", posisiAtasan:"Team Leader", divisiAtasan:"Operasional", namaKaryawan:"Doni Firmansyah", posisiKaryawan:"Staff Operasional", divisiKaryawan:"Operasional", cabang:"Pemuda", jenis:"Surat Teguran", alasan:"Pelanggaran SOP & Prosedur", tanggalSP:"", detail:"Tidak mengikuti prosedur checklist harian sebanyak 3 kali dalam seminggu."},
+  ]
+};
+
+let state = { role: "hr", view: "layer1", activeRecordId: null, page1: 1, page2: 1, pageSP: 1, syncing:false, connected:false, googleIdToken:null, googleEmail:null, hrAuthorized:false };
+
+
+const fmtDate = (d) => {
+  if(!d) return "-";
+  const dt = new Date(d+"T00:00:00");
+  return dt.toLocaleDateString("id-ID", {day:"2-digit", month:"short", year:"numeric"});
+};
+const esc = (s) => (s ?? "").toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function setRole(role){
+  state.role = role;
+  state.view = role === "hr" ? "layer1" : "layer2";
+  state.activeRecordId = null;
+  render();
+}
+function setView(view, recordId){
+  state.view = view;
+  if(recordId !== undefined) state.activeRecordId = recordId;
+  render();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+/* ---------- GOOGLE SIGN-IN (GATE UNTUK LAYER 1 / HR) ---------- */
+function decodeJwt(token){
+  try{
+    const payload = token.split(".")[1];
+    const base64 = payload.replace(/-/g,'+').replace(/_/g,'/');
+    const json = decodeURIComponent(atob(base64).split('').map(c => '%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+    return JSON.parse(json);
+  }catch(e){ return null; }
+}
+
+function handleGoogleSignIn(response){
+  const payload = decodeJwt(response.credential);
+  if(!payload || !payload.email){
+    alert("Gagal membaca informasi akun Google. Coba lagi.");
+    return;
+  }
+  state.googleIdToken = response.credential;
+  state.googleEmail = payload.email;
+  state.hrAuthorized = ALLOWED_HR_EMAILS.map(e=>e.toLowerCase()).includes(payload.email.toLowerCase());
+  render();
+}
+
+function googleSignOut(){
+  state.googleIdToken = null;
+  state.googleEmail = null;
+  state.hrAuthorized = false;
+  if(window.google && google.accounts && google.accounts.id){
+    google.accounts.id.disableAutoSelect();
+  }
+  render();
+}
+
+function isGoogleSignInReady(){
+  return !!(window.google && google.accounts && google.accounts.id && GOOGLE_CLIENT_ID && GOOGLE_CLIENT_ID.indexOf("PASTE_") !== 0);
+}
+
+function renderGoogleButton(){
+  const el = document.getElementById("googleSignInBtn");
+  if(!el) return;
+  if(!isGoogleSignInReady()){
+    el.innerHTML = `<div class="login-denied">Google Sign-In belum dikonfigurasi. Tempel GOOGLE_CLIENT_ID yang valid di kode dashboard.</div>`;
+    return;
+  }
+  google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleGoogleSignIn });
+  google.accounts.id.renderButton(el, { theme: "outline", size: "large", text: "signin_with", shape: "pill", width: 260 });
+}
+
+/* ---------- ICONS ---------- */
+const ic = {
+  table:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>',
+  list:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>',
+  back:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>',
+  edit:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+  trash:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>',
+  eye:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg>',
+  file:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>',
+  close:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>',
+  download:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>',
+  refresh:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>',
+  alert:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/></svg>',
+};
+
+/* ---------- SIDEBAR NAV ---------- */
+function renderSidebarNav(){
+  let items = [];
+  if(state.role === "hr"){
+    items.push({key:"layer1", label:"Data Master Coaching", icon:ic.table});
+    items.push({key:"sp-dash", label:"Surat Peringatan & Teguran", icon:ic.alert});
+  } else {
+    items.push({key:"layer2", label:"Daftar Submission Coaching", icon:ic.list});
+    items.push({key:"sp-form", label:"Surat Peringatan & Teguran", icon:ic.alert});
+  }
+  document.getElementById("sbNav").innerHTML = `
+    <div class="sb-section-label">Menu</div>
+    ${items.map(it => `
+      <div class="sb-item ${state.view===it.key || (it.key==='layer2' && state.view==='layer3') ? 'active':''}" onclick="setView('${it.key}')">
+        ${it.icon}<span>${it.label}</span>
+      </div>
+    `).join("")}
+  `;
+  document.getElementById("roleBtnHr").className = state.role==="hr" ? "active" : "";
+  document.getElementById("roleBtnAtasan").className = state.role==="atasan" ? "active" : "";
+
+  const acc = document.getElementById("sbHrAccount");
+  if(state.hrAuthorized && state.googleEmail){
+    acc.innerHTML = `
+      <div class="hr-account-chip">
+        <div class="avatar">${esc(state.googleEmail.charAt(0).toUpperCase())}</div>
+        <div class="email" title="${esc(state.googleEmail)}">${esc(state.googleEmail)}</div>
+        <div class="hr-signout" onclick="googleSignOut()">Keluar</div>
+      </div>
+    `;
+  } else {
+    acc.innerHTML = "";
+  }
+  renderSyncStatus();
+}
+
+function renderSyncStatus(){
+  const el = document.getElementById("syncStatus");
+  if(!SHEETS_API_URL){
+    el.innerHTML = `<span class="sync-dot" style="background:#c9a94a;"></span><span>Mode lokal (belum ke Sheets)</span>`;
+  } else if(state.syncing){
+    el.innerHTML = `<span class="sync-dot" style="background:#c9a94a;"></span><span>Menyinkronkan...</span>`;
+  } else if(state.connected){
+    el.innerHTML = `<span class="sync-dot" style="background:#3ddc97;"></span><span>Tersambung ke Sheets</span>`;
+  } else {
+    el.innerHTML = `${ic.refresh}<span>Klik untuk sinkronkan</span>`;
+  }
+}
+
+async function manualSync(){
+  if(!SHEETS_API_URL) return;
+  await loadFromSheets();
+  render();
+}
+
+/* ---------- GOOGLE SHEETS SYNC LAYER ---------- */
+async function loadFromSheets(){
+  if(!SHEETS_API_URL) return;
+  state.syncing = true; renderSyncStatus();
+  try{
+    const res = await fetch(SHEETS_API_URL);
+    const data = await res.json();
+    if(data && data.records){
+      STORAGE.records = data.records.map(r => ({
+        id: r.id, namaAtasan: r.namaAtasan, jabatan: r.jabatan, divisi: r.divisi,
+        namaKaryawan: r.namaKaryawan, posisiKaryawan: r.posisiKaryawan, divisiKaryawan: r.divisiKaryawan,
+        penempatan: r.penempatan, periode: r.periode, status: r.status,
+        submission: r.submission ? {
+          areaCoaching: r.submission.areaCoaching, alasan: r.submission.alasan,
+          penempatan: r.submission.penempatan, catatan: r.submission.catatan,
+          fileName: r.submission.fileName, fileUrl: r.submission.fileUrl, fileDataUrl: null
+        } : null
+      }));
+    }
+    if(data && Array.isArray(data.suratTindakan)){
+      STORAGE.suratTindakan = data.suratTindakan;
+    }
+    state.connected = true;
+  }catch(err){
+    console.error("Gagal memuat dari Sheets:", err);
+    state.connected = false;
+  }
+  state.syncing = false; renderSyncStatus();
+}
+
+// Trik: pakai Content-Type text/plain supaya browser tidak mengirim preflight OPTIONS
+// (Apps Script Web App tidak menangani preflight CORS dengan baik).
+async function postToSheets(action, payload){
+  if(!SHEETS_API_URL) return null;
+  try{
+    const res = await fetch(SHEETS_API_URL, {
+      method: "POST",
+      headers: {"Content-Type": "text/plain;charset=utf-8"},
+      body: JSON.stringify({ action, ...payload })
+    });
+    return await res.json();
+  }catch(err){
+    console.error("Gagal mengirim ke Sheets:", err);
+    return null;
+  }
+}
+
+/* ---------- PAGINATION HELPERS ---------- */
+function paginate(arr, page){
+  const total = arr.length;
+  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const safePage = Math.min(Math.max(1, page), pages);
+  const start = (safePage - 1) * PAGE_SIZE;
+  return { rows: arr.slice(start, start + PAGE_SIZE), total, pages, page: safePage, start };
+}
+
+function pageButtons(pages, current){
+  let nums = [];
+  if(pages <= 7){
+    nums = Array.from({length:pages}, (_,i)=>i+1);
+  } else {
+    nums = [1];
+    if(current > 3) nums.push("...");
+    for(let p = Math.max(2,current-1); p <= Math.min(pages-1,current+1); p++) nums.push(p);
+    if(current < pages-2) nums.push("...");
+    nums.push(pages);
+  }
+  return nums;
+}
+
+function renderPagination(target, pageInfo, currentPage, onPageFn){
+  if(pageInfo.total === 0) return "";
+  const nums = pageButtons(pageInfo.pages, pageInfo.page);
+  const btns = nums.map(n => n === "..."
+    ? `<span class="page-ellipsis">&hellip;</span>`
+    : `<button class="page-btn ${n===pageInfo.page ? 'active':''}" onclick="${onPageFn}(${n})">${n}</button>`
+  ).join("");
+  return `
+    <div class="pagination">
+      <div class="pagination-info">Menampilkan ${pageInfo.start+1}&ndash;${Math.min(pageInfo.start+PAGE_SIZE, pageInfo.total)} dari ${pageInfo.total} data</div>
+      <div class="pagination-pages">
+        <button class="page-btn" ${pageInfo.page<=1?'disabled':''} onclick="${onPageFn}(${pageInfo.page-1})">&lsaquo;</button>
+        ${btns}
+        <button class="page-btn" ${pageInfo.page>=pageInfo.pages?'disabled':''} onclick="${onPageFn}(${pageInfo.page+1})">&rsaquo;</button>
+      </div>
+    </div>
+  `;
+}
+function goPage1(p){ state.page1 = p; render(); }
+function goPage2(p){ state.page2 = p; render(); }
+
+/* ---------- TOPBAR ---------- */
+function renderTopbar(){
+  const top = document.getElementById("topbar");
+  if(state.role === "hr" && state.view === "sp-dash"){
+    top.innerHTML = `
+      <div>
+        <div class="page-title">Surat Peringatan &amp; Teguran</div>
+        <div class="page-desc">Rekap pengajuan Surat Peringatan (SP) dan Surat Teguran dari seluruh atasan. Khusus HR.</div>
+      </div>
+    `;
+  } else if(state.role === "hr"){
+    top.innerHTML = `
+      <div>
+        <div class="page-title">Data Master Coaching</div>
+        <div class="page-desc">Kelola penugasan coaching. Halaman ini hanya bisa diakses dan diubah oleh HR &mdash; hasil submission atasan otomatis tersinkron di sini.</div>
+      </div>
+      ${state.hrAuthorized ? `<button class="btn btn-primary" onclick="openRecordModal(null)">+ Tambah Data</button>` : ''}
+    `;
+  } else if(state.view === "layer3"){
+    const r = STORAGE.records.find(x => x.id === state.activeRecordId);
+    top.innerHTML = `
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="icon-btn" onclick="setView('layer2')">${ic.back}</div>
+        <div>
+          <div class="page-title">Form Submission Coaching</div>
+          <div class="page-desc">${r ? esc(r.namaKaryawan)+' &middot; Periode '+fmtDate(r.periode) : ''}</div>
+        </div>
+      </div>
+    `;
+  } else if(state.view === "sp-form"){
+    top.innerHTML = `
+      <div>
+        <div class="page-title">Ajukan Surat Peringatan &amp; Teguran</div>
+        <div class="page-desc">Isi form di bawah untuk mengajukan Surat Peringatan atau Surat Teguran bagi karyawan.</div>
+      </div>
+    `;
+  } else {
+    top.innerHTML = `
+      <div>
+        <div class="page-title">Daftar Submission Coaching</div>
+        <div class="page-desc">Isi form coaching untuk setiap karyawan yang ditugaskan kepada Anda. Setiap baris hanya bisa diisi satu kali.</div>
+      </div>
+    `;
+  }
+}
+
+/* ---------- LAYER 1 : HR MASTER DATA ---------- */
+function renderLayer1(){
+  const pg = paginate(STORAGE.records, state.page1);
+  const rows = pg.rows.map((r, i) => {
+    const hasFile = !!(r.submission && (r.submission.fileDataUrl || r.submission.fileUrl));
+    const fileHref = r.submission ? (r.submission.fileUrl || r.submission.fileDataUrl) : null;
+    const docCell = hasFile
+      ? `<a href="${fileHref}" target="_blank" class="btn-link-sm">${ic.file}${esc(r.submission.fileName || 'Dokumen')}</a>`
+      : r.status === "complete"
+        ? `<span class="cell-muted">Terisi, tanpa file</span>`
+        : `<span class="cell-muted">&mdash;</span>`;
+    return `
+    <tr>
+      <td class="cell-muted">${pg.start+i+1}</td>
+      <td class="font-medium">${esc(r.namaAtasan)}<div class="cell-sub">${esc(r.jabatan)} &middot; ${esc(r.divisi)}</div></td>
+      <td class="font-medium">${esc(r.namaKaryawan)}<div class="cell-sub">${esc(r.posisiKaryawan)} &middot; ${esc(r.divisiKaryawan)}</div></td>
+      <td>${esc(r.penempatan)}</td>
+      <td>${fmtDate(r.periode)}</td>
+      <td>${docCell}</td>
+      <td>${statusBadge(r.status)}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div class="icon-btn" onclick="openDetailModal(${r.id})" title="Lihat detail">${ic.eye}</div>
+          <div class="icon-btn" onclick="openRecordModal(${r.id})" title="Edit">${ic.edit}</div>
+          <div class="icon-btn" onclick="deleteRecord(${r.id})" title="Hapus">${ic.trash}</div>
+        </div>
+      </td>
+    </tr>
+  `;
+  }).join("");
+
+  return `
+    <div class="card" style="overflow-x:auto;">
+      <table>
+        <thead><tr>
+          <th style="width:36px;">No</th><th>Atasan</th><th>Karyawan</th>
+          <th>Penempatan</th><th>Periode</th><th>Dokumen Coaching</th><th>Status</th><th style="width:110px;">Aksi</th>
+        </tr></thead>
+        <tbody>${rows || `<tr><td colspan="8"><div class="empty-state">Belum ada data. Klik "Tambah Data" untuk memulai.</div></td></tr>`}</tbody>
+      </table>
+      ${renderPagination('layer1', pg, state.page1, 'goPage1')}
+    </div>
+  `;
+}
+
+function statusBadge(status){
+  return status === "complete"
+    ? `<span class="badge badge-ok"><span class="badge-dot"></span>Complete</span>`
+    : `<span class="badge badge-danger"><span class="badge-dot"></span>Uncomplete</span>`;
+}
+
+/* ---------- LAYER 2 : ATASAN SUBMISSION LIST ---------- */
+function renderLayer2(){
+  const total = STORAGE.records.length;
+  const done = STORAGE.records.filter(r=>r.status==="complete").length;
+  const pct = total ? Math.round((done/total)*100) : 0;
+  const pg = paginate(STORAGE.records, state.page2);
+
+  const rows = pg.rows.map((r,i) => {
+    const isDone = r.status === "complete";
+    const fileHref = r.submission ? (r.submission.fileUrl || r.submission.fileDataUrl) : null;
+    const submitCell = isDone
+      ? `<div style="display:flex;align-items:center;gap:8px;">
+           <button class="btn btn-disabled btn-sm" disabled>Sudah Diisi</button>
+           ${fileHref ? `<a href="${fileHref}" target="_blank" class="icon-btn" title="Lihat dokumen">${ic.eye}</a>` : ''}
+         </div>`
+      : `<button class="btn btn-primary btn-sm" onclick="setView('layer3', ${r.id})">Upload Disini</button>`;
+    return `
+      <tr>
+        <td class="cell-muted">${pg.start+i+1}</td>
+        <td class="font-medium">${esc(r.namaAtasan)}<div class="cell-sub">${esc(r.jabatan)} &middot; ${esc(r.divisi)}</div></td>
+        <td class="font-medium">${esc(r.namaKaryawan)}<div class="cell-sub">${esc(r.posisiKaryawan)} &middot; ${esc(r.divisiKaryawan)}</div></td>
+        <td>${esc(r.penempatan)}</td>
+        <td>${fmtDate(r.periode)}</td>
+        <td>${submitCell}</td>
+        <td>${statusBadge(r.status)}</td>
+      </tr>
+    `;
+  }).join("");
+
+  return `
+    <div class="card template-card">
+      <div class="template-icon">${ic.download}</div>
+      <div style="flex:1;">
+        <div class="template-title">Download Template Form Coaching</div>
+        <div class="template-sub">Unduh dan isi form ini sebelum diunggah pada Section 3 &mdash; Upload Form Coaching.</div>
+      </div>
+      <a class="btn btn-outline btn-sm" href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,${TEMPLATE_FILE_B64}" download="${TEMPLATE_FILE_NAME}">${ic.download} Download</a>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px;">
+      <div class="card stat-card"><div class="stat-label">Total penugasan</div><div class="stat-value">${total}</div></div>
+      <div class="card stat-card"><div class="stat-label">Selesai diisi</div><div class="stat-value" style="color:var(--ok)">${done}</div></div>
+      <div class="card stat-card">
+        <div class="stat-label">Progress kelengkapan</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:3px;">
+          <div class="progress-track" style="flex:1;"><div class="progress-fill" style="width:${pct}%"></div></div>
+          <span class="font-display" style="font-weight:700;font-size:13.5px;">${pct}%</span>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="overflow-x:auto;">
+      <table>
+        <thead><tr>
+          <th style="width:36px;">No</th><th>Atasan</th><th>Karyawan</th>
+          <th>Penempatan</th><th>Periode</th><th>Submission</th><th>Status</th>
+        </tr></thead>
+        <tbody>${rows || `<tr><td colspan="7"><div class="empty-state">Belum ada penugasan coaching untuk Anda.</div></td></tr>`}</tbody>
+      </table>
+      ${renderPagination('layer2', pg, state.page2, 'goPage2')}
+    </div>
+  `;
+}
+
+/* ---------- LAYER 3 : SUBMISSION FORM ---------- */
+function renderLayer3(){
+  const r = STORAGE.records.find(x => x.id === state.activeRecordId);
+  if(!r){
+    return `<div class="card empty-state">Data tidak ditemukan. <span class="btn-link-sm" style="display:inline" onclick="setView('layer2')">Kembali ke daftar submission</span></div>`;
+  }
+  const s = r.submission || {};
+  const readonly = r.status === "complete";
+
+  return `
+    <form id="submissionForm" style="display:flex;flex-direction:column;gap:16px;max-width:760px;">
+      <div class="card" style="padding:20px;">
+        <div class="section-title" style="margin-bottom:16px;"><span class="section-num">1</span>Data Atasan</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+          <div><label class="field-label">Nama Atasan</label><input type="text" value="${esc(r.namaAtasan)}" disabled></div>
+          <div><label class="field-label">Posisi</label><input type="text" value="${esc(r.jabatan)}" disabled></div>
+          <div><label class="field-label">Divisi</label><input type="text" value="${esc(r.divisi)}" disabled></div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:20px;">
+        <div class="section-title" style="margin-bottom:16px;"><span class="section-num">2</span>Data Karyawan yang Bersangkutan</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+          <div><label class="field-label">Nama Karyawan</label><input type="text" value="${esc(r.namaKaryawan)}" disabled></div>
+          <div><label class="field-label">Posisi Karyawan</label><input type="text" value="${esc(r.posisiKaryawan)}" disabled></div>
+          <div><label class="field-label">Divisi Karyawan</label><input type="text" value="${esc(r.divisiKaryawan)}" disabled></div>
+        </div>
+        <div style="margin-top:14px;">
+          <label class="field-label">Penempatan</label>
+          <input type="text" id="f_penempatan" placeholder="Contoh: Jakarta Pusat" value="${esc(s.penempatan ?? r.penempatan ?? '')}" ${readonly ? 'disabled':''}>
+        </div>
+      </div>
+
+      <div class="card" style="padding:20px;">
+        <div class="section-title" style="margin-bottom:16px;"><span class="section-num">3</span>Detail Coaching</div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div>
+            <label class="field-label">Area Coaching</label>
+            <input type="text" id="f_area" placeholder="" value="${esc(s.areaCoaching ?? '')}" ${readonly ? 'disabled':''}>
+            <div class="field-hint">Sesuaikan dengan agenda di Surat Pemanggilan Coaching.</div>
+          </div>
+          <div>
+            <label class="field-label">Alasan Pemberian Coaching</label>
+            <input type="text" id="f_alasan" placeholder="Contoh: Penurunan performa target Q2" value="${esc(s.alasan ?? '')}" ${readonly ? 'disabled':''}>
+          </div>
+          <div>
+            <label class="field-label">Catatan Coaching</label>
+            <textarea id="f_catatan" rows="3" placeholder="Catatan tambahan, komitmen, atau rencana tindak lanjut..." ${readonly ? 'disabled':''}>${esc(s.catatan ?? '')}</textarea>
+          </div>
+          <div>
+            <label class="field-label">Upload Form Coaching (PDF)</label>
+            ${readonly
+              ? `<div class="file-chip">${ic.file}${esc(s.fileName ?? 'form-coaching.pdf')}${(s.fileUrl || s.fileDataUrl) ? `<a href="${s.fileUrl || s.fileDataUrl}" target="_blank" style="margin-left:6px;">Buka file</a>` : ''}</div>`
+              : `<div class="file-drop">
+                  <input type="file" id="f_file" accept="application/pdf" style="border:none;padding:0;font-size:13px;">
+                  <div style="font-size:11.5px;color:var(--muted);margin-top:5px;">Format PDF, maksimal 10MB. Gunakan form hasil download di halaman sebelumnya.</div>
+                </div>`
+            }
+          </div>
+        </div>
+      </div>
+
+      ${readonly
+        ? `<div style="font-size:13px;color:var(--muted);padding:0 2px;">Submission ini sudah dikirim dan tidak dapat diubah kembali.</div>`
+        : `<div style="display:flex;justify-content:flex-end;gap:10px;">
+            <button type="button" class="btn btn-outline" onclick="setView('layer2')">Batal</button>
+            <button type="submit" class="btn btn-primary" id="submitBtn">Kirim Submission</button>
+          </div>`
+      }
+    </form>
+  `;
+}
+
+function attachLayer3Handlers(){
+  const form = document.getElementById("submissionForm");
+  if(!form) return;
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const r = STORAGE.records.find(x => x.id === state.activeRecordId);
+    if(!r) return;
+    const alasan = document.getElementById("f_alasan").value.trim();
+    const areaCoaching = document.getElementById("f_area").value.trim();
+    const catatan = document.getElementById("f_catatan").value.trim();
+    const penempatan = document.getElementById("f_penempatan").value.trim();
+    const fileInput = document.getElementById("f_file");
+    const file = fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+
+    if(!areaCoaching || !alasan){
+      alert("Mohon lengkapi Area Coaching dan Alasan Pemberian Coaching sebelum mengirim.");
+      return;
+    }
+
+    const submitBtn = document.getElementById("submitBtn");
+    if(submitBtn){ submitBtn.disabled = true; submitBtn.textContent = "Mengirim..."; }
+
+    const finish = async (fileName, fileDataUrl) => {
+      const submissionData = { areaCoaching, alasan, catatan, penempatan, fileName, fileDataUrl, fileUrl: null };
+      r.submission = submissionData;
+      r.status = "complete";
+
+      if(SHEETS_API_URL){
+        const res = await postToSheets("submitCoaching", {
+          id: r.id,
+          data: { areaCoaching, alasan, catatan, penempatan, fileName, fileBase64: fileDataUrl }
+        });
+        if(res && res.fileUrl) r.submission.fileUrl = res.fileUrl;
+      }
+      setView("layer2");
+    };
+
+    if(file){
+      const reader = new FileReader();
+      reader.onload = () => finish(file.name, reader.result);
+      reader.readAsDataURL(file);
+    } else {
+      await finish(null, null);
+    }
+  });
+}
+
+/* =========================================================================
+   MODUL SURAT PERINGATAN & TEGURAN
+   ========================================================================= */
+
+/* ---------- FORM (ATASAN) ---------- */
+function renderSPForm(){
+  const jenisCards = SP_JENIS_KEYS.map(key => {
+    const j = SP_JENIS[key];
+    return `
+      <label class="sp-jenis ${j.cls}"><input type="radio" name="sp_jenis" value="${esc(key)}" onchange="spOnJenis()">
+        <span class="tag"></span><span class="name">${esc(j.short)}</span><span class="sub">${esc(j.sub)}</span>
+      </label>
+    `;
+  }).join("");
+
+  const alasanChips = SP_ALASAN_OPTIONS.map(opt => `
+    <label class="sp-chip"><input type="checkbox" value="${esc(opt)}"><span class="box"></span>${esc(opt)}</label>
+  `).join("");
+
+  const cabangOptions = SP_CABANG_OPTIONS.map(c => `<option>${esc(c)}</option>`).join("");
+
+  return `
+    <form id="spForm" style="display:flex;flex-direction:column;gap:16px;max-width:760px;">
+      <div class="card" style="padding:20px;">
+        <div class="section-title" style="margin-bottom:16px;"><span class="section-num">1</span>Data Atasan</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+          <div><label class="field-label">Nama Atasan</label><input type="text" id="sp_namaAtasan" placeholder="Nama lengkap"></div>
+          <div><label class="field-label">Posisi</label><input type="text" id="sp_posisiAtasan" placeholder="Jabatan atasan"></div>
+          <div><label class="field-label">Divisi</label><input type="text" id="sp_divisiAtasan" placeholder="Divisi / departemen atasan"></div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:20px;">
+        <div class="section-title" style="margin-bottom:16px;"><span class="section-num">2</span>Data Karyawan yang Bersangkutan</div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;">
+          <div><label class="field-label">Nama Karyawan</label><input type="text" id="sp_namaKaryawan" placeholder="Nama lengkap karyawan"></div>
+          <div><label class="field-label">Posisi Karyawan</label><input type="text" id="sp_posisiKaryawan" placeholder="Jabatan karyawan"></div>
+          <div><label class="field-label">Divisi Karyawan</label><input type="text" id="sp_divisiKaryawan" placeholder="Divisi / departemen karyawan"></div>
+          <div>
+            <label class="field-label">Cabang</label>
+            <select id="sp_cabang" onchange="spOnCabang()">
+              <option value="" disabled selected>Pilih cabang</option>
+              ${cabangOptions}
+              <option value="__other">Lainnya…</option>
+            </select>
+            <div class="sp-reveal" id="spCabangOther" style="margin-top:8px;"><input type="text" id="sp_cabangOther" placeholder="Tulis nama cabang lainnya"></div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;">
+          <label class="field-label">Jenis Tindakan</label>
+          <div class="sp-jenis-grid">${jenisCards}</div>
+        </div>
+
+        <div class="sp-reveal" id="spDateBox" style="margin-top:14px;">
+          <label class="field-label">Tanggal Berlaku Surat Peringatan <span class="field-hint" style="text-transform:none;">— awal masa SP</span></label>
+          <input type="date" id="sp_tanggalSP" onchange="spOnDate()" style="max-width:240px;">
+          <div class="field-hint" id="spExpiryHint" style="margin-top:7px;"></div>
+        </div>
+
+        <div style="margin-top:16px;">
+          <label class="field-label">Alasan Pemberian Surat <span class="field-hint" style="text-transform:none;">— bisa pilih lebih dari satu</span></label>
+          <div class="sp-chips" id="spAlasanChips">
+            ${alasanChips}
+            <label class="sp-chip" id="spAlasanOtherChip"><input type="checkbox" value="__other" onchange="spOnAlasanOther()"><span class="box"></span>Lainnya</label>
+          </div>
+          <div class="sp-reveal" id="spAlasanOther" style="margin-top:8px;"><input type="text" id="sp_alasanOther" placeholder="Tulis kategori alasan lainnya"></div>
+        </div>
+
+        <div style="margin-top:16px;">
+          <label class="field-label">Detail Pelanggaran / Kejadian</label>
+          <textarea id="sp_detail" rows="4" placeholder="Deskripsikan kronologi secara detail — sertakan tanggal kejadian, apa yang terjadi, dan dampaknya."></textarea>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px;">
+        <button type="button" class="btn btn-outline" onclick="setView('sp-form')">Reset</button>
+        <button type="submit" class="btn btn-primary" id="spSubmitBtn">Kirim Pengajuan</button>
+      </div>
+    </form>
+  `;
+}
+
+function spOnCabang(){
+  document.getElementById("spCabangOther").classList.toggle("show", document.getElementById("sp_cabang").value === "__other");
+}
+function spOnJenis(){
+  const checked = document.querySelector('input[name="sp_jenis"]:checked');
+  const v = checked ? checked.value : "";
+  document.getElementById("spDateBox").classList.toggle("show", SP_TYPES.includes(v));
+  document.querySelectorAll(".sp-jenis").forEach(l => l.classList.toggle("on", l.querySelector("input").checked));
+}
+function spOnAlasanOther(){
+  document.getElementById("spAlasanOther").classList.toggle("show", document.querySelector("#spAlasanOtherChip input").checked);
+}
+function spAddMonths(dt, n){ const x = new Date(dt); x.setMonth(x.getMonth() + n); return x; }
+function spFmtDateLong(s){
+  const dt = new Date(s);
+  if(isNaN(dt)) return "-";
+  const MONTHS_ID = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+  return dt.getDate() + " " + MONTHS_ID[dt.getMonth()] + " " + dt.getFullYear();
+}
+function spOnDate(){
+  const v = document.getElementById("sp_tanggalSP").value;
+  const hint = document.getElementById("spExpiryHint");
+  if(!v){ hint.textContent = ""; return; }
+  const exp = spAddMonths(new Date(v), SP_PERIOD_MONTHS);
+  hint.innerHTML = "Masa SP berakhir & karyawan <b>eligible kembali</b> pada <b>" + spFmtDateLong(exp) + "</b>.";
+}
+
+document.addEventListener("change", (e) => {
+  if(e.target.closest && e.target.closest("#spAlasanChips")){
+    const chip = e.target.closest(".sp-chip");
+    if(chip) chip.classList.toggle("on", e.target.checked);
+  }
+});
+
+function spGetAlasan(){
+  const arr = [];
+  document.querySelectorAll("#spAlasanChips input:checked").forEach(c => {
+    if(c.value === "__other"){
+      const o = document.getElementById("sp_alasanOther").value.trim();
+      if(o) arr.push(o);
+    } else {
+      arr.push(c.value);
+    }
+  });
+  return arr;
+}
+function spGetCabang(){
+  const v = document.getElementById("sp_cabang").value;
+  return v === "__other" ? document.getElementById("sp_cabangOther").value.trim() : v;
+}
+function spGetJenis(){
+  const checked = document.querySelector('input[name="sp_jenis"]:checked');
+  return checked ? checked.value : "";
+}
+
+function attachSPFormHandlers(){
+  const form = document.getElementById("spForm");
+  if(!form) return;
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const get = (id) => document.getElementById(id).value.trim();
+
+    const req = [
+      ["sp_namaAtasan","Nama Atasan"], ["sp_posisiAtasan","Posisi Atasan"], ["sp_divisiAtasan","Divisi Atasan"],
+      ["sp_namaKaryawan","Nama Karyawan"], ["sp_posisiKaryawan","Posisi Karyawan"], ["sp_divisiKaryawan","Divisi Karyawan"],
+      ["sp_detail","Detail Pelanggaran"]
+    ];
+    for(const [id, label] of req){
+      if(!get(id)){ alert("Mohon lengkapi: " + label); document.getElementById(id).focus(); return; }
+    }
+    const cabang = spGetCabang();
+    if(!cabang){ alert("Mohon pilih atau isi Cabang."); return; }
+    const jenis = spGetJenis();
+    if(!jenis){ alert("Mohon pilih Jenis Tindakan."); return; }
+    const tanggalSP = get("sp_tanggalSP");
+    if(SP_TYPES.includes(jenis) && !tanggalSP){ alert("Mohon isi Tanggal Berlaku Surat Peringatan."); document.getElementById("sp_tanggalSP").focus(); return; }
+    const alasan = spGetAlasan();
+    if(alasan.length === 0){ alert("Mohon pilih minimal satu Alasan Pemberian Surat."); return; }
+
+    const data = {
+      namaAtasan: get("sp_namaAtasan"), posisiAtasan: get("sp_posisiAtasan"), divisiAtasan: get("sp_divisiAtasan"),
+      namaKaryawan: get("sp_namaKaryawan"), posisiKaryawan: get("sp_posisiKaryawan"), divisiKaryawan: get("sp_divisiKaryawan"),
+      cabang, jenis, alasan: alasan.join(", "), tanggalSP, detail: get("sp_detail")
+    };
+
+    const btn = document.getElementById("spSubmitBtn");
+    btn.disabled = true; btn.textContent = "Mengirim...";
+
+    let newId = "local-" + Date.now();
+    let newTimestamp = new Date().toISOString();
+
+    if(SHEETS_API_URL){
+      const res = await postToSheets("submitSuratTindakan", { data });
+      if(!res || res.error){
+        alert("Gagal mengirim: " + (res && res.error ? res.error : "tidak ada respons dari server. Coba lagi."));
+        btn.disabled = false; btn.textContent = "Kirim Pengajuan";
+        return;
+      }
+      if(res.id) newId = res.id;
+      if(res.timestamp) newTimestamp = res.timestamp;
+    }
+
+    STORAGE.suratTindakan.push({ id: newId, timestamp: newTimestamp, ...data });
+    alert("Pengajuan berhasil dikirim.");
+    setView("sp-form");
+  });
+}
+
+/* ---------- DASHBOARD (HR) ---------- */
+function spEntryDate(e){ return e.tanggalSP || e.timestamp; }
+function spEligState(e){
+  if(!SP_TYPES.includes(e.jenis)) return null;
+  const start = new Date(e.tanggalSP || e.timestamp);
+  if(isNaN(start)) return null;
+  const exp = spAddMonths(start, SP_PERIOD_MONTHS);
+  const now = new Date(); now.setHours(0,0,0,0);
+  const days = Math.ceil((exp - now) / 86400000);
+  if(days <= 0) return { key:"eligible", label:"Eligible Kembali", color:"#0f9d6f", days, exp };
+  if(days <= SP_SOON_DAYS) return { key:"soon", label:"Akan Berakhir", color:"#e2620d", days, exp };
+  return { key:"active", label:"Masa Aktif SP", color:"#d02525", days, exp };
+}
+
+function spDonutHtml(segs, centerNum, centerLbl){
+  segs = segs.filter(s => s.value > 0);
+  const total = segs.reduce((a,s) => a + s.value, 0);
+  if(!total) return `<div class="sp-donut-wrap"><div class="sp-empty-mini">Belum ada data.</div></div>`;
+  const R = 48, C = 2 * Math.PI * R;
+  let off = 0;
+  const rings = segs.map(s => {
+    const dash = (s.value / total) * C;
+    const ring = `<circle cx="60" cy="60" r="${R}" fill="none" style="stroke:${s.color}" stroke-width="18" stroke-dasharray="${dash.toFixed(2)} ${(C-dash).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}"/>`;
+    off += dash;
+    return ring;
+  }).join("");
+  const legend = segs.map(s => {
+    const pct = ((s.value/total)*100).toFixed(0);
+    return `<span class="sp-dl-item"><i style="background:${s.color}"></i><b>${esc(s.label)}</b><em>${s.value} &middot; ${pct}%</em></span>`;
+  }).join("");
+  return `
+    <div class="sp-donut-wrap">
+      <svg viewBox="0 0 120 120" class="sp-donut" role="img">
+        <g transform="rotate(-90 60 60)"><circle cx="60" cy="60" r="${R}" fill="none" stroke="#eef4f3" stroke-width="18"/>${rings}</g>
+        <text x="60" y="57" class="sp-dn-num">${centerNum}</text><text x="60" y="72" class="sp-dn-lbl">${esc(centerLbl)}</text>
+      </svg>
+      <div class="sp-donut-legend">${legend}</div>
+    </div>
+  `;
+}
+
+function spGroupBy(data, key){
+  const map = {};
+  data.forEach(e => {
+    const k = String(e[key] || "\u2014").trim() || "\u2014";
+    map[k] = map[k] || { total: 0, by: {} };
+    map[k].total++;
+    map[k].by[e.jenis] = (map[k].by[e.jenis] || 0) + 1;
+  });
+  return Object.entries(map).map(([name, v]) => ({ name, ...v })).sort((a,b) => b.total - a.total).slice(0, 8);
+}
+
+function spBarsHtml(rows){
+  if(!rows.length) return `<div class="sp-empty-mini">Belum ada data.</div>`;
+  const max = Math.max(...rows.map(r => r.total));
+  return rows.map(r => {
+    const w = (r.total / max) * 100;
+    const segs = SP_JENIS_KEYS.filter(k => r.by[k]).map(k => `<div class="sp-bar-seg" style="width:${(r.by[k]/r.total)*100}%;background:${spSevOf(k).color}"></div>`).join("");
+    const other = Object.keys(r.by).filter(k => !SP_JENIS_KEYS.includes(k)).reduce((s,k) => s + r.by[k], 0);
+    const otherSeg = other ? `<div class="sp-bar-seg" style="width:${(other/r.total)*100}%;background:${SP_OTHER_COLOR}"></div>` : "";
+    return `<div class="sp-bar-row"><div class="sp-bar-name" title="${esc(r.name)}">${esc(r.name)}</div>
+      <div class="sp-bar-track"><div class="sp-bar-fill" style="width:${w}%">${segs}${otherSeg}</div></div>
+      <div class="sp-bar-val">${r.total}</div></div>`;
+  }).join("");
+}
+
+function spIneligibleList(data){
+  const map = {};
+  data.forEach(e => {
+    const el = spEligState(e);
+    if(el && el.days > 0){
+      const k = (e.namaKaryawan||"") + "|" + (e.cabang||"");
+      if(!map[k] || el.exp > map[k]._exp){
+        map[k] = { nama:e.namaKaryawan, cabang:e.cabang, divisi:e.divisiKaryawan, jenis:e.jenis, exp:spFmtDateLong(el.exp), days:el.days, _exp:el.exp };
+      }
+    }
+  });
+  return Object.values(map).sort((a,b) => a._exp - b._exp);
+}
+
+function renderSPDashboard(){
+  const data = STORAGE.suratTindakan.slice().sort((a,b) => new Date(spEntryDate(b)) - new Date(spEntryDate(a)));
+  const total = data.length;
+
+  const statRow = SP_JENIS_KEYS.map(key => {
+    const j = SP_JENIS[key];
+    const n = data.filter(e => e.jenis === key).length;
+    const pct = total ? ((n/total)*100).toFixed(0) : 0;
+    return `<div class="sp-stat ${j.cls}"><div class="lbl"><span class="d"></span>${esc(j.short)}</div><div class="num">${n}</div><div class="pct">${pct}% dari total</div></div>`;
+  }).join("") + `<div class="sp-stat" style="--sev:var(--brand);"><div class="lbl"><span class="d"></span>Total</div><div class="num">${total}</div><div class="pct">Semua pengajuan</div></div>`;
+
+  const jenisDonut = spDonutHtml(SP_JENIS_KEYS.map(k => ({ label: SP_JENIS[k].short, value: data.filter(e=>e.jenis===k).length, color: SP_JENIS[k].color })), total, "Total");
+
+  const spOnly = data.filter(e => SP_TYPES.includes(e.jenis));
+  const bucket = { active:0, soon:0, eligible:0 };
+  spOnly.forEach(e => { const el = spEligState(e); if(el) bucket[el.key]++; });
+  const masaDonut = spDonutHtml([
+    { label:"Masa Aktif SP", value:bucket.active, color:"#d02525" },
+    { label:`Akan Berakhir (\u2264${SP_SOON_DAYS} hari)`, value:bucket.soon, color:"#e2620d" },
+    { label:"Eligible Kembali", value:bucket.eligible, color:"#0f9d6f" },
+  ], spOnly.length, "Total SP");
+
+  const barCabang = spBarsHtml(spGroupBy(data, "cabang"));
+  const barDivisi = spBarsHtml(spGroupBy(data, "divisiKaryawan"));
+
+  const colorKey = `<span class="kt">Warna jenis:</span>` + SP_JENIS_KEYS.map(k => `<span class="k"><i style="background:${SP_JENIS[k].color}"></i>${esc(SP_JENIS[k].short)}</span>`).join("") + `<span class="k"><i style="background:${SP_OTHER_COLOR}"></i>Lainnya</span>`;
+
+  const ineligible = spIneligibleList(data);
+  const ineligibleRows = ineligible.length
+    ? ineligible.map((r,i) => {
+        const soon = r.days <= SP_SOON_DAYS;
+        return `<tr><td class="cell-muted">${i+1}</td><td class="font-medium">${esc(r.nama)}</td><td>${esc(r.divisi||'-')}</td><td>${esc(r.cabang||'-')}</td>
+          <td><span class="badge" style="background:${spSevOf(r.jenis).color}22;color:${spSevOf(r.jenis).color};border-color:${spSevOf(r.jenis).color}55;">${esc(spSevOf(r.jenis).short)}</span></td>
+          <td><b>${esc(r.exp)}</b><div class="cell-sub" style="color:${soon?'#c85410':'var(--muted)'};">sisa ${r.days} hari${soon?' &middot; segera berakhir':''}</div></td></tr>`;
+      }).join("")
+    : `<tr><td colspan="6"><div class="empty-state">Tidak ada karyawan dalam masa SP saat ini.</div></td></tr>`;
+
+  const pg = paginate(data, state.pageSP);
+  const tableRows = pg.rows.length
+    ? pg.rows.map((e,i) => {
+        const j = spSevOf(e.jenis);
+        const el = spEligState(e);
+        const masaCell = el
+          ? `<span class="badge" style="background:${el.color}22;color:${el.color};border-color:${el.color}55;">${esc(el.label)}</span><div class="cell-sub">${el.days>0 ? 'sisa '+el.days+' hari' : 'berakhir '+(-el.days)+' hari lalu'}</div>`
+          : (e.jenis === "Surat PHK" ? `<span class="cell-muted">&mdash; (PHK)</span>` : `<span class="cell-muted">Tidak ada masa SP</span>`);
+        return `<tr>
+          <td class="cell-muted">${pg.start+i+1}</td>
+          <td class="font-medium">${esc(e.namaKaryawan)}<div class="cell-sub">${esc(e.posisiKaryawan||'-')} &middot; ${esc(e.divisiKaryawan||'-')}</div></td>
+          <td><span class="badge" style="background:${j.color}22;color:${j.color};border-color:${j.color}55;">${esc(j.short)}</span></td>
+          <td>${esc(e.cabang||'-')}</td>
+          <td>${fmtDate(spEntryDate(e))}</td>
+          <td>${masaCell}</td>
+        </tr>`;
+      }).join("")
+    : `<tr><td colspan="6"><div class="empty-state">Belum ada pengajuan Surat Peringatan / Teguran.</div></td></tr>`;
+
+  return `
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:22px;" class="sp-stat-row">${statRow}</div>
+
+    <div class="sp-panels">
+      <div class="sp-panel"><h3>Komposisi Jenis Tindakan</h3><div class="ph">Proporsi SP &amp; Surat Teguran</div>${jenisDonut}</div>
+      <div class="sp-panel"><h3>Status Masa SP</h3><div class="ph">Sebaran masa berlaku Surat Peringatan (${SP_PERIOD_MONTHS} bulan)</div>${masaDonut}</div>
+      <div class="sp-panel"><h3>Berdasarkan Cabang</h3><div class="ph">Cabang dengan tindakan terbanyak</div><div class="sp-bars">${barCabang}</div></div>
+      <div class="sp-panel"><h3>Berdasarkan Divisi</h3><div class="ph">Divisi dengan tindakan terbanyak</div><div class="sp-bars">${barDivisi}</div></div>
+    </div>
+
+    <div class="sp-colorkey">${colorKey}</div>
+
+    <div class="card" style="padding:20px;margin-bottom:18px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap;">
+        <div>
+          <div class="section-title" style="font-size:14.5px;">Karyawan dalam Masa SP</div>
+          <div class="page-desc" style="margin-top:2px;">Belum eligible untuk kenaikan gaji, pengajuan loan, dll. selama masa SP berjalan.</div>
+        </div>
+        <span class="badge ${ineligible.length ? 'badge-danger' : 'badge-ok'}"><span class="badge-dot"></span>${ineligible.length} karyawan</span>
+      </div>
+      <div style="overflow-x:auto;border:1px solid var(--line);border-radius:12px;">
+        <table><thead><tr><th style="width:36px;">No</th><th>Nama</th><th>Divisi</th><th>Cabang</th><th>SP Terakhir</th><th>Eligible Kembali</th></tr></thead>
+        <tbody>${ineligibleRows}</tbody></table>
+      </div>
+    </div>
+
+    <div class="card" style="overflow-x:auto;">
+      <table>
+        <thead><tr><th style="width:36px;">No</th><th>Karyawan</th><th>Jenis</th><th>Cabang</th><th>Tanggal</th><th>Masa Berlaku SP</th></tr></thead>
+        <tbody>${tableRows}</tbody>
+      </table>
+      ${renderPagination('sp', pg, state.pageSP, 'goPageSP')}
+    </div>
+  `;
+}
+function goPageSP(p){ state.pageSP = p; render(); }
+
+/* ---------- MODAL: TAMBAH / EDIT LAYER 1 ---------- */
+function openRecordModal(id){
+  const r = id ? STORAGE.records.find(x => x.id === id) : null;
+  document.getElementById("modalRoot").innerHTML = `
+    <div class="modal-backdrop" onclick="if(event.target===this) closeModal()">
+      <div class="card" style="padding:22px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+          <div class="page-title" style="font-size:16px;">${r ? "Edit" : "Tambah"} Data Coaching</div>
+          <div class="icon-btn" onclick="closeModal()">${ic.close}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div>
+            <div style="font-size:11.5px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;">Data Atasan</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div style="grid-column:1/-1;"><label class="field-label">Nama Atasan</label><input type="text" id="m_namaAtasan" value="${esc(r?.namaAtasan)}" placeholder="Nama lengkap atasan"></div>
+              <div><label class="field-label">Jabatan</label><input type="text" id="m_jabatan" value="${esc(r?.jabatan)}" placeholder="Contoh: Manager"></div>
+              <div><label class="field-label">Divisi</label><input type="text" id="m_divisi" value="${esc(r?.divisi)}" placeholder="Contoh: Sales"></div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:11.5px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;">Data Karyawan</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div style="grid-column:1/-1;"><label class="field-label">Nama Karyawan</label><input type="text" id="m_namaKaryawan" value="${esc(r?.namaKaryawan)}" placeholder="Nama lengkap karyawan"></div>
+              <div><label class="field-label">Posisi Karyawan</label><input type="text" id="m_posisiKaryawan" value="${esc(r?.posisiKaryawan)}" placeholder="Contoh: Staff"></div>
+              <div><label class="field-label">Divisi Karyawan</label><input type="text" id="m_divisiKaryawan" value="${esc(r?.divisiKaryawan)}" placeholder="Contoh: Sales"></div>
+              <div><label class="field-label">Penempatan</label><input type="text" id="m_penempatan" value="${esc(r?.penempatan)}" placeholder="Contoh: Jakarta Pusat"></div>
+              <div><label class="field-label">Periode Coaching</label><input type="date" id="m_periode" value="${r?.periode ?? ''}"></div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:22px;">
+          <button class="btn btn-outline" onclick="closeModal()">Batal</button>
+          <button class="btn btn-primary" onclick="saveRecord(${r ? r.id : 'null'})">Simpan</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/* ---------- MODAL: DETAIL (HR read-only compile view) ---------- */
+function openDetailModal(id){
+  const r = STORAGE.records.find(x => x.id === id);
+  if(!r) return;
+  const s = r.submission;
+  const fileHref = s ? (s.fileUrl || s.fileDataUrl) : null;
+  document.getElementById("modalRoot").innerHTML = `
+    <div class="modal-backdrop" onclick="if(event.target===this) closeModal()">
+      <div class="card" style="padding:22px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <div class="page-title" style="font-size:16px;">Detail Coaching</div>
+          <div class="icon-btn" onclick="closeModal()">${ic.close}</div>
+        </div>
+        <div style="font-size:12.5px;color:var(--muted);margin-bottom:16px;">${esc(r.namaKaryawan)} &middot; ${fmtDate(r.periode)}</div>
+
+        <div class="divider" style="margin-bottom:16px;"></div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px;margin-bottom:18px;">
+          <div><div class="field-label">Nama Atasan</div>${esc(r.namaAtasan)}</div>
+          <div><div class="field-label">Jabatan / Divisi</div>${esc(r.jabatan)} &middot; ${esc(r.divisi)}</div>
+          <div><div class="field-label">Nama Karyawan</div>${esc(r.namaKaryawan)}</div>
+          <div><div class="field-label">Posisi / Divisi</div>${esc(r.posisiKaryawan)} &middot; ${esc(r.divisiKaryawan)}</div>
+          <div><div class="field-label">Penempatan</div>${esc((s && s.penempatan) || r.penempatan)}</div>
+          <div><div class="field-label">Status</div>${statusBadge(r.status)}</div>
+        </div>
+
+        ${s ? `
+          <div class="divider" style="margin-bottom:16px;"></div>
+          <div style="display:flex;flex-direction:column;gap:12px;font-size:13px;">
+            <div><div class="field-label">Area Coaching</div>${s.areaCoaching ? esc(s.areaCoaching) : '<span class="cell-muted">&mdash;</span>'}</div>
+            <div><div class="field-label">Alasan Pemberian Coaching</div>${esc(s.alasan)}</div>
+            <div><div class="field-label">Catatan Coaching</div>${s.catatan ? esc(s.catatan) : '<span class="cell-muted">&mdash;</span>'}</div>
+            <div>
+              <div class="field-label">Dokumen Coaching</div>
+              ${fileHref
+                ? `<a href="${fileHref}" target="_blank" class="file-chip" style="display:inline-flex;">${ic.file}${esc(s.fileName)}</a>`
+                : `<span class="cell-muted">Tidak ada file diunggah</span>`}
+            </div>
+          </div>
+        ` : `<div class="empty-state" style="padding:20px 0;">Atasan belum mengisi form submission untuk baris ini.</div>`}
+      </div>
+    </div>
+  `;
+}
+
+function closeModal(){ document.getElementById("modalRoot").innerHTML = ""; }
+
+async function saveRecord(id){
+  const get = (k) => document.getElementById(k).value.trim();
+  const data = {
+    namaAtasan: get("m_namaAtasan"), jabatan: get("m_jabatan"), divisi: get("m_divisi"),
+    namaKaryawan: get("m_namaKaryawan"), posisiKaryawan: get("m_posisiKaryawan"), divisiKaryawan: get("m_divisiKaryawan"),
+    penempatan: get("m_penempatan"), periode: get("m_periode"),
+  };
+  if(!data.namaAtasan || !data.namaKaryawan || !data.periode){
+    alert("Mohon lengkapi minimal Nama Atasan, Nama Karyawan, dan Periode Coaching.");
+    return;
+  }
+
+  if(SHEETS_API_URL){
+    const res = id
+      ? await postToSheets("updateRecord", { id, data, idToken: state.googleIdToken })
+      : await postToSheets("addRecord", { data, idToken: state.googleIdToken });
+    if(!res || res.error){
+      alert("Gagal menyimpan: " + (res && res.error ? res.error : "tidak ada respons dari server. Coba lagi."));
+      return;
+    }
+    if(id){
+      Object.assign(STORAGE.records.find(x => x.id === id), data);
+    } else {
+      STORAGE.records.push({ id: res.id, ...data, submission:null, status:"uncomplete" });
+    }
+  } else {
+    if(id){
+      Object.assign(STORAGE.records.find(x => x.id === id), data);
+    } else {
+      const localId = STORAGE.nextId++;
+      STORAGE.records.push({ id: localId, ...data, submission:null, status:"uncomplete" });
+    }
+  }
+  closeModal();
+  render();
+}
+
+async function deleteRecord(id){
+  if(!confirm("Hapus data coaching ini? Data submission terkait juga akan terhapus.")) return;
+
+  if(SHEETS_API_URL){
+    const res = await postToSheets("deleteRecord", { id, idToken: state.googleIdToken });
+    if(!res || res.error){
+      alert("Gagal menghapus: " + (res && res.error ? res.error : "tidak ada respons dari server. Coba lagi."));
+      return;
+    }
+  }
+  STORAGE.records = STORAGE.records.filter(x => x.id !== id);
+  render();
+}
+
+/* ---------- RENDER ---------- */
+function renderLoginGate(desc){
+  if(state.googleEmail && !state.hrAuthorized){
+    return `
+      <div class="card login-gate">
+        <div class="login-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+        <h2>Akun tidak memiliki akses</h2>
+        <p>Akun <strong>${esc(state.googleEmail)}</strong> tidak terdaftar sebagai HR. Hubungi admin kalau menurutmu ini keliru, atau masuk dengan akun lain.</p>
+        <button class="btn btn-outline" onclick="googleSignOut()">Ganti Akun</button>
+        <div class="login-denied">Halaman ini hanya bisa diakses oleh akun Google yang terdaftar di whitelist HR.</div>
+      </div>
+    `;
+  }
+  return `
+    <div class="card login-gate">
+      <div class="login-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+      <h2>Login untuk Mengakses Halaman Ini</h2>
+      <p>${desc || 'Halaman ini khusus HR. Masuk dengan akun Google yang terdaftar untuk melanjutkan.'}</p>
+      <div class="login-gate-btn-wrap"><div id="googleSignInBtn"></div></div>
+    </div>
+  `;
+}
+
+function render(){
+  renderSidebarNav();
+  renderTopbar();
+  const app = document.getElementById("app");
+  let html = "";
+  if(!SHEETS_API_URL){
+    html += `<div class="banner banner-warn">${ic.file} Dashboard belum tersambung ke Google Sheets &mdash; saat ini memakai data dummy lokal. Tempel URL Web App Apps Script di variabel <code>SHEETS_API_URL</code> pada kode untuk mengaktifkan sinkronisasi.</div>`;
+  }
+
+  let needsGoogleButton = false;
+
+  if(state.role === "hr"){
+    if(!state.hrAuthorized){
+      const desc = state.view === "sp-dash"
+        ? "Dashboard Surat Peringatan &amp; Teguran khusus HR. Masuk dengan akun Google yang terdaftar untuk melanjutkan."
+        : "Halaman ini khusus HR. Masuk dengan akun Google yang terdaftar untuk melanjutkan.";
+      html += renderLoginGate(desc);
+      needsGoogleButton = true;
+    } else if(state.view === "sp-dash"){
+      html += renderSPDashboard();
+    } else {
+      html += renderLayer1();
+    }
+  } else if(state.view === "layer3" && state.activeRecordId){
+    html += renderLayer3();
+  } else if(state.view === "sp-form"){
+    html += renderSPForm();
+  } else {
+    html += renderLayer2();
+  }
+
+  app.innerHTML = html;
+  if(needsGoogleButton){
+    renderGoogleButton();
+  }
+  if(state.role === "atasan" && state.view === "layer3" && state.activeRecordId){
+    attachLayer3Handlers();
+  }
+  if(state.role === "atasan" && state.view === "sp-form"){
+    attachSPFormHandlers();
+  }
+}
+
+(async function init(){
+  if(SHEETS_API_URL){ await loadFromSheets(); }
+  render();
+})();
+</script>
+</body>
+</html>
