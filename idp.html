@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WM Center · Training Request (IDP)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+:root{
+  --ink:#0e2b28; --ink-soft:#3d5652; --muted:#6b827e;
+  --brand:#0f766e; --brand-600:#0d8f83; --brand-050:#e7f2f0;
+  --bg:#f3f7f6; --surface:#ffffff; --line:#e0ebe8; --line-strong:#c9dcd8;
+  --ok:#0f9d6f; --ok-bg:#e6f6ef; --off:#8a9a97; --off-bg:#eef2f1;
+  --warn:#e2620d; --warn-bg:#fff3d6; --warn-ink:#8a5a00;
+  --danger:#d02525; --danger-bg:#fde8e8; --danger-ink:#b02a2a;
+  --radius:14px; --shadow:0 1px 2px rgba(14,43,40,.04),0 10px 30px rgba(14,43,40,.06);
+  --font-d:'Plus Jakarta Sans',system-ui,sans-serif;
+  --font-b:'Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-b);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--font-d);margin:0;letter-spacing:-.01em;color:var(--ink)}
+button{font-family:var(--font-b);cursor:pointer}
+a{color:var(--brand)}
+input,select,textarea{font-family:var(--font-b)}
+
+.topbar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topbar-in{max-width:1120px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:11px;font-family:var(--font-d);font-weight:800;font-size:16px;color:var(--ink);letter-spacing:-.02em}
+.mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(150deg,var(--brand),#0b5c55);display:grid;place-items:center;color:#fff;font-family:var(--font-d);font-weight:800;font-size:15px;box-shadow:0 4px 12px rgba(15,118,110,.28)}
+.brand small{display:block;font-family:var(--font-b);font-weight:500;font-size:11px;color:var(--muted);letter-spacing:.02em}
+.spacer{flex:1}
+.conn{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:999px;border:1px solid var(--line-strong)}
+.conn .dot{width:8px;height:8px;border-radius:50%}
+.conn.on{background:var(--ok-bg);color:#0a7a56;border-color:#bfe8d7}.conn.on .dot{background:var(--ok);box-shadow:0 0 0 3px rgba(15,157,111,.18)}
+.conn.off{background:var(--off-bg);color:#5a6b68}.conn.off .dot{background:var(--off)}
+.navbtn{border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);font-weight:600;font-size:13.5px;padding:9px 15px;border-radius:10px;transition:.15s}
+.navbtn:hover{border-color:var(--brand);color:var(--brand)}
+.navbtn.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+
+.wrap{max-width:1120px;margin:0 auto;padding:32px 22px 80px}
+.view{display:none}.view.show{display:block;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.hero{margin-bottom:26px}
+.eyebrow{font-family:var(--font-d);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand)}
+.hero h1{font-size:28px;line-height:1.15;margin:8px 0 8px}
+.hero p{margin:0;color:var(--ink-soft);max-width:62ch;white-space:pre-line}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.section{padding:24px}
+.section + .section{border-top:1px solid var(--line)}
+.section-head{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.step{width:30px;height:30px;border-radius:9px;background:var(--brand-050);color:var(--brand);display:grid;place-items:center;font-family:var(--font-d);font-weight:800;font-size:14px;flex:none}
+.section-head h2{font-size:18px}.section-head p{margin:2px 0 0;font-size:12.5px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field.full{grid-column:1/-1}
+label{font-size:13px;font-weight:600;color:var(--ink)}
+label .req{color:#c0392b}
+.hint{font-size:11.5px;color:var(--muted);font-weight:400}
+input[type=text],input[type=tel],input[type=email],input[type=number],input[type=date],input[type=url],select,textarea{width:100%;padding:11px 13px;border:1px solid var(--line-strong);border-radius:10px;background:#fcfefe;font-size:14.5px;color:var(--ink);transition:.15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(15,118,110,.13);background:#fff}
+textarea{resize:vertical;min-height:90px;line-height:1.5}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none' stroke='%236b827e' stroke-width='2'%3E%3Cpath d='M3 5l4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:36px}
+.reveal{margin-top:10px;display:none;grid-column:1/-1}.reveal.show{display:block}
+.cost-box{background:#fbfdfd;border:1px solid var(--line);border-radius:12px;padding:16px;grid-column:1/-1}
+.cost-note{font-size:12.5px;color:var(--ink-soft);background:var(--brand-050);border:1px solid #cfe6e2;border-radius:10px;padding:10px 13px;margin-bottom:14px}
+.cost-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.cost-total{margin-top:14px;padding-top:14px;border-top:1px dashed var(--line-strong);display:flex;align-items:center;justify-content:space-between}
+.cost-total b{font-family:var(--font-d);font-size:17px}
+
+.submit-bar{padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;border-top:1px solid var(--line);background:#fbfdfd;border-radius:0 0 var(--radius) var(--radius)}
+.submit-note{font-size:12.5px;color:var(--muted)}
+.btn{border:none;border-radius:11px;font-family:var(--font-d);font-weight:700;font-size:15px;padding:13px 26px;transition:.15s}
+.btn.primary{background:var(--brand);color:#fff;box-shadow:0 6px 16px rgba(15,118,110,.25)}
+.btn.primary:hover{background:#0b5c55;transform:translateY(-1px)}
+.btn.primary:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.btn.ghost{background:var(--surface);border:1px solid var(--line-strong);color:var(--ink)}
+.btn.sm{padding:9px 16px;font-size:13.5px;border-radius:9px}
+
+.success-card{text-align:center;padding:52px 30px}
+.success-ic{width:64px;height:64px;border-radius:18px;background:var(--ok-bg);color:var(--ok);display:grid;place-items:center;margin:0 auto 18px}
+.success-card h2{font-size:21px;margin-bottom:10px}
+.success-card p{color:var(--ink-soft);max-width:44ch;margin:0 auto;white-space:pre-line}
+.success-contact{margin:18px auto 22px;display:inline-block;background:var(--brand-050);border:1px solid #cfe6e2;border-radius:12px;padding:12px 20px;font-weight:600;color:#0b5c55;font-size:14px}
+
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(140%);background:var(--ink);color:#fff;padding:14px 20px;border-radius:12px;font-size:14px;font-weight:500;box-shadow:0 12px 34px rgba(0,0,0,.25);z-index:120;transition:.4s cubic-bezier(.2,.9,.3,1);display:flex;align-items:center;gap:10px;max-width:90vw}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.err{background:#8a1f2e}.toast.ok{background:#0d7a5a}
+
+.dash-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.dash-head h1{font-size:25px}
+.dash-head .sub{color:var(--ink-soft);font-size:13.5px;margin-top:3px}
+.filters{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.filters select,.filters input[type=text]{width:auto;min-width:150px;padding:9px 34px 9px 13px;font-weight:600;font-size:13.5px}
+.filters input[type=text]{padding:9px 13px;min-width:180px}
+.linkbtn{background:none;border:none;color:var(--muted);font-size:12.5px;font-weight:600;padding:6px}
+.linkbtn:hover{color:var(--brand)}
+
+.banner{border-radius:12px;padding:13px 16px;font-size:13px;font-weight:500;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.banner.demo{background:#fff7e6;border:1px solid #f4d98a;color:#8a5a00}
+.banner.live{background:var(--ok-bg);border:1px solid #bfe8d7;color:#0a7a56}
+.banner code{background:rgba(0,0,0,.06);padding:1px 6px;border-radius:5px;font-size:12px}
+
+.stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:22px}
+.stat-row-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:22px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:16px 16px 14px;box-shadow:var(--shadow);border-top:3px solid var(--sev);position:relative}
+.stat .lbl{font-size:12px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:6px}
+.stat .lbl .d{width:8px;height:8px;border-radius:50%;background:var(--sev)}
+.stat .num{font-family:var(--font-d);font-weight:800;font-size:27px;line-height:1;margin:9px 0 3px}
+.stat .pct{font-size:12px;color:var(--muted);font-weight:500}
+
+.panels{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:20px}
+.panel.full{grid-column:1/-1}
+.panel h3{font-size:15px;margin-bottom:3px}
+.panel .ph{font-size:12px;color:var(--muted);margin-bottom:16px}
+
+.donut-wrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.donut{width:150px;height:150px;flex:none}
+.donut circle.seg{transition:stroke-dasharray .7s cubic-bezier(.2,.9,.3,1)}
+.dn-num{font-family:var(--font-d);font-weight:800;font-size:25px;fill:var(--ink);text-anchor:middle}
+.dn-lbl{font-size:9px;fill:var(--muted);text-anchor:middle;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.donut-legend{display:flex;flex-direction:column;gap:10px;min-width:140px;flex:1}
+.dl-item{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--ink)}
+.dl-item i{width:11px;height:11px;border-radius:4px;flex:none}
+.dl-item b{font-weight:600;flex:1;white-space:nowrap}
+.dl-item em{font-style:normal;color:var(--muted);font-variant-numeric:tabular-nums;font-size:12px}
+
+.bars{display:flex;flex-direction:column;gap:12px}
+.bar-row{display:grid;grid-template-columns:120px 1fr auto;align-items:center;gap:12px}
+.bar-name{font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-track{height:24px;background:#eef4f3;border-radius:7px;overflow:hidden;position:relative}
+.bar-fill{height:100%;border-radius:7px;min-width:3px;transition:width .6s cubic-bezier(.2,.9,.3,1);background:var(--brand)}
+.bar-val{font-size:13px;font-weight:700;color:var(--ink-soft);white-space:nowrap;font-variant-numeric:tabular-nums}
+.empty-mini{color:var(--muted);font-size:13px;padding:14px 0;text-align:center;width:100%}
+
+.table-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.table-head h3{font-size:16px}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:13px;background:var(--surface);box-shadow:var(--shadow)}
+table{width:100%;border-collapse:collapse;min-width:760px}
+thead th{text-align:left;font-family:var(--font-d);font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding:13px 16px;border-bottom:1px solid var(--line);background:#fafcfb;position:sticky;top:0}
+tbody td{padding:12px 16px;border-bottom:1px solid var(--line);font-size:13.5px;vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:#fafcfb}
+.t-no{color:var(--muted);font-variant-numeric:tabular-nums;font-weight:600}
+.t-name{font-weight:600;color:var(--ink)}
+.muted{color:var(--muted)}
+.empty-big{text-align:center;padding:44px 20px;color:var(--muted)}
+.empty-big .ic{font-size:32px;margin-bottom:8px}
+.pager{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;flex-wrap:wrap}
+.pager .info{font-size:12.5px;color:var(--muted)}
+.pg-btns{display:flex;gap:8px}
+.pg-btns button{border:1px solid var(--line-strong);background:#fff;border-radius:9px;padding:8px 14px;font-size:13px;font-weight:600;color:var(--ink)}
+.pg-btns button:hover:not(:disabled){border-color:var(--brand);color:var(--brand)}
+.pg-btns button:disabled{opacity:.4;cursor:not-allowed}
+
+.status-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+.status-badge.approved{background:var(--ok-bg);color:#0a7a56}
+.status-badge.rejected{background:var(--danger-bg);color:var(--danger-ink)}
+.status-badge.review{background:var(--warn-bg);color:var(--warn-ink)}
+.status-select{border:1px solid var(--line-strong);border-radius:8px;padding:6px 26px 6px 10px;font-size:12.5px;font-weight:700;background-position:right 8px center;cursor:pointer}
+.status-select.approved{color:#0a7a56;background-color:var(--ok-bg);border-color:#bfe8d7}
+.status-select.rejected{color:var(--danger-ink);background-color:var(--danger-bg);border-color:#f3c4c4}
+.status-select.review{color:var(--warn-ink);background-color:var(--warn-bg);border-color:#f4d98a}
+
+.row-actions{display:flex;gap:6px}
+.icon-btn{border:1px solid var(--line-strong);background:#fff;border-radius:8px;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;color:var(--ink-soft);transition:.15s;flex:none}
+.icon-btn:hover{border-color:var(--brand);color:var(--brand)}
+.icon-btn.danger:hover{border-color:#c0392b;color:#c0392b}
+
+.login-wrap{max-width:420px;margin:50px auto}
+.login-wrap .card{padding:32px}
+.login-wrap h2{font-size:21px;text-align:center}
+.login-wrap p.sub{text-align:center;color:var(--muted);font-size:13px;margin:6px 0 24px}
+.login-lock{width:52px;height:52px;border-radius:14px;background:var(--brand-050);color:var(--brand);display:grid;place-items:center;margin:0 auto 14px}
+.gsi-wrap{display:flex;flex-direction:column;align-items:center;gap:12px}
+.setup-note{font-size:12px;color:var(--warn-ink);background:var(--warn-bg);border:1px solid #f4d98a;border-radius:10px;padding:11px 13px;text-align:left;line-height:1.5}
+.setup-note code{background:rgba(0,0,0,.06);padding:1px 5px;border-radius:5px}
+.denied-box{text-align:center}
+.denied-ic{width:52px;height:52px;border-radius:14px;background:var(--danger-bg);color:var(--danger-ink);display:grid;place-items:center;margin:0 auto 14px}
+.hr-user{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 14px 6px 6px;box-shadow:var(--shadow)}
+.hr-user img{width:28px;height:28px;border-radius:50%}
+.hr-user .nm{font-size:13px;font-weight:700;line-height:1.2}
+.hr-user .em{font-size:11px;color:var(--muted);line-height:1.2}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(14,43,40,.45);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:16px;max-width:600px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal-head{padding:20px 24px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.modal-head h3{font-size:17px}
+.modal-close{background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer;line-height:1;padding:4px}
+.modal-close:hover{color:var(--ink)}
+.modal-body{padding:20px 24px}
+.modal-foot{padding:16px 24px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px}
+
+@media(max-width:820px){
+  .grid,.panels{grid-template-columns:1fr}
+  .stat-row{grid-template-columns:repeat(2,1fr)}
+  .stat-row-3{grid-template-columns:1fr}
+  .cost-grid{grid-template-columns:1fr}
+  .hero h1{font-size:23px}
+  .brand small{display:none}
+}
+@media(max-width:520px){.stat-row{grid-template-columns:1fr 1fr}.bar-row{grid-template-columns:90px 1fr auto}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<style>.wmhrga-back-fab{position:fixed;bottom:16px;left:16px;z-index:99999;display:inline-flex;align-items:center;gap:6px;background:#14213D;color:#fff;text-decoration:none;font-family:'Plus Jakarta Sans',-apple-system,sans-serif;font-size:12.5px;font-weight:600;padding:9px 15px;border-radius:999px;box-shadow:0 6px 18px rgba(20,33,61,.35);transition:transform .15s ease,box-shadow .15s ease;}.wmhrga-back-fab:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(20,33,61,.45);}@media print{.wmhrga-back-fab{display:none;}}</style>
+<a href="index.html" class="wmhrga-back-fab">&#8592; Dashboard</a>
+
+
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="brand">
+      <div class="mark">WM</div>
+      <div>WM Center · IDP<small>Training Request</small></div>
+    </div>
+    <div class="spacer"></div>
+    <div id="connPill" class="conn off"><span class="dot"></span><span id="connText">Cek koneksi…</span></div>
+    <button class="navbtn active" id="navForm" onclick="go('form')">Form</button>
+    <button class="navbtn" id="navMon" onclick="go('monitor')">Status Pengajuan</button>
+    <button class="navbtn" id="navHR" onclick="go('hr')">Dashboard HR</button>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ==================== FORM ==================== -->
+  <section id="view-form" class="view show">
+    <div class="hero">
+      <div class="eyebrow">Training Request</div>
+      <h1>Ajukan Training Kamu</h1>
+      <p id="formGreeting">Halo, WMPeeps!👋
+Ingin mengajukan training? Silakan isi form di bawah ini, ya. Pengajuan langsung tersimpan dan bisa dipantau tim HR.</p>
+    </div>
+
+    <div class="card" id="formCard">
+      <div class="section">
+        <div class="section-head">
+          <div class="step">1</div>
+          <div><h2>Identitas</h2><p>Data diri pemohon training</p></div>
+        </div>
+        <div class="grid">
+          <div class="field"><label>Nama <span class="req">*</span></label><input type="text" id="f_nama" placeholder="Nama lengkap" /></div>
+          <div class="field"><label>No Telp <span class="req">*</span></label><input type="tel" id="f_noTelp" placeholder="08xx-xxxx-xxxx" /></div>
+          <div class="field"><label>Email Aktif <span class="req">*</span></label><input type="email" id="f_email" placeholder="nama@wmcenter.id" /></div>
+          <div class="field"><label>Posisi <span class="req">*</span></label><input type="text" id="f_posisi" placeholder="cth. Fisioterapis" /></div>
+          <div class="field full"><label>Divisi <span class="req">*</span></label>
+            <select id="f_divisi" onchange="toggle('f_divisiOtherBox', this.value==='__other')">
+              <option value="">Pilih divisi</option>
+              <option>HRGA</option><option>Operations</option><option>Finance & Data</option>
+              <option>Brand Team</option><option>Business Development</option><option>Fisioterapis</option>
+              <option value="__other">Lainnya…</option>
+            </select>
+            <div class="reveal" id="f_divisiOtherBox"><input type="text" id="f_divisiOther" placeholder="Tulis nama divisi" /></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <div class="step">2</div>
+          <div><h2>Detail Training</h2><p>Informasi training yang diajukan</p></div>
+        </div>
+        <div class="grid">
+          <div class="field full">
+            <label>Training yang Diajukan <span class="req">*</span></label>
+            <textarea id="f_training" placeholder="Nama training & deskripsi singkat"></textarea>
+          </div>
+
+          <div class="cost-box">
+            <label style="display:block;margin-bottom:10px">Perkiraan Cost <span class="req">*</span></label>
+            <div class="cost-note">Untuk pengajuan cost, silakan cek SK untuk dana maksimal.</div>
+            <div class="cost-grid">
+              <div class="field"><label>Transportasi</label><input type="number" min="0" step="1000" id="f_costTransportasi" placeholder="0" oninput="calcTotal()" /></div>
+              <div class="field"><label>Akomodasi</label><input type="number" min="0" step="1000" id="f_costAkomodasi" placeholder="0" oninput="calcTotal()" /></div>
+              <div class="field"><label>Training</label><input type="number" min="0" step="1000" id="f_costTraining" placeholder="0" oninput="calcTotal()" /></div>
+            </div>
+            <div class="cost-total"><span class="hint">Total perkiraan cost</span><b id="f_costTotalDisplay">Rp0</b></div>
+          </div>
+
+          <div class="field"><label>Tanggal Training <span class="req">*</span></label><input type="date" id="f_tanggalTraining" /></div>
+          <div class="field"><label>Link Postingan Training</label><input type="url" id="f_linkPostingan" placeholder="https://…" /></div>
+        </div>
+      </div>
+
+      <div class="submit-bar">
+        <div class="submit-note">Pastikan seluruh data sudah benar sebelum mengirim.</div>
+        <div style="display:flex;gap:10px">
+          <button class="btn ghost" onclick="resetForm()">Reset</button>
+          <button class="btn primary" id="submitBtn" onclick="submitForm()">Kirim Pengajuan</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card success-card" id="formSuccess" style="display:none">
+      <div class="success-ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></div>
+      <h2>Pengajuan Berhasil Dikirim!</h2>
+      <p>Training akan di-follow up dalam rentang 1 - 14 hari ke depan. Terima kasih!
+Jika ada pertanyaan, silakan hubungi:</p>
+      <div class="success-contact">📞 Rahmi - 0812-9315-5044</div>
+      <div><button class="btn primary" onclick="resetForm();go('form')">Ajukan Training Lain</button></div>
+    </div>
+  </section>
+
+  <!-- ==================== MONITORING (PUBLIC) ==================== -->
+  <section id="view-monitor" class="view">
+    <div class="dash-head">
+      <div>
+        <h1>Status Pengajuan Training</h1>
+        <div class="sub" id="monSub">Memuat data…</div>
+      </div>
+      <div class="filters">
+        <select id="monStatusFilter" onchange="onMonFilter()">
+          <option value="all">Semua Status</option>
+          <option value="On Review">On Review</option>
+          <option value="Approved">Approved</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+        <button class="linkbtn" onclick="loadAll()">↻ Muat ulang</button>
+      </div>
+    </div>
+
+    <div id="monBanner"></div>
+
+    <div class="stat-row-3" id="monStatRow"></div>
+
+    <div class="panel full" style="padding:20px">
+      <div class="table-head">
+        <h3>Daftar Pengajuan</h3>
+        <div class="sub" id="monListCount" style="color:var(--muted);font-size:12.5px"></div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th style="width:52px">No</th><th>Nama</th><th>Divisi</th><th>Training</th><th style="width:140px">Status</th></tr></thead>
+          <tbody id="monTbody"></tbody>
+        </table>
+      </div>
+      <div class="pager">
+        <div class="info" id="monPageInfo"></div>
+        <div class="pg-btns"><button id="monPrevBtn" onclick="monPageMove(-1)">← Sebelumnya</button><button id="monNextBtn" onclick="monPageMove(1)">Berikutnya →</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== DASHBOARD HR (RESTRICTED) ==================== -->
+  <section id="view-hr" class="view">
+    <div id="hrLoginGate" class="login-wrap">
+      <div class="card">
+        <div class="login-lock"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
+        <h2>Dashboard HR</h2>
+        <p class="sub">Area khusus tim HR. Masuk dengan akun Google yang terdaftar untuk melihat rekap pengajuan training.</p>
+        <div class="gsi-wrap">
+          <div id="gsiButton"></div>
+          <div id="gsiSetupNote" style="display:none" class="setup-note">
+            Login Google belum dikonfigurasi. Tempel <b>OAuth Client ID</b> Google Anda ke <code>CONFIG.GOOGLE_CLIENT_ID</code> di dalam file HTML ini, lalu pastikan domain tempat file ini di-deploy sudah didaftarkan sebagai <i>Authorized JavaScript origin</i> di Google Cloud Console.
+          </div>
+        </div>
+      </div>
+      <div class="card denied-box" id="hrDenied" style="display:none;margin-top:16px;padding:26px">
+        <div class="denied-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg></div>
+        <h2 style="font-size:16px">Akses Ditolak</h2>
+        <p class="sub" id="hrDeniedMsg" style="margin-bottom:14px">Email ini tidak terdaftar sebagai admin HR.</p>
+        <button class="btn ghost sm" onclick="hrLogout()">Coba Akun Lain</button>
+      </div>
+    </div>
+
+    <div id="hrContent" style="display:none">
+      <div class="dash-head">
+        <div>
+          <h1>Dashboard HR · Training Request</h1>
+          <div class="sub" id="hrSub">Memuat data…</div>
+        </div>
+        <div class="filters">
+          <div class="hr-user" id="hrUserBadge"></div>
+          <button class="linkbtn" onclick="hrLogout()">Keluar</button>
+        </div>
+      </div>
+
+      <div id="hrBanner"></div>
+
+      <div class="stat-row" id="hrStatRow"></div>
+
+      <div class="panels">
+        <div class="panel">
+          <h3>Komposisi Status</h3>
+          <div class="ph">Proporsi status pengajuan training</div>
+          <div class="donut-wrap"><div id="donutStatus"></div><div class="donut-legend" id="legendStatus"></div></div>
+        </div>
+        <div class="panel">
+          <h3>Tren Pengajuan per Bulan</h3>
+          <div class="ph">Jumlah pengajuan training setiap bulan</div>
+          <div class="bars" id="barBulan"></div>
+        </div>
+        <div class="panel">
+          <h3>Divisi Paling Banyak Mengajukan</h3>
+          <div class="ph">Top divisi berdasarkan jumlah pengajuan</div>
+          <div class="bars" id="barDivisi"></div>
+        </div>
+        <div class="panel">
+          <h3>Posisi Paling Banyak Mengajukan</h3>
+          <div class="ph">Top posisi berdasarkan jumlah pengajuan</div>
+          <div class="bars" id="barPosisi"></div>
+        </div>
+      </div>
+
+      <div class="panel full" style="padding:20px">
+        <div class="table-head">
+          <div>
+            <h3>Data Pengajuan Training</h3>
+            <div class="ph" style="margin:2px 0 0">HR dapat mengubah status, mengedit, menambah, atau menghapus data.</div>
+          </div>
+          <div class="filters">
+            <input type="text" id="hrSearch" placeholder="Cari nama…" oninput="onHrSearch()" />
+            <select id="hrStatusFilter" onchange="onHrFilter()">
+              <option value="all">Semua Status</option>
+              <option value="On Review">On Review</option>
+              <option value="Approved">Approved</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+            <button class="btn primary sm" onclick="openModal()">+ Tambah Data</button>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th style="width:44px">No</th><th>Nama</th><th>Divisi</th><th>Posisi</th><th>Training</th>
+              <th style="width:110px">Total Cost</th><th style="width:110px">Tanggal</th><th style="width:140px">Status</th><th style="width:84px">Aksi</th>
+            </tr></thead>
+            <tbody id="hrTbody"></tbody>
+          </table>
+        </div>
+        <div class="pager">
+          <div class="info" id="hrPageInfo"></div>
+          <div class="pg-btns"><button id="hrPrevBtn" onclick="hrPageMove(-1)">← Sebelumnya</button><button id="hrNextBtn" onclick="hrPageMove(1)">Berikutnya →</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ==================== MODAL TAMBAH/EDIT ==================== -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-head"><h3 id="modalTitle">Tambah Data Pengajuan</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="m_id" />
+      <div class="grid">
+        <div class="field"><label>Nama</label><input type="text" id="m_nama" /></div>
+        <div class="field"><label>No Telp</label><input type="tel" id="m_noTelp" /></div>
+        <div class="field"><label>Email</label><input type="email" id="m_email" /></div>
+        <div class="field"><label>Posisi</label><input type="text" id="m_posisi" /></div>
+        <div class="field"><label>Divisi</label><input type="text" id="m_divisi" /></div>
+        <div class="field"><label>Status</label>
+          <select id="m_status"><option>On Review</option><option>Approved</option><option>Rejected</option></select>
+        </div>
+        <div class="field full"><label>Training yang Diajukan</label><textarea id="m_training"></textarea></div>
+        <div class="field"><label>Cost Transportasi</label><input type="number" min="0" id="m_costTransportasi" /></div>
+        <div class="field"><label>Cost Akomodasi</label><input type="number" min="0" id="m_costAkomodasi" /></div>
+        <div class="field"><label>Cost Training</label><input type="number" min="0" id="m_costTraining" /></div>
+        <div class="field"><label>Tanggal Training</label><input type="date" id="m_tanggalTraining" /></div>
+        <div class="field full"><label>Link Postingan Training</label><input type="url" id="m_linkPostingan" /></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost sm" onclick="closeModal()">Batal</button>
+      <button class="btn primary sm" id="modalSaveBtn" onclick="saveModal()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   >>> SETUP WAJIB SEBELUM DIPAKAI <<<
+   1. SCRIPT_URL       -> URL Web App dari Code.gs (lihat file terpisah)
+   2. GOOGLE_CLIENT_ID -> OAuth Client ID dari Google Cloud Console
+      (Authorized JavaScript origins harus sesuai domain deploy, cth. https://idp-wm.vercel.app)
+   ============================================================ */
+const CONFIG = {
+  SCRIPT_URL: "https://script.google.com/macros/s/AKfycbzoEykguTVWHQy__ASVgBrxjvpPtk5vkjtgyH_nqDgviycH3pNk4_n27wWQE9Ge8Ocx/exec",
+  GOOGLE_CLIENT_ID: "113626255388-sscgtea5u31dvevv48jb3dv2mlg0cjfv.apps.googleusercontent.com",
+  ALLOWED_EMAILS: ["hr@wmcenter.id","mia@wmcenter.id","peopledevelopment.wmcenter@gmail.com"],
+  PAGE_SIZE: 30
+};
+
+const STATUS_META = {
+  "Approved":{cls:"approved", color:"#0f9d6f"},
+  "Rejected":{cls:"rejected", color:"#d02525"},
+  "On Review":{cls:"review", color:"#e2620d"}
+};
+const MONTHS_ID=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+
+let state = { entries:[], connected:false, monPage:1, monStatus:"all", hrPage:1, hrStatus:"all", hrSearch:"", hrUser:null };
+
+/* ---------- Data contoh (tampil saat belum terhubung ke Sheets) ---------- */
+const DEMO = [
+  de("Dita Amelia","Fisioterapis","Fisioterapis","Pelatihan Manual Therapy Lanjutan",1200000,800000,2500000,"2026-08-10","Approved"),
+  de("Bagus Wibowo","Staff Operations","Operations","Service Excellence Training",300000,0,750000,"2026-08-02","Approved"),
+  de("Sari Melati","Staff Finance","Finance & Data","Sertifikasi Brevet Pajak A-B",0,0,3500000,"2026-09-01","On Review"),
+  de("Rizky Pratama","Staff HRGA","HRGA","Workshop Employer Branding",500000,600000,1800000,"2026-08-20","On Review"),
+  de("Nita Rahayu","Fisioterapis","Fisioterapis","Pelatihan BLS & First Aid",0,0,900000,"2026-07-30","Approved"),
+  de("Andi Saputra","Digital Marketing","Brand Team","Meta Ads Bootcamp",0,0,2100000,"2026-08-15","Rejected"),
+  de("Maya Anggraini","Fisioterapis","Fisioterapis","Dry Needling Certification",1500000,1200000,4200000,"2026-09-05","On Review"),
+  de("Fajar Nugraha","Staff Operations","Operations","Negotiation Skills Training",300000,0,1500000,"2026-08-25","Approved"),
+  de("Rina Puspita","Fisioterapis","Fisioterapis","Kinesio Taping Workshop",700000,500000,1600000,"2026-07-18","Approved"),
+  de("Siti Nurhaliza","Business Dev","Business Development","Sales Strategy Training",0,0,2800000,"2026-09-10","On Review"),
+  de("Dewi Lestari","Staff Finance & Data","Finance & Data","Google Workspace Admin Training",0,0,1200000,"2026-08-05","Rejected"),
+  de("Yoga Pratama","Content Creator","Brand Team","Product Management Fundamentals",600000,900000,3200000,"2026-09-15","On Review")
+];
+function de(nama,posisi,divisi,training,ct,ca,ctr,tgl,status){
+  const total=ct+ca+ctr;
+  return {id:"demo-"+Math.random().toString(36).slice(2,8), timestamp:tgl+"T09:00:00",
+    nama, noTelp:"0812-0000-0000", email:nama.toLowerCase().replace(/\s+/g,'.')+"@wmcenter.id",
+    posisi, divisi, trainingDiajukan:training, costTransportasi:ct, costAkomodasi:ca, costTraining:ctr,
+    totalCost:total, tanggalTraining:tgl, linkPostingan:"", status};
+}
+
+/* ============================ NAVIGASI ============================ */
+function go(v){
+  document.querySelectorAll('.view').forEach(e=>e.classList.remove('show'));
+  document.getElementById('view-'+v).classList.add('show');
+  document.getElementById('navForm').classList.toggle('active',v==='form');
+  document.getElementById('navMon').classList.toggle('active',v==='monitor');
+  document.getElementById('navHR').classList.toggle('active',v==='hr');
+  if(v==='monitor') loadAll(renderMonitor);
+  if(v==='hr' && state.hrUser) loadAll(renderHR);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ============================ FORM ============================ */
+function toggle(id,show){ document.getElementById(id).classList.toggle('show',!!show); }
+function val(id){ return document.getElementById(id).value.trim(); }
+function calcTotal(){
+  const t=(+document.getElementById('f_costTransportasi').value||0)+(+document.getElementById('f_costAkomodasi').value||0)+(+document.getElementById('f_costTraining').value||0);
+  document.getElementById('f_costTotalDisplay').textContent=rupiah(t);
+}
+function getDivisiForm(){ return val('f_divisi')==='__other'?val('f_divisiOther'):val('f_divisi'); }
+
+function submitForm(){
+  const divisi=getDivisiForm();
+  const req=[['f_nama','Nama'],['f_noTelp','No Telp'],['f_email','Email Aktif'],['f_posisi','Posisi'],['f_training','Training yang Diajukan'],['f_tanggalTraining','Tanggal Training']];
+  for(const [id,lbl] of req){ if(!val(id)){ toast('Lengkapi: '+lbl,'err'); document.getElementById(id).focus(); return; } }
+  if(!divisi){ toast('Pilih atau isi Divisi','err'); return; }
+
+  const ct=+document.getElementById('f_costTransportasi').value||0, ca=+document.getElementById('f_costAkomodasi').value||0, ctr=+document.getElementById('f_costTraining').value||0;
+  const payload={ action:"create", nama:val('f_nama'), noTelp:val('f_noTelp'), email:val('f_email'), posisi:val('f_posisi'), divisi,
+    trainingDiajukan:val('f_training'), costTransportasi:ct, costAkomodasi:ca, costTraining:ctr,
+    tanggalTraining:val('f_tanggalTraining'), linkPostingan:val('f_linkPostingan'), status:"On Review" };
+
+  const btn=document.getElementById('submitBtn'); btn.disabled=true; btn.textContent='Mengirim…';
+  if(!CONFIG.SCRIPT_URL){
+    setTimeout(()=>{ btn.disabled=false; btn.textContent='Kirim Pengajuan';
+      toast('Belum terhubung ke Google Sheets. Isi CONFIG.SCRIPT_URL dulu agar data tersimpan.','err'); },400);
+    return;
+  }
+  fetch(CONFIG.SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
+    .then(r=>r.json())
+    .then(res=>{ if(res&&res.ok){ document.getElementById('formCard').style.display='none'; document.getElementById('formSuccess').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); } else throw new Error(); })
+    .catch(()=>toast('Gagal mengirim. Cek koneksi / URL Apps Script.','err'))
+    .finally(()=>{ btn.disabled=false; btn.textContent='Kirim Pengajuan'; });
+}
+function resetForm(){
+  document.querySelectorAll('#formCard input, #formCard textarea, #formCard select').forEach(el=>el.value='');
+  document.getElementById('f_divisiOtherBox').classList.remove('show');
+  document.getElementById('f_costTotalDisplay').textContent='Rp0';
+  document.getElementById('formCard').style.display='block';
+  document.getElementById('formSuccess').style.display='none';
+}
+
+/* ============================ KONEKSI & DATA ============================ */
+function setConn(on){
+  state.connected=on;
+  const p=document.getElementById('connPill'), t=document.getElementById('connText');
+  p.className='conn '+(on?'on':'off');
+  t.textContent=on?'Terhubung ke Google Sheets':(CONFIG.SCRIPT_URL?'Sheets tidak terjangkau':'Belum terhubung');
+}
+function checkConnection(){
+  if(!CONFIG.SCRIPT_URL){ setConn(false); return; }
+  fetch(CONFIG.SCRIPT_URL+'?action=ping&_ts='+Date.now(),{cache:'no-store'}).then(r=>r.json()).then(res=>setConn(!!(res&&res.ok))).catch(()=>setConn(false));
+}
+function loadAll(cb){
+  if(!CONFIG.SCRIPT_URL){ state.entries=DEMO.slice(); setConn(false); if(cb) cb(); return; }
+  fetch(CONFIG.SCRIPT_URL+'?action=list&_ts='+Date.now(),{cache:'no-store'}).then(r=>r.json())
+    .then(res=>{ if(res&&res.ok&&Array.isArray(res.data)){ state.entries=res.data; setConn(true); } else { state.entries=DEMO.slice(); setConn(false); } if(cb) cb(); })
+    .catch(()=>{ state.entries=DEMO.slice(); setConn(false); if(cb) cb(); });
+}
+
+/* ============================ MONITORING (PUBLIC) ============================ */
+function onMonFilter(){ state.monStatus=val('monStatusFilter'); state.monPage=1; renderMonitor(); }
+function monFiltered(){ return state.monStatus==='all'?state.entries:state.entries.filter(e=>e.status===state.monStatus); }
+function renderMonitor(){
+  const data=state.entries;
+  document.getElementById('monBanner').innerHTML = state.connected
+    ? `<div class="banner live">● Terhubung ke Google Sheets — data live (${data.length} total pengajuan).</div>`
+    : `<div class="banner demo">● Belum terhubung ke Google Sheets — menampilkan <b>data contoh</b>. Isi <code>CONFIG.SCRIPT_URL</code> untuk data asli.</div>`;
+  document.getElementById('monSub').textContent=data.length+' pengajuan tercatat';
+
+  const approved=data.filter(e=>e.status==='Approved').length, rejected=data.filter(e=>e.status==='Rejected').length, review=data.filter(e=>e.status==='On Review').length;
+  document.getElementById('monStatRow').innerHTML = `
+    <div class="stat" style="--sev:${STATUS_META.Approved.color}"><div class="lbl"><span class="d"></span>Approved</div><div class="num">${approved}</div><div class="pct">${pct(approved,data.length)}% dari total</div></div>
+    <div class="stat" style="--sev:${STATUS_META.Rejected.color}"><div class="lbl"><span class="d"></span>Rejected</div><div class="num">${rejected}</div><div class="pct">${pct(rejected,data.length)}% dari total</div></div>
+    <div class="stat" style="--sev:${STATUS_META['On Review'].color}"><div class="lbl"><span class="d"></span>On Review</div><div class="num">${review}</div><div class="pct">${pct(review,data.length)}% dari total</div></div>`;
+
+  const all=monFiltered().slice().sort((a,b)=>new Date(entryDate(b))-new Date(entryDate(a)));
+  const total=all.length, pages=Math.max(1,Math.ceil(total/CONFIG.PAGE_SIZE));
+  if(state.monPage>pages) state.monPage=pages;
+  const start=(state.monPage-1)*CONFIG.PAGE_SIZE, rows=all.slice(start,start+CONFIG.PAGE_SIZE);
+  const tb=document.getElementById('monTbody');
+  tb.innerHTML = total ? rows.map((e,i)=>`<tr><td class="t-no">${start+i+1}</td><td class="t-name">${esc(e.nama)}</td><td>${esc(e.divisi||'—')}</td><td>${esc(trunc(e.trainingDiajukan,60))}</td><td>${statusBadge(e.status)}</td></tr>`).join('')
+    : `<tr><td colspan="5"><div class="empty-big"><div class="ic">🗂️</div>Belum ada pengajuan.</div></td></tr>`;
+  document.getElementById('monListCount').textContent=`${total} pengajuan`;
+  document.getElementById('monPageInfo').textContent=total?`Menampilkan ${start+1}–${Math.min(start+CONFIG.PAGE_SIZE,total)} dari ${total} · Halaman ${state.monPage}/${pages}`:'';
+  document.getElementById('monPrevBtn').disabled=state.monPage<=1;
+  document.getElementById('monNextBtn').disabled=state.monPage>=pages;
+}
+function monPageMove(dir){ state.monPage+=dir; renderMonitor(); window.scrollTo({top:document.getElementById('monTbody').closest('.panel').offsetTop-80,behavior:'smooth'}); }
+
+/* ============================ LOGIN GOOGLE (HR) ============================ */
+function initGSI(){
+  if(!CONFIG.GOOGLE_CLIENT_ID){ document.getElementById('gsiSetupNote').style.display='block'; return; }
+  try{
+    google.accounts.id.initialize({ client_id: CONFIG.GOOGLE_CLIENT_ID, callback: handleCredentialResponse });
+    google.accounts.id.renderButton(document.getElementById('gsiButton'), { theme:'outline', size:'large', text:'signin_with', shape:'pill' });
+  }catch(e){ document.getElementById('gsiSetupNote').style.display='block'; }
+}
+function parseJwt(token){
+  const base=token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');
+  const json=decodeURIComponent(atob(base).split('').map(c=>'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+  return JSON.parse(json);
+}
+function handleCredentialResponse(resp){
+  const payload=parseJwt(resp.credential);
+  const email=(payload.email||'').toLowerCase().trim();
+  const allowed=CONFIG.ALLOWED_EMAILS.map(x=>x.toLowerCase().trim());
+  document.getElementById('hrDenied').style.display='none';
+  if(!allowed.includes(email)){
+    document.getElementById('hrDeniedMsg').textContent=`Email "${payload.email}" tidak terdaftar sebagai admin HR.`;
+    document.getElementById('hrDenied').style.display='block';
+    return;
+  }
+  state.hrUser={ email:payload.email, name:payload.name, picture:payload.picture };
+  document.getElementById('hrLoginGate').style.display='none';
+  document.getElementById('hrContent').style.display='block';
+  document.getElementById('hrUserBadge').innerHTML=`<img src="${payload.picture}" onerror="this.style.display='none'"/><div><div class="nm">${esc(payload.name)}</div><div class="em">${esc(payload.email)}</div></div>`;
+  loadAll(renderHR);
+}
+function hrLogout(){
+  state.hrUser=null;
+  try{ google.accounts.id.disableAutoSelect(); }catch(e){}
+  document.getElementById('hrContent').style.display='none';
+  document.getElementById('hrLoginGate').style.display='block';
+  document.getElementById('hrDenied').style.display='none';
+}
+
+/* ============================ HR DASHBOARD ============================ */
+function onHrFilter(){ state.hrStatus=val('hrStatusFilter'); state.hrPage=1; renderHR(); }
+function onHrSearch(){ state.hrSearch=document.getElementById('hrSearch').value.toLowerCase().trim(); state.hrPage=1; renderHR(); }
+function hrFiltered(){
+  let d=state.entries;
+  if(state.hrStatus!=='all') d=d.filter(e=>e.status===state.hrStatus);
+  if(state.hrSearch) d=d.filter(e=>(e.nama||'').toLowerCase().includes(state.hrSearch));
+  return d;
+}
+function renderHR(){
+  const data=state.entries;
+  document.getElementById('hrBanner').innerHTML = state.connected
+    ? `<div class="banner live">● Terhubung ke Google Sheets — data live (${data.length} total pengajuan).</div>`
+    : `<div class="banner demo">● Belum terhubung ke Google Sheets — menampilkan <b>data contoh</b>. Isi <code>CONFIG.SCRIPT_URL</code> untuk data asli.</div>`;
+  document.getElementById('hrSub').textContent=data.length+' pengajuan total';
+
+  const approved=data.filter(e=>e.status==='Approved'), rejected=data.filter(e=>e.status==='Rejected'), review=data.filter(e=>e.status==='On Review');
+  const costApproved=approved.reduce((s,e)=>s+(+e.totalCost||0),0);
+  document.getElementById('hrStatRow').innerHTML = `
+    <div class="stat" style="--sev:#0f766e"><div class="lbl"><span class="d"></span>Total Pengajuan</div><div class="num">${data.length}</div><div class="pct">Seluruh periode</div></div>
+    <div class="stat" style="--sev:${STATUS_META.Approved.color}"><div class="lbl"><span class="d"></span>Approved</div><div class="num">${approved.length}</div><div class="pct">${pct(approved.length,data.length)}% dari total</div></div>
+    <div class="stat" style="--sev:${STATUS_META.Rejected.color}"><div class="lbl"><span class="d"></span>Rejected</div><div class="num">${rejected.length}</div><div class="pct">${pct(rejected.length,data.length)}% dari total</div></div>
+    <div class="stat" style="--sev:${STATUS_META['On Review'].color}"><div class="lbl"><span class="d"></span>On Review</div><div class="num">${review.length}</div><div class="pct">${pct(review.length,data.length)}% dari total</div></div>
+    <div class="stat" style="--sev:#0a7a56"><div class="lbl"><span class="d"></span>Cost Disetujui</div><div class="num" style="font-size:19px">${rupiah(costApproved)}</div><div class="pct">Total dari status Approved</div></div>`;
+
+  renderDonutStatus(data);
+  renderBarsBulan(data);
+  renderBarsBy('barDivisi','divisi',data);
+  renderBarsBy('barPosisi','posisi',data);
+  renderHrTable();
+}
+function renderDonutStatus(data){
+  const segs=Object.keys(STATUS_META).map(s=>({label:s, value:data.filter(e=>e.status===s).length, color:STATUS_META[s].color}));
+  renderDonut('donutStatus','legendStatus',segs,data.length,'Total');
+}
+function renderBarsBulan(data){
+  const map={};
+  data.forEach(e=>{ const k=monthKey(e); if(!k) return; map[k]=(map[k]||0)+1; });
+  const rows=Object.entries(map).sort((a,b)=>a[0].localeCompare(b[0])).slice(-8).map(([k,v])=>({name:monthLabel(k),total:v}));
+  renderBars('barBulan',rows);
+}
+function renderBarsBy(id,field,data){
+  const map={};
+  data.forEach(e=>{ const k=(e[field]||'—').trim()||'—'; map[k]=(map[k]||0)+1; });
+  const rows=Object.entries(map).map(([name,total])=>({name,total})).sort((a,b)=>b.total-a.total).slice(0,8);
+  renderBars(id,rows);
+}
+function renderBars(id,rows){
+  const el=document.getElementById(id);
+  if(!rows.length){ el.innerHTML='<div class="empty-mini">Belum ada data.</div>'; return; }
+  const max=Math.max(...rows.map(r=>r.total));
+  el.innerHTML=rows.map(r=>`<div class="bar-row"><div class="bar-name" title="${esc(r.name)}">${esc(r.name)}</div><div class="bar-track"><div class="bar-fill" style="width:${(r.total/max)*100}%"></div></div><div class="bar-val">${r.total}</div></div>`).join('');
+}
+function renderDonut(svgId, legendId, segs, centerNum, centerLbl){
+  segs=segs.filter(s=>s.value>0);
+  const total=segs.reduce((a,s)=>a+s.value,0);
+  const wrap=document.getElementById(svgId), lg=document.getElementById(legendId);
+  if(!total){ wrap.innerHTML='<div class="empty-mini">Belum ada data.</div>'; lg.innerHTML=''; return; }
+  const R=48, C=2*Math.PI*R; let off=0;
+  const rings=segs.map(s=>{ const dash=(s.value/total)*C;
+    const r=`<circle class="seg" cx="60" cy="60" r="${R}" fill="none" style="stroke:${s.color}" stroke-width="18" stroke-dasharray="${dash.toFixed(2)} ${(C-dash).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}"/>`;
+    off+=dash; return r; }).join('');
+  wrap.innerHTML=`<svg viewBox="0 0 120 120" class="donut" role="img"><g transform="rotate(-90 60 60)"><circle cx="60" cy="60" r="${R}" fill="none" stroke="#eef4f3" stroke-width="18"/>${rings}</g><text x="60" y="57" class="dn-num">${centerNum}</text><text x="60" y="72" class="dn-lbl">${centerLbl}</text></svg>`;
+  lg.innerHTML=segs.map(s=>{ const p=((s.value/total)*100).toFixed(0); return `<span class="dl-item"><i style="background:${s.color}"></i><b>${esc(s.label)}</b><em>${s.value} · ${p}%</em></span>`; }).join('');
+}
+
+function renderHrTable(){
+  const all=hrFiltered().slice().sort((a,b)=>new Date(entryDate(b))-new Date(entryDate(a)));
+  const total=all.length, pages=Math.max(1,Math.ceil(total/CONFIG.PAGE_SIZE));
+  if(state.hrPage>pages) state.hrPage=pages;
+  const start=(state.hrPage-1)*CONFIG.PAGE_SIZE, rows=all.slice(start,start+CONFIG.PAGE_SIZE);
+  const tb=document.getElementById('hrTbody');
+  tb.innerHTML = total ? rows.map((e,i)=>{
+    const cls=(STATUS_META[e.status]||STATUS_META['On Review']).cls;
+    return `<tr>
+      <td class="t-no">${start+i+1}</td>
+      <td class="t-name">${esc(e.nama)}</td>
+      <td>${esc(e.divisi||'—')}</td>
+      <td>${esc(e.posisi||'—')}</td>
+      <td>${esc(trunc(e.trainingDiajukan,50))}</td>
+      <td>${rupiah(e.totalCost)}</td>
+      <td>${fmtDate(e.tanggalTraining)}</td>
+      <td><select class="status-select ${cls}" onchange="updateStatusInline('${e.id}', this.value)">
+            ${Object.keys(STATUS_META).map(s=>`<option value="${s}" ${s===e.status?'selected':''}>${s}</option>`).join('')}
+          </select></td>
+      <td><div class="row-actions">
+            <button class="icon-btn" title="Edit" onclick='openModal(${JSON.stringify(e).replace(/'/g,"&#39;")})'><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
+            <button class="icon-btn danger" title="Hapus" onclick="deleteRow('${e.id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+          </div></td>
+    </tr>`; }).join('') : `<tr><td colspan="9"><div class="empty-big"><div class="ic">🗂️</div>Belum ada data.</div></td></tr>`;
+  document.getElementById('hrPageInfo').textContent=total?`Menampilkan ${start+1}–${Math.min(start+CONFIG.PAGE_SIZE,total)} dari ${total} · Halaman ${state.hrPage}/${pages}`:'';
+  document.getElementById('hrPrevBtn').disabled=state.hrPage<=1;
+  document.getElementById('hrNextBtn').disabled=state.hrPage>=pages;
+}
+function hrPageMove(dir){ state.hrPage+=dir; renderHrTable(); window.scrollTo({top:document.getElementById('hrTbody').closest('.panel').offsetTop-80,behavior:'smooth'}); }
+
+function updateStatusInline(id,newStatus){
+  if(!CONFIG.SCRIPT_URL){
+    const e=state.entries.find(x=>x.id===id); if(e) e.status=newStatus;
+    toast('Mode demo: perubahan tidak tersimpan ke Sheets.','err'); renderHR(); return;
+  }
+  fetch(CONFIG.SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'update',id,status:newStatus})})
+    .then(r=>r.json()).then(res=>{ if(res&&res.ok){ toast('Status diperbarui ✓','ok'); loadAll(renderHR); } else throw new Error(); })
+    .catch(()=>toast('Gagal memperbarui status.','err'));
+}
+
+/* ---------- Modal tambah/edit ---------- */
+function openModal(entry){
+  document.getElementById('modalTitle').textContent = entry ? 'Edit Data Pengajuan' : 'Tambah Data Pengajuan';
+  document.getElementById('m_id').value = entry ? entry.id : '';
+  document.getElementById('m_nama').value = entry ? entry.nama||'' : '';
+  document.getElementById('m_noTelp').value = entry ? entry.noTelp||'' : '';
+  document.getElementById('m_email').value = entry ? entry.email||'' : '';
+  document.getElementById('m_posisi').value = entry ? entry.posisi||'' : '';
+  document.getElementById('m_divisi').value = entry ? entry.divisi||'' : '';
+  document.getElementById('m_status').value = entry ? entry.status||'On Review' : 'On Review';
+  document.getElementById('m_training').value = entry ? entry.trainingDiajukan||'' : '';
+  document.getElementById('m_costTransportasi').value = entry ? entry.costTransportasi||0 : '';
+  document.getElementById('m_costAkomodasi').value = entry ? entry.costAkomodasi||0 : '';
+  document.getElementById('m_costTraining').value = entry ? entry.costTraining||0 : '';
+  document.getElementById('m_tanggalTraining').value = entry ? (entry.tanggalTraining||'').slice(0,10) : '';
+  document.getElementById('m_linkPostingan').value = entry ? entry.linkPostingan||'' : '';
+  document.getElementById('modalOverlay').classList.add('show');
+}
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('show'); }
+function saveModal(){
+  const id=val('m_id');
+  const payload={
+    action: id?'update':'create', id,
+    nama:val('m_nama'), noTelp:val('m_noTelp'), email:val('m_email'), posisi:val('m_posisi'), divisi:val('m_divisi'),
+    status:val('m_status'), trainingDiajukan:val('m_training'),
+    costTransportasi:+document.getElementById('m_costTransportasi').value||0,
+    costAkomodasi:+document.getElementById('m_costAkomodasi').value||0,
+    costTraining:+document.getElementById('m_costTraining').value||0,
+    tanggalTraining:val('m_tanggalTraining'), linkPostingan:val('m_linkPostingan')
+  };
+  if(!payload.nama){ toast('Nama wajib diisi','err'); return; }
+  if(!CONFIG.SCRIPT_URL){ toast('Belum terhubung ke Google Sheets. Isi CONFIG.SCRIPT_URL dulu.','err'); return; }
+  const btn=document.getElementById('modalSaveBtn'); btn.disabled=true; btn.textContent='Menyimpan…';
+  fetch(CONFIG.SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
+    .then(r=>r.json()).then(res=>{ if(res&&res.ok){ toast('Data tersimpan ✓','ok'); closeModal(); loadAll(renderHR); } else throw new Error(); })
+    .catch(()=>toast('Gagal menyimpan data.','err'))
+    .finally(()=>{ btn.disabled=false; btn.textContent='Simpan'; });
+}
+function deleteRow(id){
+  if(!confirm('Hapus data pengajuan ini? Tindakan tidak bisa dibatalkan.')) return;
+  if(!CONFIG.SCRIPT_URL){ toast('Belum terhubung ke Google Sheets.','err'); return; }
+  fetch(CONFIG.SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'delete',id})})
+    .then(r=>r.json()).then(res=>{ if(res&&res.ok){ toast('Data dihapus ✓','ok'); loadAll(renderHR); } else throw new Error(); })
+    .catch(()=>toast('Gagal menghapus data.','err'));
+}
+
+/* ============================ UTILS ============================ */
+function entryDate(e){ return e.tanggalTraining || e.timestamp; }
+function monthKey(e){ const dt=new Date(entryDate(e)); if(isNaN(dt)) return null; return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0'); }
+function monthLabel(k){ const [y,m]=k.split('-'); return MONTHS_ID[+m-1].slice(0,3)+' '+y; }
+function pct(n,total){ return total? ((n/total)*100).toFixed(0) : 0; }
+function rupiah(n){ n=Number(n)||0; return 'Rp'+n.toLocaleString('id-ID'); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function trunc(s,n){ s=String(s||''); return s.length>n? s.slice(0,n)+'…' : s; }
+function fmtDate(s){ const dt=new Date(s); if(isNaN(dt)) return '—'; return dt.getDate()+' '+MONTHS_ID[dt.getMonth()].slice(0,3)+' '+dt.getFullYear(); }
+function statusBadge(s){ const m=STATUS_META[s]||STATUS_META['On Review']; return `<span class="status-badge ${m.cls}">${esc(s||'On Review')}</span>`; }
+let toastT;
+function toast(msg,type){ const t=document.getElementById('toast'); t.textContent=msg; t.className='toast show '+(type||''); clearTimeout(toastT); toastT=setTimeout(()=>t.className='toast',3600); }
+
+checkConnection();
+window.addEventListener('load', initGSI);
+</script>
+</body>
+</html>

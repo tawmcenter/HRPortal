@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Penjadwalan — WeCheck</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  :root {
+    --navy: #152A54;
+    --navy-light: #1E3A6E;
+    --cream: #F7F8FA;
+    --border: #E2E5EA;
+    --text-muted: #6B7280;
+    --text-primary: #1A1D29;
+    --success: #1E7B4D;
+    --success-bg: #E9F7EF;
+    --danger: #C0392B;
+    --danger-bg: #FBEAE8;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--cream);
+    color: var(--text-primary);
+  }
+
+  /* ===================== BOOKING (KARYAWAN) ===================== */
+  #bookingScreen { display: flex; justify-content: center; padding: 32px 16px; }
+
+  .card {
+    width: 100%; max-width: 820px; background: #fff; border-radius: 16px; overflow: hidden;
+    box-shadow: 0 4px 24px rgba(21, 42, 84, 0.08); display: grid; grid-template-columns: 240px 1fr;
+  }
+  @media (max-width: 640px) { .card { grid-template-columns: 1fr; } }
+
+  .sidebar { background: var(--navy); padding: 28px 24px; color: #fff; display: flex; flex-direction: column; gap: 24px; }
+  .logo-mark {
+    width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.12);
+    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px;
+  }
+  .brand-name { font-size: 16px; font-weight: 600; margin: 12px 0 2px; }
+  .brand-sub { font-size: 13px; color: rgba(255,255,255,0.65); margin: 0; }
+  .sidebar-divider { border-top: 1px solid rgba(255,255,255,0.15); padding-top: 20px; }
+  .sidebar-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: rgba(255,255,255,0.5); margin: 0 0 8px; }
+  .sidebar-meta { font-size: 13px; color: rgba(255,255,255,0.8); display: flex; align-items: center; gap: 8px; }
+  .admin-link { margin-top: auto; font-size: 12px; color: rgba(255,255,255,0.5); text-decoration: none; }
+  .admin-link:hover { color: rgba(255,255,255,0.8); }
+
+  .main { padding: 28px 28px 32px; }
+  h1 { font-size: 18px; margin: 0 0 4px; }
+  .subtitle { font-size: 13px; color: var(--text-muted); margin: 0 0 20px; }
+
+  .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .cal-header span { font-size: 14px; font-weight: 600; }
+  .cal-nav { display: flex; gap: 4px; }
+  .cal-nav button { border: none; background: var(--cream); width: 28px; height: 28px; border-radius: 8px; cursor: pointer; font-size: 14px; color: var(--text-primary); }
+  .cal-nav button:hover { background: var(--border); }
+
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 22px; }
+  .cal-dow { font-size: 11px; color: var(--text-muted); text-align: center; padding: 4px 0 8px; }
+  .cal-day { text-align: center; font-size: 13px; padding: 8px 0; border-radius: 8px; cursor: pointer; color: var(--text-primary); }
+  .cal-day.muted { color: var(--border); cursor: default; }
+  .cal-day.past { color: var(--border); cursor: default; }
+  .cal-day:hover:not(.muted):not(.past):not(.selected) { background: var(--cream); }
+  .cal-day.selected { background: var(--navy); color: #fff; font-weight: 600; }
+
+  .slots-title { font-size: 13px; font-weight: 600; color: var(--text-muted); margin: 0 0 10px; }
+  .slots-list { display: flex; flex-direction: column; gap: 8px; }
+  .slot-btn {
+    width: 100%; text-align: left; padding: 11px 14px; border-radius: 10px; border: 1px solid var(--border);
+    background: #fff; font-size: 14px; cursor: pointer; display: flex; justify-content: space-between; color: var(--text-primary);
+  }
+  .slot-btn:hover { border-color: var(--navy); }
+  .slot-btn .sisa { color: var(--text-muted); font-size: 12px; }
+  .slot-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .slot-btn.selected { border-color: var(--navy); background: #EEF1F8; }
+
+  .empty-state { font-size: 13px; color: var(--text-muted); padding: 12px 0; }
+
+  form { display: flex; flex-direction: column; gap: 12px; margin-top: 18px; }
+  label { font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px; }
+  input {
+    width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); font-size: 14px; font-family: inherit;
+  }
+  input:focus { outline: none; border-color: var(--navy); }
+
+  .btn-primary {
+    background: var(--navy); color: #fff; border: none; padding: 12px; border-radius: 10px;
+    font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 6px;
+  }
+  .btn-primary:hover { background: var(--navy-light); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .msg { font-size: 13px; padding: 10px 12px; border-radius: 10px; margin-top: 10px; }
+  .msg.error { background: var(--danger-bg); color: var(--danger); }
+  .msg.success { background: var(--success-bg); color: var(--success); }
+
+  .confirm-box { text-align: center; padding: 12px 0; }
+  .confirm-icon {
+    width: 48px; height: 48px; border-radius: 50%; background: var(--success-bg); color: var(--success);
+    display: flex; align-items: center; justify-content: center; font-size: 22px; margin: 0 auto 14px;
+  }
+  .confirm-box h2 { font-size: 16px; margin: 0 0 6px; }
+  .confirm-box p { font-size: 13px; color: var(--text-muted); margin: 0 0 4px; }
+
+  /* ===================== ADMIN (HR) ===================== */
+  #loginScreen {
+    display: none; min-height: 100vh; flex-direction: column; align-items: center; justify-content: center;
+    gap: 16px; text-align: center; padding: 24px;
+  }
+  #loginScreen .logo-mark {
+    width: 52px; height: 52px; background: var(--navy); color: #fff; font-size: 16px; margin-bottom: 4px;
+  }
+  #loginScreen h1 { font-size: 18px; margin: 0; }
+  #loginScreen p { font-size: 13px; color: var(--text-muted); margin: 0 0 8px; max-width: 320px; }
+
+  #adminScreen { display: none; max-width: 960px; margin: 0 auto; padding: 28px 20px 60px; }
+
+  .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+  .topbar-left { display: flex; align-items: center; gap: 10px; }
+  .topbar-left .logo-mark { width: 34px; height: 34px; background: var(--navy); color: #fff; font-size: 12px; }
+  .topbar h1 { font-size: 15px; margin: 0; }
+  .topbar .user-email { font-size: 12px; color: var(--text-muted); }
+  .logout-btn { font-size: 12px; color: var(--text-muted); background: none; border: none; cursor: pointer; text-decoration: underline; }
+
+  .date-picker { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+  .date-picker label { font-size: 13px; color: var(--text-muted); }
+  .date-picker input { padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); font-size: 14px; font-family: inherit; }
+
+  .panel { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 18px; }
+  .panel h2 { font-size: 14px; margin: 0 0 14px; }
+
+  .slot-row {
+    display: grid; grid-template-columns: 90px 90px 1fr auto; gap: 10px; align-items: center;
+    padding: 8px 0; border-bottom: 1px solid var(--cream); font-size: 13px;
+  }
+  .slot-row:last-child { border-bottom: none; }
+  .slot-row .terisi { color: var(--text-muted); }
+  .slot-row button { background: var(--danger-bg); color: var(--danger); border: none; border-radius: 8px; padding: 6px 10px; font-size: 12px; cursor: pointer; }
+
+  .add-slot-form { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .add-slot-form input { padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px; font-family: inherit; }
+  .add-slot-form input[name="jam"] { width: 100px; }
+  .add-slot-form input[name="kapasitas"] { width: 90px; }
+  .add-slot-form button { background: var(--navy); color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-size: 13px; cursor: pointer; }
+  .add-slot-form button:hover { background: var(--navy-light); }
+
+  .booking-row { padding: 12px 0; border-bottom: 1px solid var(--cream); display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .booking-row:last-child { border-bottom: none; }
+  .booking-info .nama { font-size: 13px; font-weight: 600; }
+  .booking-info .meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .status-badge { font-size: 11px; padding: 3px 9px; border-radius: 8px; white-space: nowrap; }
+  .status-badge.terjadwal { background: var(--success-bg); color: var(--success); }
+  .status-badge.dibatalkan { background: var(--danger-bg); color: var(--danger); }
+  .booking-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+  .cancel-link { font-size: 12px; color: var(--danger); background: none; border: none; cursor: pointer; text-decoration: underline; }
+
+  .logo-mark.round { border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+</style>
+</head>
+<body>
+<style>.wmhrga-back-fab{position:fixed;bottom:16px;left:16px;z-index:99999;display:inline-flex;align-items:center;gap:6px;background:#14213D;color:#fff;text-decoration:none;font-family:'Plus Jakarta Sans',-apple-system,sans-serif;font-size:12.5px;font-weight:600;padding:9px 15px;border-radius:999px;box-shadow:0 6px 18px rgba(20,33,61,.35);transition:transform .15s ease,box-shadow .15s ease;}.wmhrga-back-fab:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(20,33,61,.45);}@media print{.wmhrga-back-fab{display:none;}}</style>
+<a href="index.html" class="wmhrga-back-fab">&#8592; Dashboard</a>
+
+
+<!-- ===================== HALAMAN BOOKING (KARYAWAN) ===================== -->
+<div id="bookingScreen">
+  <div class="card">
+    <div class="sidebar">
+      <div>
+        <div class="logo-mark round">WM</div>
+        <p class="brand-name">WeCheck</p>
+        <p class="brand-sub">1 on 1 session with HR</p>
+      </div>
+      <div class="sidebar-divider">
+        <p class="sidebar-label">Durasi</p>
+        <div class="sidebar-meta">⏱ 60 menit</div>
+      </div>
+      <div class="sidebar-divider">
+        <p class="sidebar-label">Format</p>
+        <div class="sidebar-meta">🎥 Google Meet</div>
+      </div>
+      <a href="?admin=1" class="admin-link">HR Dashboard →</a>
+    </div>
+
+    <div class="main" id="mainContent">
+      <h1>Penjadwalan</h1>
+      <p class="subtitle">Silakan jadwalkan sesimu di sini</p>
+
+      <div class="cal-header">
+        <span id="calMonthLabel"></span>
+        <div class="cal-nav">
+          <button id="prevMonth" aria-label="Bulan sebelumnya">‹</button>
+          <button id="nextMonth" aria-label="Bulan berikutnya">›</button>
+        </div>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+
+      <p class="slots-title" id="slotsTitle">Pilih tanggal terlebih dahulu</p>
+      <div class="slots-list" id="slotsList"></div>
+
+      <div id="formArea"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== HALAMAN LOGIN ADMIN ===================== -->
+<div id="loginScreen">
+  <div class="logo-mark round">WM</div>
+  <h1>Admin Booking HR</h1>
+  <p>Login pakai akun @wmcenter.id kamu untuk mengelola bank waktu dan melihat daftar booking.</p>
+  <div id="googleBtn"></div>
+  <div id="loginMsg"></div>
+</div>
+
+<!-- ===================== HALAMAN ADMIN HR ===================== -->
+<div id="adminScreen">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo-mark round">WM</div>
+      <div>
+        <h1>Admin Booking HR</h1>
+        <div class="user-email" id="userEmailLabel"></div>
+      </div>
+    </div>
+    <button class="logout-btn" id="logoutBtn">Keluar</button>
+  </div>
+
+  <div class="date-picker">
+    <label>Tanggal</label>
+    <input type="date" id="tanggalInput">
+  </div>
+
+  <div class="panel">
+    <h2>Bank waktu</h2>
+    <div id="slotList"></div>
+    <form class="add-slot-form" id="addSlotForm">
+      <input type="time" name="jam" required>
+      <input type="number" name="kapasitas" placeholder="Kapasitas" min="1" required>
+      <button type="submit">+ Tambah slot</button>
+    </form>
+    <div id="slotMsg"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Daftar booking</h2>
+    <div id="bookingList"></div>
+  </div>
+</div>
+
+<script>
+  // ===== GANTI DENGAN URL WEB APP APPS SCRIPT KAMU =====
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxDfZQIu2A7wGvImBRiuo7jXMlEEZquHdgDaFkJlOkVSraPXdK4WJhiWjB0VGO_Lg8/exec";
+
+  // ===== GANTI DENGAN CLIENT ID OAUTH DARI STEP AWAL (dipakai buat login admin) =====
+  const GOOGLE_CLIENT_ID = "393421984186-naetlho4uaju90ms2lt6hoabucsn056e.apps.googleusercontent.com";
+
+  function pad(n) { return n < 10 ? "0" + n : "" + n; }
+  function todayStr() {
+    const d = new Date();
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const isAdminView = params.get("admin") === "1";
+
+  if (isAdminView) {
+    document.getElementById("bookingScreen").style.display = "none";
+    initAdmin();
+  } else {
+    initBooking();
+  }
+
+  /* ========================================================
+     BAGIAN BOOKING (KARYAWAN)
+     ======================================================== */
+  function initBooking() {
+    const DOW = ["Min","Sen","Sel","Rab","Kam","Jum","Sab"];
+    const MONTHS = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+
+    let viewYear, viewMonth, selectedDateStr = null, selectedSlot = null;
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    viewYear = today.getFullYear();
+    viewMonth = today.getMonth();
+
+    function toDateStr(y, m, d) { return y + "-" + pad(m + 1) + "-" + pad(d); }
+
+    function renderCalendar() {
+      document.getElementById("calMonthLabel").textContent = MONTHS[viewMonth] + " " + viewYear;
+      const grid = document.getElementById("calGrid");
+      grid.innerHTML = "";
+
+      DOW.forEach(d => {
+        const el = document.createElement("div");
+        el.className = "cal-dow";
+        el.textContent = d;
+        grid.appendChild(el);
+      });
+
+      const firstDay = new Date(viewYear, viewMonth, 1).getDay();
+      const totalDays = new Date(viewYear, viewMonth + 1, 0).getDate();
+
+      for (let i = 0; i < firstDay; i++) {
+        const el = document.createElement("div");
+        el.className = "cal-day muted";
+        grid.appendChild(el);
+      }
+
+      for (let d = 1; d <= totalDays; d++) {
+        const el = document.createElement("div");
+        const dateStr = toDateStr(viewYear, viewMonth, d);
+        const thisDate = new Date(viewYear, viewMonth, d);
+        el.textContent = d;
+        el.className = "cal-day";
+
+        if (thisDate < today) {
+          el.classList.add("past");
+        } else {
+          if (dateStr === selectedDateStr) el.classList.add("selected");
+          el.addEventListener("click", () => selectDate(dateStr, el));
+        }
+        grid.appendChild(el);
+      }
+    }
+
+    function selectDate(dateStr, el) {
+      selectedDateStr = dateStr;
+      selectedSlot = null;
+      document.querySelectorAll(".cal-day").forEach(d => d.classList.remove("selected"));
+      el.classList.add("selected");
+      document.getElementById("formArea").innerHTML = "";
+      loadSlots(dateStr);
+    }
+
+    function loadSlots(dateStr) {
+      const list = document.getElementById("slotsList");
+      const title = document.getElementById("slotsTitle");
+      title.textContent = "Memuat jam tersedia…";
+      list.innerHTML = "";
+
+      fetch(APPS_SCRIPT_URL + "?action=getSlots&tanggal=" + encodeURIComponent(dateStr) + "&_ts=" + Date.now(), {cache:'no-store'})
+        .then(r => r.json())
+        .then(res => {
+          if (!res.success) {
+            title.textContent = "Gagal memuat jadwal.";
+            list.innerHTML = '<div class="msg error">' + res.message + '</div>';
+            return;
+          }
+          const slots = res.data;
+          if (!slots.length) {
+            title.textContent = "Jam tersedia";
+            list.innerHTML = '<div class="empty-state">Belum ada jam yang dibuka HR untuk tanggal ini.</div>';
+            return;
+          }
+          title.textContent = "Jam tersedia";
+          list.innerHTML = "";
+          slots.forEach(s => {
+            const btn = document.createElement("button");
+            btn.className = "slot-btn";
+            btn.disabled = s.sisa <= 0;
+            btn.innerHTML = "<span>" + s.jam + "</span><span class='sisa'>" + (s.sisa > 0 ? s.sisa + " sisa" : "Penuh") + "</span>";
+            if (!btn.disabled) btn.addEventListener("click", () => selectSlot(s.jam, btn));
+            list.appendChild(btn);
+          });
+        })
+        .catch(() => {
+          title.textContent = "Gagal memuat jadwal.";
+          list.innerHTML = '<div class="msg error">Tidak bisa terhubung ke sistem. Coba muat ulang halaman.</div>';
+        });
+    }
+
+    function selectSlot(jam, btn) {
+      selectedSlot = jam;
+      document.querySelectorAll(".slot-btn").forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      renderForm(jam);
+    }
+
+    function renderForm(jam) {
+      const area = document.getElementById("formArea");
+      area.innerHTML = `
+        <form id="bookingForm">
+          <label>Nama lengkap</label>
+          <input type="text" name="nama" required>
+          <label>Posisi</label>
+          <input type="text" name="posisi" required>
+          <label>Divisi</label>
+          <input type="text" name="divisi" required>
+          <label>Nomor HP aktif</label>
+          <input type="tel" name="noHp" required>
+          <label>Email pribadi</label>
+          <input type="email" name="email" required>
+          <button type="submit" class="btn-primary">Booking slot ${jam}</button>
+          <div id="formMsg"></div>
+        </form>
+      `;
+      document.getElementById("bookingForm").addEventListener("submit", submitBooking);
+    }
+
+    function submitBooking(e) {
+      e.preventDefault();
+      const form = e.target;
+      const btn = form.querySelector(".btn-primary");
+      const msg = document.getElementById("formMsg");
+      btn.disabled = true;
+      btn.textContent = "Memproses…";
+      msg.innerHTML = "";
+
+      const payload = {
+        action: "createBooking",
+        tanggal: selectedDateStr,
+        jam: selectedSlot,
+        nama: form.nama.value,
+        posisi: form.posisi.value,
+        divisi: form.divisi.value,
+        noHp: form.noHp.value,
+        email: form.email.value
+      };
+
+      fetch(APPS_SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      })
+        .then(r => r.json())
+        .then(res => {
+          if (!res.success) {
+            msg.innerHTML = '<div class="msg error">' + res.message + '</div>';
+            btn.disabled = false;
+            btn.textContent = "Booking slot " + selectedSlot;
+            return;
+          }
+          showConfirmation();
+        })
+        .catch(() => {
+          msg.innerHTML = '<div class="msg error">Booking gagal terkirim. Coba lagi ya.</div>';
+          btn.disabled = false;
+          btn.textContent = "Booking slot " + selectedSlot;
+        });
+    }
+
+    function showConfirmation() {
+      document.getElementById("mainContent").innerHTML = `
+        <div class="confirm-box">
+          <div class="confirm-icon">✓</div>
+          <h2>Booking berhasil dibuat</h2>
+          <p>Sesi kamu dijadwalkan pada <strong>${selectedDateStr}, ${selectedSlot}</strong></p>
+          <p>Undangan Google Meet sudah dikirim ke email yang kamu isi tadi.</p>
+        </div>
+      `;
+    }
+
+    document.getElementById("prevMonth").addEventListener("click", () => {
+      viewMonth--;
+      if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+      renderCalendar();
+    });
+    document.getElementById("nextMonth").addEventListener("click", () => {
+      viewMonth++;
+      if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+      renderCalendar();
+    });
+
+    renderCalendar();
+  }
+
+  /* ========================================================
+     BAGIAN ADMIN (HR)
+     ======================================================== */
+  let currentAdminEmail = null;
+
+  function initAdmin() {
+    const savedEmail = sessionStorage.getItem("adminEmail");
+
+    window.addEventListener("load", () => {
+      if (typeof google !== "undefined") {
+        google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: handleLogin,
+        });
+        if (!savedEmail) {
+          google.accounts.id.renderButton(document.getElementById("googleBtn"), {
+            theme: "filled_blue",
+            text: "signin_with",
+            shape: "pill",
+          });
+        }
+      }
+
+      if (savedEmail) {
+        currentAdminEmail = savedEmail;
+        showAdminScreen(savedEmail);
+      } else {
+        document.getElementById("loginScreen").style.display = "flex";
+      }
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      sessionStorage.removeItem("adminEmail");
+      location.reload();
+    });
+
+    document.getElementById("addSlotForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const form = e.target;
+      const tanggal = document.getElementById("tanggalInput").value;
+      const msg = document.getElementById("slotMsg");
+
+      fetch(APPS_SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({
+          action: "addBankWaktu",
+          adminEmail: currentAdminEmail,
+          tanggal: tanggal,
+          jam: form.jam.value,
+          kapasitas: form.kapasitas.value,
+        }),
+      })
+        .then(r => r.json())
+        .then(res => {
+          msg.innerHTML = res.success
+            ? '<div class="msg success">' + res.message + '</div>'
+            : '<div class="msg error">' + res.message + '</div>';
+          if (res.success) { form.reset(); loadBankWaktu(); }
+        });
+    });
+  }
+
+  function decodeJwt(token) {
+    const payload = token.split(".")[1];
+    return JSON.parse(decodeURIComponent(escape(atob(payload.replace(/-/g, "+").replace(/_/g, "/")))));
+  }
+
+  function handleLogin(response) {
+    const data = decodeJwt(response.credential);
+    const email = data.email;
+
+    // Pengecekan "boleh akses atau tidak" sepenuhnya dilakukan di backend (ALLOWED_ADMINS di Code.gs).
+    // Di sini kita cuma simpan sementara emailnya, nanti kalau ternyata gak ada di allowlist,
+    // pesan error dari server bakal muncul begitu dia coba load data.
+    currentAdminEmail = email;
+    sessionStorage.setItem("adminEmail", email);
+    showAdminScreen(email);
+  }
+
+  function showAdminScreen(email) {
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("adminScreen").style.display = "block";
+    document.getElementById("userEmailLabel").textContent = email;
+
+    const dateInput = document.getElementById("tanggalInput");
+    dateInput.value = todayStr();
+    dateInput.addEventListener("change", loadAdminDate);
+
+    loadAdminDate();
+  }
+
+  function loadAdminDate() {
+    loadBankWaktu();
+    loadBookings();
+  }
+
+  function loadBankWaktu() {
+    const tanggal = document.getElementById("tanggalInput").value;
+    const list = document.getElementById("slotList");
+    list.innerHTML = '<div class="empty-state">Memuat…</div>';
+
+    const url = APPS_SCRIPT_URL + "?action=getBankWaktu&adminEmail=" + encodeURIComponent(currentAdminEmail) + "&tanggal=" + tanggal + "&_ts=" + Date.now();
+    fetch(url, {cache:'no-store'}).then(r => r.json()).then(res => {
+      if (!res.success) { list.innerHTML = '<div class="msg error">' + res.message + '</div>'; return; }
+      if (!res.data.length) { list.innerHTML = '<div class="empty-state">Belum ada slot untuk tanggal ini.</div>'; return; }
+      list.innerHTML = "";
+      res.data.forEach(s => {
+        const row = document.createElement("div");
+        row.className = "slot-row";
+        row.innerHTML = `
+          <span>${s.jam}</span>
+          <span>Kap. ${s.kapasitas}</span>
+          <span class="terisi">Terisi ${s.terisi} dari ${s.kapasitas}</span>
+          <button data-id="${s.id}">Hapus</button>
+        `;
+        row.querySelector("button").addEventListener("click", () => deleteSlot(s.id));
+        list.appendChild(row);
+      });
+    });
+  }
+
+  function deleteSlot(id) {
+    if (!confirm("Hapus slot ini?")) return;
+    fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action: "deleteBankWaktu", adminEmail: currentAdminEmail, id: id }),
+    }).then(r => r.json()).then(() => loadBankWaktu());
+  }
+
+  function loadBookings() {
+    const tanggal = document.getElementById("tanggalInput").value;
+    const list = document.getElementById("bookingList");
+    list.innerHTML = '<div class="empty-state">Memuat…</div>';
+
+    const url = APPS_SCRIPT_URL + "?action=listBookings&adminEmail=" + encodeURIComponent(currentAdminEmail) + "&tanggal=" + tanggal + "&_ts=" + Date.now();
+    fetch(url, {cache:'no-store'}).then(r => r.json()).then(res => {
+      if (!res.success) { list.innerHTML = '<div class="msg error">' + res.message + '</div>'; return; }
+      if (!res.data.length) { list.innerHTML = '<div class="empty-state">Belum ada yang booking di tanggal ini.</div>'; return; }
+      list.innerHTML = "";
+      res.data.forEach(b => {
+        const row = document.createElement("div");
+        row.className = "booking-row";
+        const isCancelled = b.status === "Dibatalkan";
+        row.innerHTML = `
+          <div class="booking-info">
+            <div class="nama">${b.jam} — ${b.nama}</div>
+            <div class="meta">${b.posisi} · ${b.divisi} · ${b.noHp} · ${b.email}</div>
+            ${isCancelled ? '<div class="meta">Alasan batal: ' + (b.alasanBatal || '-') + '</div>' : ''}
+          </div>
+          <div class="booking-actions">
+            <span class="status-badge ${isCancelled ? 'dibatalkan' : 'terjadwal'}">${b.status}</span>
+            ${!isCancelled ? '<button class="cancel-link" data-id="' + b.id + '">Batalkan</button>' : ''}
+          </div>
+        `;
+        if (!isCancelled) row.querySelector(".cancel-link").addEventListener("click", () => cancelBooking(b.id));
+        list.appendChild(row);
+      });
+    });
+  }
+
+  function cancelBooking(id) {
+    const alasan = prompt("Alasan pembatalan:");
+    if (alasan === null) return;
+
+    fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action: "cancelBooking", adminEmail: currentAdminEmail, id: id, alasan: alasan }),
+    }).then(r => r.json()).then(() => { loadBookings(); loadBankWaktu(); });
+  }
+</script>
+
+</body>
+</html>

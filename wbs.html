@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Internal Whistleblowing System - WM Center</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  :root{
+    --navy:#1a2456;
+    --navy-dark:#101636;
+    --orange:#E8763C;
+    --orange-dark:#c85f28;
+    --bg:#f4f5f7;
+    --card:#ffffff;
+    --border:#e2e4ea;
+    --text:#1f2430;
+    --text-muted:#6b7280;
+    --danger:#c0392b;
+    --danger-bg:#fbe9e7;
+    --warn:#b8860b;
+    --warn-bg:#fdf3d9;
+    --mid:#1d6fa5;
+    --mid-bg:#e6f1fb;
+    --low-bg:#eef0f3;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  .wrap{max-width:760px; margin:0 auto; padding:24px 20px 60px;}
+  .header{text-align:center; padding:20px 0 8px;}
+  .header img{max-width:220px; height:auto;}
+  .header .logo-fallback{font-family:Georgia,serif;}
+  .logo-fallback .wm{font-size:34px; font-weight:700; color:var(--navy); letter-spacing:1px;}
+  .logo-fallback .tag{font-size:12px; font-weight:700; color:var(--orange); letter-spacing:1px; margin-top:2px;}
+  .intro{text-align:center; margin:18px 0 28px;}
+  .intro h1{font-size:19px; color:var(--navy); margin:0 0 10px;}
+  .intro p{font-size:13.5px; color:var(--text-muted); line-height:1.7; max-width:520px; margin:0 auto;}
+  .eyebrow{font-size:11px; letter-spacing:1px; color:var(--orange); font-weight:700; text-transform:uppercase; text-align:center; margin-bottom:4px;}
+
+  .card{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px 22px; margin-bottom:16px;}
+  .card h2{font-size:12.5px; font-weight:700; color:var(--navy); text-transform:uppercase; letter-spacing:0.4px; margin:0 0 16px; padding-bottom:10px; border-bottom:1px solid var(--border);}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  @media (max-width:560px){.grid2{grid-template-columns:1fr;}}
+  .field{margin-bottom:14px;}
+  .field:last-child{margin-bottom:0;}
+  label{display:block; font-size:12.5px; color:var(--text-muted); margin-bottom:5px;}
+  input[type=text], input[type=tel], input[type=date], select, textarea{
+    width:100%; padding:9px 11px; font-size:14px; border:1px solid var(--border); border-radius:8px;
+    background:#fff; color:var(--text); font-family:inherit;
+  }
+  input:focus, select:focus, textarea:focus{outline:none; border-color:var(--navy); box-shadow:0 0 0 3px rgba(26,36,86,0.08);}
+  textarea{resize:vertical; min-height:70px;}
+  .hint{font-size:11.5px; color:var(--text-muted); margin-top:5px;}
+  .req{color:var(--orange);}
+
+  .toggle-row{display:flex; gap:8px; margin-bottom:4px;}
+  .toggle-btn{flex:0 0 auto; padding:7px 18px; font-size:13px; border:1px solid var(--border); border-radius:8px; background:#fff; cursor:pointer; color:var(--text);}
+  .toggle-btn.active{background:var(--navy); border-color:var(--navy); color:#fff;}
+  .conditional{display:none; background:var(--bg); border-radius:8px; padding:12px 14px; margin-top:10px;}
+  .conditional.show{display:block;}
+  .conditional .note{font-size:11px; color:var(--text-muted); margin:0 0 8px;}
+
+  .upload-box{border:1.5px dashed var(--border); border-radius:8px; padding:18px; text-align:center; color:var(--text-muted); font-size:12.5px; cursor:pointer; background:#fafbfc;}
+  .upload-box:hover{border-color:var(--navy);}
+  .file-list{margin-top:8px; display:flex; flex-direction:column; gap:6px;}
+  .file-item{display:flex; justify-content:space-between; align-items:center; font-size:12.5px; background:var(--bg); padding:6px 10px; border-radius:6px;}
+  .file-item button{border:none; background:none; color:var(--danger); cursor:pointer; font-size:12px;}
+
+  .submit-btn{width:100%; padding:13px; font-size:14.5px; font-weight:600; background:var(--navy); color:#fff; border:none; border-radius:9px; cursor:pointer; margin-top:6px;}
+  .submit-btn:hover{background:var(--navy-dark);}
+  .submit-btn:disabled{opacity:0.6; cursor:not-allowed;}
+
+  .error-text{color:var(--danger); font-size:12px; margin-top:4px; display:none;}
+  .field.invalid input, .field.invalid select, .field.invalid textarea{border-color:var(--danger);}
+  .field.invalid .error-text{display:block;}
+
+  .thankyou{display:none; text-align:center; padding:60px 20px;}
+  .thankyou.show{display:block;}
+  .thankyou i{font-size:40px; color:var(--navy);}
+  .thankyou h2{color:var(--navy); margin:14px 0 8px;}
+  .thankyou p{color:var(--text-muted); font-size:14px; max-width:400px; margin:0 auto;}
+
+  /* Admin / dashboard access link */
+  .admin-access{text-align:center; margin-top:30px;}
+  .admin-access a{font-size:12px; color:var(--text-muted); text-decoration:underline; cursor:pointer;}
+
+  /* Tab nav */
+  .tab-nav{display:flex; justify-content:center; gap:6px; margin:20px 0 4px; border-bottom:1px solid var(--border);}
+  .tab-btn{padding:10px 18px; font-size:13.5px; font-weight:600; border:none; background:none; color:var(--text-muted); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px;}
+  .tab-btn.active{color:var(--navy); border-bottom-color:var(--navy);}
+  .demo-banner{display:none; text-align:center; font-size:12px; color:var(--orange-dark); background:#fff3ea; border:1px solid #f4c9a4; border-radius:8px; padding:8px 12px; margin:14px 0; }
+  .demo-banner.show{display:block;}
+
+  /* Dashboard */
+  #dashboardView{display:none;}
+  #dashboardView.show{display:block;}
+  #formView.hide{display:none;}
+  .db-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;}
+  .db-header h1{font-size:18px; color:var(--navy); margin:0;}
+  .db-header .sub{font-size:12px; color:var(--text-muted); margin-top:2px;}
+  .badge-restricted{font-size:11px; padding:4px 10px; border-radius:6px; background:var(--danger-bg); color:var(--danger); font-weight:600;}
+  .logout-link{font-size:12px; color:var(--text-muted); cursor:pointer; text-decoration:underline;}
+
+  .metrics{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:18px;}
+  @media (max-width:640px){.metrics{grid-template-columns:1fr 1fr;}}
+  .metric-card{background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px 16px;}
+  .metric-card .label{font-size:12px; color:var(--text-muted); margin-bottom:4px;}
+  .metric-card .value{font-size:22px; font-weight:700; color:var(--navy);}
+  .metric-card .value.danger{color:var(--danger);}
+
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  th{text-align:left; font-weight:600; color:var(--text-muted); padding:8px 8px; border-bottom:1px solid var(--border); font-size:12px;}
+  td{padding:9px 8px; border-bottom:1px solid var(--border); vertical-align:middle;}
+  tr.clickable{cursor:pointer;}
+  tr.clickable:hover{background:var(--bg);}
+  .pill{font-size:11.5px; padding:3px 10px; border-radius:6px; font-weight:600; display:inline-block;}
+  .pill-urgent{background:var(--danger-bg); color:var(--danger);}
+  .pill-tinggi{background:var(--warn-bg); color:var(--warn);}
+  .pill-sedang{background:var(--mid-bg); color:var(--mid);}
+  .pill-rendah{background:var(--low-bg); color:var(--text-muted);}
+
+  .table-wrap{overflow-x:auto;}
+  .db-filters{display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;}
+  .db-filters select, .db-filters input{width:auto; font-size:12.5px; padding:6px 10px;}
+
+  /* Charts */
+  .charts-row{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;}
+  @media (max-width:640px){.charts-row{grid-template-columns:1fr;}}
+  .chart-card h2{margin-bottom:14px;}
+  .pie-wrap{display:flex; align-items:center; gap:18px; flex-wrap:wrap;}
+  .pie{width:120px; height:120px; border-radius:50%; flex:0 0 auto; background:var(--low-bg);}
+  .legend{display:flex; flex-direction:column; gap:7px; flex:1; min-width:140px;}
+  .legend-item{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text);}
+  .legend-dot{width:9px; height:9px; border-radius:50%; flex:0 0 auto;}
+  .legend-label{flex:1; color:var(--text-muted);}
+  .legend-val{font-weight:600; color:var(--text);}
+
+  /* Login gate */
+  #loginGate{display:none; text-align:center; padding:80px 20px;}
+  #loginGate.show{display:flex; flex-direction:column; align-items:center;}
+  #loginGate p{color:var(--text-muted); font-size:13px; margin:10px 0 20px; max-width:340px;}
+  #gsiButton{margin-top:6px;}
+  #loginError{color:var(--danger); font-size:12.5px; margin-top:14px; display:none;}
+
+  /* Modal detail */
+  .modal-overlay{display:none; position:fixed; inset:0; background:rgba(16,22,54,0.55); z-index:50; align-items:center; justify-content:center; padding:20px;}
+  .modal-overlay.show{display:flex;}
+  .modal{background:#fff; border-radius:12px; max-width:560px; width:100%; max-height:85vh; overflow-y:auto; padding:24px;}
+  .modal h3{color:var(--navy); margin:0 0 14px; font-size:16px;}
+  .modal .row{margin-bottom:12px;}
+  .modal .row .k{font-size:11.5px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.3px; margin-bottom:3px;}
+  .modal .row .v{font-size:13.5px; line-height:1.6;}
+  .modal-close{position:sticky; top:0; float:right; border:none; background:none; font-size:20px; cursor:pointer; color:var(--text-muted);}
+  .status-select{margin-top:16px; padding-top:14px; border-top:1px solid var(--border);}
+  .status-select select{margin-top:6px;}
+</style>
+</head>
+<body>
+<style>.wmhrga-back-fab{position:fixed;bottom:16px;left:16px;z-index:99999;display:inline-flex;align-items:center;gap:6px;background:#14213D;color:#fff;text-decoration:none;font-family:'Plus Jakarta Sans',-apple-system,sans-serif;font-size:12.5px;font-weight:600;padding:9px 15px;border-radius:999px;box-shadow:0 6px 18px rgba(20,33,61,.35);transition:transform .15s ease,box-shadow .15s ease;}.wmhrga-back-fab:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(20,33,61,.45);}@media print{.wmhrga-back-fab{display:none;}}</style>
+<a href="index.html" class="wmhrga-back-fab">&#8592; Dashboard</a>
+
+<div class="wrap">
+
+  <!-- ============ HEADER (shared) ============ -->
+  <div class="header">
+    <!-- Ganti src di bawah dengan logo asli (upload logo.png ke folder yang sama di repo) -->
+    <img src="logo.png" alt="WM Center - Legal and Compliance" onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='block';">
+    <div id="logoFallback" class="logo-fallback" style="display:none;">
+      <div class="wm">WM CENTER</div>
+      <div class="tag">LEGAL AND COMPLIANCE</div>
+    </div>
+  </div>
+
+  <!-- ============ TAB NAV ============ -->
+  <div class="tab-nav">
+    <button type="button" class="tab-btn active" id="tabFormBtn" onclick="switchTab('form')">Form pelaporan</button>
+    <button type="button" class="tab-btn" id="tabDashboardBtn" onclick="switchTab('dashboard')">Dashboard HR &amp; Legal</button>
+  </div>
+  <div class="demo-banner" id="demoBanner">Mode preview — dashboard di bawah ini pakai data dummy, login belum aktif.</div>
+
+  <!-- ============ FORM VIEW (public) ============ -->
+  <div id="formView">
+    <div class="intro">
+      <div class="eyebrow">Legal &amp; Compliance</div>
+      <h1>Internal Whistleblowing System (WBS) WM Center</h1>
+      <p>Terima kasih telah bersedia memberikan umpan balik Anda kepada Legal and Compliance WM Center. Masukan Anda sangat penting bagi kami. Semua jawaban akan dirahasiakan dan digunakan untuk kepentingan perbaikan kami.</p>
+    </div>
+
+    <form id="wbsForm">
+
+      <div class="card">
+        <h2>I. Identitas pelapor</h2>
+        <div class="grid2">
+          <div class="field">
+            <label>Nama pelapor <span style="font-weight:400;">(opsional / boleh anonim)</span></label>
+            <input type="text" name="namaPelapor" placeholder="Kosongkan jika ingin anonim">
+          </div>
+          <div class="field">
+            <label>Jabatan pelapor</label>
+            <input type="text" name="jabatanPelapor" placeholder="Jabatan Anda">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>II. Identitas pelaku</h2>
+        <div class="grid2">
+          <div class="field" id="f-namaPelaku">
+            <label>Nama pihak yang dilaporkan <span class="req">*</span></label>
+            <input type="text" name="namaPelaku" placeholder="Nama pelaku, atau tulis 'Tidak diketahui'" required>
+            <div class="error-text">Wajib diisi. Tulis "Tidak diketahui" jika tidak tahu identitas pelaku.</div>
+          </div>
+          <div class="field" id="f-jabatanPelaku">
+            <label>Jabatan pelaku</label>
+            <input type="text" name="jabatanPelaku" placeholder="Jabatan pelaku">
+          </div>
+          <div class="field" id="f-divisiPelaku">
+            <label>Divisi pelaku <span class="req">*</span></label>
+            <select name="divisiPelaku" required>
+              <option value="">Pilih divisi</option>
+              <option>Fisioterapis</option>
+              <option>Operations</option>
+              <option>HRGA & Legal</option>
+              <option>Brand & Communications</option>
+              <option>Finance & Data</option>
+              <option>Business Development</option>
+            </select>
+            <div class="error-text">Wajib dipilih.</div>
+          </div>
+          <div class="field" id="f-jenisPelaporan">
+            <label>Jenis pelaporan <span class="req">*</span></label>
+            <select name="jenisPelaporan" required onchange="toggleOtherJenis(this.value)">
+              <option value="">Pilih jenis pelaporan</option>
+              <option>Penyalahgunaan Wewenang</option>
+              <option>Pelanggaran Etika</option>
+              <option>Penipuan atau Kecurangan</option>
+              <option>Pelecehan atau Diskriminasi</option>
+              <option>Konflik Kepentingan</option>
+              <option>Penyalahgunaan Aset Perusahaan</option>
+              <option>Other</option>
+            </select>
+            <div class="error-text">Wajib dipilih.</div>
+          </div>
+        </div>
+        <div class="field" id="f-jenisLain" style="display:none; margin-top:14px;">
+          <label>Sebutkan jenis pelaporan lainnya</label>
+          <input type="text" name="jenisPelaporanLain" placeholder="Tulis jenis pelaporan">
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>III. Detail kejadian</h2>
+
+        <div class="grid2">
+          <div class="field" id="f-tempatKejadian">
+            <label>Tempat kejadian <span class="req">*</span></label>
+            <input type="text" name="tempatKejadian" placeholder="Cabang / unit kerja" required>
+            <div class="error-text">Wajib diisi.</div>
+          </div>
+          <div class="field" id="f-tanggalKejadian">
+            <label>Tanggal kejadian <span class="req">*</span></label>
+            <input type="date" name="tanggalKejadian" required>
+            <div class="error-text">Wajib diisi.</div>
+          </div>
+        </div>
+
+        <div class="field" id="f-kronologi">
+          <label>Uraian kronologi pelanggaran/kecurangan <span class="req">*</span></label>
+          <textarea name="kronologi" rows="5" placeholder="Jelaskan kejadian secara lengkap: apa yang terjadi, bagaimana caranya, dan potensi kerugian yang ditimbulkan (jika ada)." required></textarea>
+          <div class="error-text">Wajib diisi.</div>
+        </div>
+
+        <div class="grid2" style="margin-top:14px;">
+          <div class="field">
+            <label>Pihak yang diuntungkan <span style="font-weight:400;">(opsional)</span></label>
+            <input type="text" name="pihakDiuntungkan" placeholder="Opsional">
+          </div>
+          <div class="field">
+            <label>Pihak yang dirugikan <span style="font-weight:400;">(opsional)</span></label>
+            <input type="text" name="pihakDirugikan" placeholder="Opsional">
+          </div>
+        </div>
+
+        <!-- Ada saksi -->
+        <div class="field" style="margin-top:14px;">
+          <label>Ada saksi yang mengetahui kejadian ini? <span class="req">*</span></label>
+          <div class="toggle-row">
+            <button type="button" class="toggle-btn" data-group="adaSaksi" data-value="Ya" onclick="setToggle(this)">Ya</button>
+            <button type="button" class="toggle-btn" data-group="adaSaksi" data-value="Tidak" onclick="setToggle(this)">Tidak</button>
+          </div>
+          <input type="hidden" name="adaSaksi" required>
+          <div class="conditional" id="cond-saksi">
+            <p class="note">Detail saksi (boleh dikosongkan sebagian jika tidak diketahui)</p>
+            <div class="field" style="margin-bottom:8px;">
+              <input type="text" name="namaSaksi" placeholder="Nama saksi">
+            </div>
+            <div class="field" style="margin-bottom:0;">
+              <input type="text" name="kontakSaksi" placeholder="Kontak saksi (opsional)">
+            </div>
+          </div>
+        </div>
+
+        <!-- Bukti -->
+        <div class="field" style="margin-top:14px;" id="f-buktiDeskripsi">
+          <label>Bukti pendukung <span class="req">*</span></label>
+          <textarea name="buktiDeskripsi" rows="2" placeholder="Jelaskan bukti yang Anda miliki (mis. screenshot chat, rekaman, dokumen)" required></textarea>
+          <div class="error-text">Wajib diisi (minimal deskripsi bukti).</div>
+          <div class="upload-box" onclick="document.getElementById('fileInput').click()" style="margin-top:8px;">
+            Klik untuk upload file bukti (opsional, bisa lebih dari satu — foto, dokumen, audio, video)
+          </div>
+          <input type="file" id="fileInput" multiple style="display:none;" onchange="handleFiles(this.files)">
+          <div class="file-list" id="fileList"></div>
+        </div>
+
+        <div class="grid2" style="margin-top:14px;">
+          <div class="field">
+            <label>Pernah dilaporkan ke pihak lain sebelumnya? <span class="req">*</span></label>
+            <div class="toggle-row">
+              <button type="button" class="toggle-btn" data-group="pernahLapor" data-value="Ya" onclick="setToggle(this)">Ya</button>
+              <button type="button" class="toggle-btn" data-group="pernahLapor" data-value="Tidak" onclick="setToggle(this)">Tidak</button>
+            </div>
+            <input type="hidden" name="pernahLapor" required>
+            <div class="conditional" id="cond-pernahLapor">
+              <input type="text" name="pernahLaporDetail" placeholder="Dilaporkan ke siapa, kapan?">
+            </div>
+          </div>
+          <div class="field">
+            <label>Pernah ada kejadian serupa sebelumnya? <span class="req">*</span></label>
+            <div class="toggle-row">
+              <button type="button" class="toggle-btn" data-group="kejadianSerupa" data-value="Ya" onclick="setToggle(this)">Ya</button>
+              <button type="button" class="toggle-btn" data-group="kejadianSerupa" data-value="Tidak" onclick="setToggle(this)">Tidak</button>
+            </div>
+            <input type="hidden" name="kejadianSerupa" required>
+            <div class="conditional" id="cond-kejadianSerupa">
+              <input type="text" name="kejadianSerupaDetail" placeholder="Ceritakan singkat">
+            </div>
+          </div>
+        </div>
+
+        <!-- Bersedia dihubungi -->
+        <div class="field" style="margin-top:14px;">
+          <label>Bersedia untuk dihubungi lebih lanjut terkait laporan ini? <span class="req">*</span></label>
+          <div class="toggle-row">
+            <button type="button" class="toggle-btn" data-group="bersediaDihubungi" data-value="Ya" onclick="setToggle(this)">Ya</button>
+            <button type="button" class="toggle-btn" data-group="bersediaDihubungi" data-value="Tidak" onclick="setToggle(this)">Tidak</button>
+          </div>
+          <input type="hidden" name="bersediaDihubungi" required>
+          <div class="conditional" id="cond-telepon">
+            <p class="note">Nomor telepon hanya digunakan oleh tim Legal &amp; Compliance untuk tindak lanjut.</p>
+            <input type="tel" name="nomorTelepon" placeholder="Nomor telepon">
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:14px;">
+          <label>Komentar atau informasi tambahan lainnya <span style="font-weight:400;">(opsional)</span></label>
+          <textarea name="komentar" rows="2" placeholder="Opsional"></textarea>
+        </div>
+      </div>
+
+      <div id="submitError" style="color:var(--danger); font-size:13px; text-align:center; margin-bottom:10px; display:none;">
+        Mohon lengkapi field yang wajib diisi di atas.
+      </div>
+      <button type="submit" class="submit-btn" id="submitBtn">Kirim laporan</button>
+    </form>
+
+    <div class="thankyou" id="thankyou">
+      <h2>Terima kasih atas kerja sama Anda.</h2>
+      <p>Laporan akan ditinjau dan akan diproses oleh tim Legal and Compliance WM Center.</p>
+    </div>
+
+  </div>
+
+  <!-- ============ LOGIN GATE ============ -->
+  <div id="loginGate">
+    <div class="eyebrow">Legal &amp; Compliance</div>
+    <h1 style="color:var(--navy); font-size:17px; margin:6px 0 0;">Dashboard whistleblowing</h1>
+    <p>Akses terbatas untuk HR Head dan Legal. Silakan masuk dengan akun Google yang terdaftar.</p>
+    <div id="gsiButton"></div>
+    <div id="loginError">Akun ini tidak terdaftar untuk mengakses dashboard.</div>
+    <div class="admin-access"><a onclick="backToForm()">Kembali ke form</a></div>
+  </div>
+
+  <!-- ============ DASHBOARD VIEW (restricted) ============ -->
+  <div id="dashboardView">
+    <div class="db-header">
+      <div>
+        <h1>Whistleblowing dashboard</h1>
+        <div class="sub" id="dbUserLabel">Masuk sebagai -</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span class="badge-restricted">Restricted</span>
+        <span class="logout-link" onclick="logout()">Keluar</span>
+      </div>
+    </div>
+
+    <div class="metrics">
+      <div class="metric-card"><div class="label">Total laporan</div><div class="value" id="mTotal">-</div></div>
+      <div class="metric-card"><div class="label">Sedang diinvestigasi</div><div class="value" id="mInvestigasi">-</div></div>
+      <div class="metric-card"><div class="label">Rata-rata waktu selesai</div><div class="value" id="mAvgHari">-</div></div>
+      <div class="metric-card"><div class="label">Butuh perhatian segera</div><div class="value danger" id="mUrgent">-</div></div>
+    </div>
+
+    <div class="charts-row">
+      <div class="card chart-card">
+        <h2>Jenis pelaporan</h2>
+        <div class="pie-wrap">
+          <div class="pie" id="pieJenis"></div>
+          <div class="legend" id="legendJenis"></div>
+        </div>
+      </div>
+      <div class="card chart-card">
+        <h2>Divisi pelaku</h2>
+        <div class="pie-wrap">
+          <div class="pie" id="pieDivisi"></div>
+          <div class="legend" id="legendDivisi"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Submission</h2>
+      <div class="db-filters">
+        <select id="filterStatus" onchange="renderTable()">
+          <option value="">Semua status</option>
+          <option>Baru</option>
+          <option>Diinvestigasi</option>
+          <option>Selesai</option>
+          <option>Ditolak</option>
+        </select>
+        <select id="filterPrioritas" onchange="renderTable()">
+          <option value="">Semua prioritas</option>
+          <option>Urgent</option>
+          <option>Tinggi</option>
+          <option>Sedang</option>
+          <option>Rendah</option>
+        </select>
+        <input type="text" id="filterSearch" placeholder="Cari nama pelaku / jenis..." oninput="renderTable()">
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Nama pelaku</th>
+              <th>Jenis</th>
+              <th>Tanggal</th>
+              <th>Prioritas</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="dbTableBody">
+            <tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:24px;">Memuat data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ DETAIL MODAL ============ -->
+  <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this) closeModal()">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+      <h3>Detail laporan</h3>
+      <div id="modalBody"></div>
+      <div class="status-select">
+        <label>Ubah status</label>
+        <select id="modalStatus"></select>
+        <label style="margin-top:10px;">Ubah prioritas</label>
+        <select id="modalPrioritas">
+          <option>Urgent</option><option>Tinggi</option><option>Sedang</option><option>Rendah</option>
+        </select>
+        <button class="submit-btn" style="margin-top:12px;" onclick="saveStatus()">Simpan perubahan</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* =========================================================
+   KONFIGURASI - sesuaikan sebelum deploy
+   ========================================================= */
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyn4iXqj9irHHXuR3_AqEI1fDQcYf_DE7Bisx9Y_ztKFhji84fozCIc1GFhbybNunbf-Q/exec";
+const GOOGLE_CLIENT_ID = "113626255388-sscgtea5u31dvevv48jb3dv2mlg0cjfv.apps.googleusercontent.com";
+
+// DEMO_MODE = true -> tab Dashboard langsung tampil pakai data dummy, TANPA login.
+// Ganti ke false kalau sudah siap deploy dengan login Google beneran.
+const DEMO_MODE = false;
+
+const DUMMY_DATA = [
+  {id:'1', timestamp:'2026-07-24T09:00:00Z', namaPelapor:'', jabatanPelapor:'Fisioterapis', namaPelaku:'Budi S.', jabatanPelaku:'Team Lead', divisiPelaku:'Operations', jenisPelaporan:'Pelecehan atau Diskriminasi', jenisPelaporanLain:'', tempatKejadian:'Cabang Kemang', tanggalKejadian:'2026-07-20', kronologi:'Contoh kronologi dummy untuk keperluan preview tampilan dashboard.', pihakDiuntungkan:'', pihakDirugikan:'', adaSaksi:'Ya', namaSaksi:'Rina', kontakSaksi:'0812xxxxxxx', buktiDeskripsi:'Screenshot percakapan', fileLinks:'', pernahLapor:'Tidak', pernahLaporDetail:'', kejadianSerupa:'Tidak', kejadianSerupaDetail:'', bersediaDihubungi:'Ya', nomorTelepon:'0812xxxxxxx', komentar:'', prioritas:'Urgent', status:'Diinvestigasi', tanggalSelesai:''},
+  {id:'2', timestamp:'2026-07-21T09:00:00Z', namaPelapor:'Dedi P.', jabatanPelapor:'Staff Finance', namaPelaku:'Rina W.', jabatanPelaku:'Supervisor', divisiPelaku:'Finance & Data', jenisPelaporan:'Penipuan atau Kecurangan', jenisPelaporanLain:'', tempatKejadian:'Kantor Pusat', tanggalKejadian:'2026-07-18', kronologi:'Contoh kronologi dummy kedua untuk preview.', pihakDiuntungkan:'', pihakDirugikan:'Perusahaan', adaSaksi:'Tidak', namaSaksi:'', kontakSaksi:'', buktiDeskripsi:'Dokumen invoice ganjil', fileLinks:'', pernahLapor:'Tidak', pernahLaporDetail:'', kejadianSerupa:'Ya', kejadianSerupaDetail:'Pernah terjadi tahun lalu', bersediaDihubungi:'Tidak', nomorTelepon:'', komentar:'', prioritas:'Tinggi', status:'Baru', tanggalSelesai:''},
+  {id:'3', timestamp:'2026-07-15T09:00:00Z', namaPelapor:'', jabatanPelapor:'Front Office', namaPelaku:'Dedi P.', jabatanPelaku:'Manager', divisiPelaku:'Brand & Communications', jenisPelaporan:'Konflik Kepentingan', jenisPelaporanLain:'', tempatKejadian:'Cabang Bintaro', tanggalKejadian:'2026-07-10', kronologi:'Contoh kronologi dummy ketiga.', pihakDiuntungkan:'Vendor X', pihakDirugikan:'', adaSaksi:'Ya', namaSaksi:'Tidak diketahui', kontakSaksi:'', buktiDeskripsi:'Email penawaran vendor', fileLinks:'', pernahLapor:'Ya', pernahLaporDetail:'Dilaporkan ke atasan langsung', kejadianSerupa:'Tidak', kejadianSerupaDetail:'', bersediaDihubungi:'Ya', nomorTelepon:'0813xxxxxxx', komentar:'', prioritas:'Sedang', status:'Selesai', tanggalSelesai:'2026-07-22T09:00:00Z'},
+  {id:'4', timestamp:'2026-07-12T09:00:00Z', namaPelapor:'', jabatanPelapor:'', namaPelaku:'Tidak diketahui', jabatanPelaku:'', divisiPelaku:'Fisioterapis', jenisPelaporan:'Pelanggaran Etika', jenisPelaporanLain:'', tempatKejadian:'Cabang Kelapa Gading', tanggalKejadian:'2026-07-08', kronologi:'Contoh kronologi dummy keempat, laporan anonim.', pihakDiuntungkan:'', pihakDirugikan:'', adaSaksi:'Tidak', namaSaksi:'', kontakSaksi:'', buktiDeskripsi:'Tidak ada bukti fisik, berdasarkan pengamatan langsung', fileLinks:'', pernahLapor:'Tidak', pernahLaporDetail:'', kejadianSerupa:'Tidak', kejadianSerupaDetail:'', bersediaDihubungi:'Tidak', nomorTelepon:'', komentar:'', prioritas:'Rendah', status:'Selesai', tanggalSelesai:'2026-07-14T09:00:00Z'}
+];
+
+/* =========================================================
+   FORM: toggle Ya/Tidak
+   ========================================================= */
+function setToggle(btn){
+  const group = btn.dataset.group;
+  document.querySelectorAll(`.toggle-btn[data-group="${group}"]`).forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelector(`input[name="${group}"]`).value = btn.dataset.value;
+
+  const condMap = {adaSaksi:'cond-saksi', pernahLapor:'cond-pernahLapor', kejadianSerupa:'cond-kejadianSerupa', bersediaDihubungi:'cond-telepon'};
+  const condId = condMap[group];
+  if(condId){
+    document.getElementById(condId).classList.toggle('show', btn.dataset.value === 'Ya');
+  }
+}
+
+function toggleOtherJenis(val){
+  document.getElementById('f-jenisLain').style.display = (val === 'Other') ? 'block' : 'none';
+}
+
+/* =========================================================
+   FORM: file upload (base64)
+   ========================================================= */
+let uploadedFiles = [];
+function handleFiles(fileListObj){
+  Array.from(fileListObj).forEach(file=>{
+    const reader = new FileReader();
+    reader.onload = function(e){
+      uploadedFiles.push({name:file.name, mimeType:file.type || 'application/octet-stream', data:e.target.result.split(',')[1]});
+      renderFileList();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function renderFileList(){
+  const el = document.getElementById('fileList');
+  el.innerHTML = '';
+  uploadedFiles.forEach((f, idx)=>{
+    const div = document.createElement('div');
+    div.className = 'file-item';
+    div.innerHTML = `<span>${f.name}</span><button type="button" onclick="removeFile(${idx})">Hapus</button>`;
+    el.appendChild(div);
+  });
+}
+function removeFile(idx){ uploadedFiles.splice(idx,1); renderFileList(); }
+
+/* =========================================================
+   FORM: submit
+   ========================================================= */
+document.getElementById('wbsForm').addEventListener('submit', function(e){
+  e.preventDefault();
+
+  let valid = true;
+  const form = e.target;
+  form.querySelectorAll('[required]').forEach(el=>{
+    const fieldWrap = el.closest('.field');
+    if(!fieldWrap) return;
+    if(!el.value){ fieldWrap.classList.add('invalid'); valid = false; }
+    else{ fieldWrap.classList.remove('invalid'); }
+  });
+  if(!valid){
+    document.getElementById('submitError').style.display = 'block';
+    document.getElementById('submitError').scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+  document.getElementById('submitError').style.display = 'none';
+
+  const submitBtn = document.getElementById('submitBtn');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Mengirim...';
+
+  const data = Object.fromEntries(new FormData(form).entries());
+  data.action = 'submit';
+  data.files = uploadedFiles;
+  data.timestamp = new Date().toISOString();
+
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: {'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(data)
+  })
+  .then(r=>r.json())
+  .then(res=>{
+    if(res.success){
+      form.style.display = 'none';
+      document.getElementById('thankyou').classList.add('show');
+    } else {
+      alert('Terjadi kesalahan: ' + (res.message || 'Silakan coba lagi.'));
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Kirim laporan';
+    }
+  })
+  .catch(()=>{
+    alert('Gagal mengirim laporan. Periksa koneksi internet Anda dan coba lagi.');
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Kirim laporan';
+  });
+});
+
+/* =========================================================
+   LOGIN GATE / GOOGLE SIGN-IN
+   ========================================================= */
+let currentIdToken = null;
+
+function switchTab(tab){
+  document.getElementById('tabFormBtn').classList.toggle('active', tab==='form');
+  document.getElementById('tabDashboardBtn').classList.toggle('active', tab==='dashboard');
+
+  if(tab === 'form'){
+    document.getElementById('formView').classList.remove('hide');
+    document.getElementById('loginGate').classList.remove('show');
+    document.getElementById('dashboardView').classList.remove('show');
+    document.getElementById('demoBanner').classList.remove('show');
+    return;
+  }
+
+  // tab === 'dashboard'
+  document.getElementById('formView').classList.add('hide');
+
+  if(DEMO_MODE){
+    document.getElementById('demoBanner').classList.add('show');
+    document.getElementById('loginGate').classList.remove('show');
+    document.getElementById('dashboardView').classList.add('show');
+    document.getElementById('dbUserLabel').textContent = 'Preview - belum login';
+    dashboardData = DUMMY_DATA;
+    renderMetrics();
+    renderTable();
+  } else {
+    document.getElementById('dashboardView').classList.remove('show');
+    document.getElementById('loginGate').classList.add('show');
+    initGoogleSignIn();
+  }
+}
+
+function showLoginGate(){
+  document.getElementById('formView').classList.add('hide');
+  document.getElementById('loginGate').classList.add('show');
+  initGoogleSignIn();
+}
+function backToForm(){
+  document.getElementById('loginGate').classList.remove('show');
+  switchTab('form');
+}
+function logout(){
+  currentIdToken = null;
+  sessionStorage.removeItem('wbs_id_token');
+  document.getElementById('dashboardView').classList.remove('show');
+  switchTab('form');
+}
+
+function initGoogleSignIn(){
+  if(typeof google === 'undefined' || !google.accounts) { setTimeout(initGoogleSignIn, 300); return; }
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleGoogleCredential
+  });
+  google.accounts.id.renderButton(document.getElementById('gsiButton'), {theme:'outline', size:'large'});
+}
+
+function handleGoogleCredential(response){
+  currentIdToken = response.credential;
+  sessionStorage.setItem('wbs_id_token', currentIdToken);
+  loadDashboard();
+}
+
+function loadDashboard(){
+  document.getElementById('loginError').style.display = 'none';
+  fetch(APPS_SCRIPT_URL, {
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify({action:'getDashboard', idToken: currentIdToken})
+  })
+  .then(r=>r.json())
+  .then(res=>{
+    if(!res.success){
+      document.getElementById('loginError').style.display = 'block';
+      return;
+    }
+    document.getElementById('loginGate').classList.remove('show');
+    document.getElementById('dashboardView').classList.add('show');
+    document.getElementById('dbUserLabel').textContent = 'Masuk sebagai ' + res.email;
+    dashboardData = res.data;
+    renderMetrics();
+    renderTable();
+  })
+  .catch(()=>{
+    document.getElementById('loginError').textContent = 'Gagal memuat dashboard. Coba lagi.';
+    document.getElementById('loginError').style.display = 'block';
+  });
+}
+
+// auto-restore session (dilewati kalau DEMO_MODE aktif)
+window.addEventListener('load', function(){
+  if(DEMO_MODE) return;
+  const saved = sessionStorage.getItem('wbs_id_token');
+  if(saved){
+    currentIdToken = saved;
+    showLoginGate();
+    loadDashboard();
+  }
+});
+
+/* =========================================================
+   DASHBOARD: render
+   ========================================================= */
+let dashboardData = [];
+
+function renderMetrics(){
+  const total = dashboardData.length;
+  const investigasi = dashboardData.filter(d=>d.status==='Diinvestigasi').length;
+  const urgent = dashboardData.filter(d=>d.prioritas==='Urgent' && d.status!=='Selesai').length;
+  const selesai = dashboardData.filter(d=>d.status==='Selesai' && d.tanggalSelesai);
+  let avgHari = '-';
+  if(selesai.length){
+    const totalHari = selesai.reduce((sum,d)=>{
+      const t1 = new Date(d.timestamp); const t2 = new Date(d.tanggalSelesai);
+      return sum + Math.max(0, Math.round((t2-t1)/86400000));
+    },0);
+    avgHari = (totalHari/selesai.length).toFixed(1) + ' hari';
+  }
+  document.getElementById('mTotal').textContent = total;
+  document.getElementById('mInvestigasi').textContent = investigasi;
+  document.getElementById('mAvgHari').textContent = avgHari;
+  document.getElementById('mUrgent').textContent = urgent;
+  renderCharts();
+}
+
+const PIE_COLORS = ['#1a2456','#E8763C','#1d6fa5','#b8860b','#7a8471','#c0392b','#8e6bae','#3aa17e'];
+
+function countBy(field){
+  const counts = {};
+  dashboardData.forEach(d=>{
+    const key = (d[field] && String(d[field]).trim()) ? d[field] : 'Tidak diketahui';
+    counts[key] = (counts[key]||0) + 1;
+  });
+  return counts;
+}
+
+function renderPie(pieElId, legendElId, counts){
+  const pieEl = document.getElementById(pieElId);
+  const legendEl = document.getElementById(legendElId);
+  const entries = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  const total = entries.reduce((s,[,v])=>s+v,0);
+
+  if(!total){
+    pieEl.style.background = 'var(--low-bg)';
+    legendEl.innerHTML = '<div class="legend-item"><span class="legend-label">Belum ada data</span></div>';
+    return;
+  }
+
+  let acc = 0;
+  const segments = entries.map(([label,val],i)=>{
+    const start = (acc/total)*360;
+    acc += val;
+    const end = (acc/total)*360;
+    return `${PIE_COLORS[i % PIE_COLORS.length]} ${start}deg ${end}deg`;
+  });
+  pieEl.style.background = `conic-gradient(${segments.join(', ')})`;
+
+  legendEl.innerHTML = entries.map(([label,val],i)=>`
+    <div class="legend-item">
+      <span class="legend-dot" style="background:${PIE_COLORS[i % PIE_COLORS.length]}"></span>
+      <span class="legend-label">${label}</span>
+      <span class="legend-val">${val}</span>
+    </div>
+  `).join('');
+}
+
+function renderCharts(){
+  renderPie('pieJenis', 'legendJenis', countBy('jenisPelaporan'));
+  renderPie('pieDivisi', 'legendDivisi', countBy('divisiPelaku'));
+}
+
+function renderTable(){
+  const statusF = document.getElementById('filterStatus').value;
+  const prioF = document.getElementById('filterPrioritas').value;
+  const searchF = document.getElementById('filterSearch').value.toLowerCase();
+
+  const filtered = dashboardData.filter(d=>{
+    if(statusF && d.status !== statusF) return false;
+    if(prioF && d.prioritas !== prioF) return false;
+    if(searchF && !((d.namaPelaku||'').toLowerCase().includes(searchF) || (d.jenisPelaporan||'').toLowerCase().includes(searchF))) return false;
+    return true;
+  });
+
+  const tbody = document.getElementById('dbTableBody');
+  if(!filtered.length){
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:24px;">Tidak ada data.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = filtered.map(d=>`
+    <tr class="clickable" onclick="openModal('${d.id}')">
+      <td>${d.namaPelaku||'-'}</td>
+      <td>${d.jenisPelaporan||'-'}</td>
+      <td>${formatDate(d.tanggalKejadian)}</td>
+      <td><span class="pill pill-${(d.prioritas||'').toLowerCase()}">${d.prioritas||'-'}</span></td>
+      <td>${d.status||'Baru'}</td>
+    </tr>
+  `).join('');
+}
+
+function formatDate(str){
+  if(!str) return '-';
+  const d = new Date(str);
+  if(isNaN(d)) return str;
+  return d.toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'});
+}
+
+/* =========================================================
+   DASHBOARD: detail modal
+   ========================================================= */
+let currentModalId = null;
+function openModal(id){
+  const d = dashboardData.find(x=>x.id===id);
+  if(!d) return;
+  currentModalId = id;
+  const pelapor = d.namaPelapor ? d.namaPelapor : 'Anonim';
+  const rows = [
+    ['Nama pelapor', pelapor],
+    ['Jabatan pelapor', d.jabatanPelapor || '-'],
+    ['Nama pelaku', d.namaPelaku || '-'],
+    ['Jabatan pelaku', d.jabatanPelaku || '-'],
+    ['Divisi pelaku', d.divisiPelaku || '-'],
+    ['Jenis pelaporan', d.jenisPelaporan + (d.jenisPelaporanLain ? ' - ' + d.jenisPelaporanLain : '')],
+    ['Tempat kejadian', d.tempatKejadian || '-'],
+    ['Tanggal kejadian', formatDate(d.tanggalKejadian)],
+    ['Kronologi', d.kronologi || '-'],
+    ['Pihak diuntungkan', d.pihakDiuntungkan || '-'],
+    ['Pihak dirugikan', d.pihakDirugikan || '-'],
+    ['Ada saksi', d.adaSaksi + (d.namaSaksi ? ' - ' + d.namaSaksi + (d.kontakSaksi ? ' ('+d.kontakSaksi+')' : '') : '')],
+    ['Bukti pendukung', d.buktiDeskripsi || '-'],
+    ['File bukti', d.fileLinks ? d.fileLinks.split(',').map(l=>`<a href="${l.trim()}" target="_blank">Lihat file</a>`).join(', ') : 'Tidak ada'],
+    ['Pernah dilaporkan sebelumnya', d.pernahLapor + (d.pernahLaporDetail ? ' - ' + d.pernahLaporDetail : '')],
+    ['Kejadian serupa sebelumnya', d.kejadianSerupa + (d.kejadianSerupaDetail ? ' - ' + d.kejadianSerupaDetail : '')],
+    ['Bersedia dihubungi', d.bersediaDihubungi + (d.nomorTelepon ? ' - ' + d.nomorTelepon : '')],
+    ['Komentar tambahan', d.komentar || '-'],
+    ['Tanggal laporan masuk', formatDate(d.timestamp)]
+  ];
+  document.getElementById('modalBody').innerHTML = rows.map(([k,v])=>`
+    <div class="row"><div class="k">${k}</div><div class="v">${v}</div></div>
+  `).join('');
+
+  const statusSel = document.getElementById('modalStatus');
+  statusSel.innerHTML = ['Baru','Diinvestigasi','Selesai','Ditolak'].map(s=>`<option ${s===d.status?'selected':''}>${s}</option>`).join('');
+  document.getElementById('modalPrioritas').value = d.prioritas || 'Sedang';
+
+  document.getElementById('modalOverlay').classList.add('show');
+}
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('show'); currentModalId = null; }
+
+function saveStatus(){
+  const status = document.getElementById('modalStatus').value;
+  const prioritas = document.getElementById('modalPrioritas').value;
+  fetch(APPS_SCRIPT_URL, {
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify({action:'updateStatus', idToken: currentIdToken, id: currentModalId, status, prioritas})
+  })
+  .then(r=>r.json())
+  .then(res=>{
+    if(res.success){
+      const d = dashboardData.find(x=>x.id===currentModalId);
+      if(d){ d.status = status; d.prioritas = prioritas; if(status==='Selesai') d.tanggalSelesai = new Date().toISOString(); }
+      renderMetrics(); renderTable(); closeModal();
+    } else {
+      alert('Gagal menyimpan perubahan.');
+    }
+  });
+}
+</script>
+</body>
+</html>

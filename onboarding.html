@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WM Center — Onboarding Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Fraunces:ital,wght@0,700;1,400;1,700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0D1F4E;--blue:#1A3A6B;--accent:#2558C9;--orange:#F97316;--teal:#00C9B1;--white:#FFFFFF;--offwhite:#F5F7FF;--muted:#6278A0;--text:#0D1F4E;--light:#EEF3FF;--border:rgba(26,58,107,0.13);--green:#059669;--bggreen:#D1FAE5;--red:#991B1B;--bgred:#FEE2E2;--amber:#92400E;--bgamber:#FEF3C7;}
+*{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:#fff;color:var(--text);overflow-x:hidden;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 48px;background:rgba(255,255,255,0.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.nav-logo img{width:34px;height:34px;border-radius:8px;object-fit:cover;}
+.nav-brand{font-weight:700;font-size:14px;color:var(--navy);}
+.nav-links{display:flex;gap:24px;}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:13px;font-weight:500;transition:color .2s;}
+.nav-links a:hover{color:var(--orange);}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 48px 80px;background:var(--navy);position:relative;overflow:hidden;}
+.hero-blob{position:absolute;border-radius:50%;pointer-events:none;}
+.hero-tag{display:inline-flex;align-items:center;gap:7px;background:rgba(0,201,177,.12);border:1px solid rgba(0,201,177,.28);border-radius:100px;padding:5px 14px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#2DD4BF;margin-bottom:20px;position:relative;}
+.hero h1{font-family:'Fraunces',serif;font-size:clamp(38px,6vw,68px);font-weight:700;color:#fff;line-height:1.06;margin-bottom:18px;position:relative;}
+.hero h1 em{font-style:italic;color:var(--orange);}
+.hero p{font-size:16px;color:rgba(255,255,255,.52);max-width:500px;line-height:1.75;margin-bottom:40px;position:relative;}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;position:relative;}
+.btn-orange{background:var(--orange);color:#fff;padding:13px 26px;border-radius:100px;font-weight:700;font-size:13px;text-decoration:none;transition:all .2s;box-shadow:0 8px 24px rgba(249,115,22,.32);}
+.btn-orange:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(249,115,22,.42);}
+.btn-ghost{border:1.5px solid rgba(255,255,255,.22);color:#fff;padding:13px 26px;border-radius:100px;font-weight:500;font-size:13px;text-decoration:none;transition:all .2s;}
+.btn-ghost:hover{border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.05);}
+section{padding:88px 48px;}
+.container{max-width:1060px;margin:0 auto;}
+.sec-label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--orange);margin-bottom:10px;}
+.sec-title{font-family:'Fraunces',serif;font-size:clamp(26px,4vw,44px);font-weight:700;line-height:1.1;margin-bottom:12px;color:var(--navy);}
+.sec-sub{font-size:15px;color:var(--muted);max-width:480px;line-height:1.7;}
+.divisi-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:38px 0 28px;}
+.tab-btn{padding:7px 18px;border-radius:100px;font-size:12px;font-weight:600;border:1.5px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;}
+.tab-btn.active,.tab-btn:hover{border-color:var(--orange);color:var(--orange);background:rgba(249,115,22,.07);}
+.divisi-panel{display:none;}.divisi-panel.active{display:block;}
+.divisi-header{display:flex;align-items:center;gap:14px;margin-bottom:26px;padding-bottom:18px;border-bottom:1px solid var(--border);}
+.divisi-icon{width:44px;height:44px;border-radius:11px;background:linear-gradient(135deg,var(--navy),var(--orange));display:flex;align-items:center;justify-content:center;font-size:18px;}
+.divisi-name{font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:var(--navy);}
+.divisi-count{font-size:12px;color:var(--muted);margin-top:2px;}
+.team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:14px;}
+.team-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px 14px;text-align:center;transition:all .25s;}
+.team-card:hover{border-color:rgba(249,115,22,.3);transform:translateY(-3px);box-shadow:0 8px 22px rgba(249,115,22,.09);}
+.team-avatar{width:60px;height:60px;border-radius:50%;margin:0 auto 11px;background:linear-gradient(135deg,var(--blue),var(--accent));display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;font-family:'Fraunces',serif;color:#fff;border:2px solid rgba(46,125,247,.18);overflow:hidden;}
+.team-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.team-name{font-weight:700;font-size:13px;margin-bottom:3px;color:var(--navy);}
+.team-role{font-size:11px;color:var(--orange);font-weight:600;}
+.goto-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(275px,1fr));gap:14px;margin-top:38px;}
+.goto-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:22px;transition:all .25s;}
+.goto-card:hover{border-color:rgba(249,115,22,.22);transform:translateY(-2px);box-shadow:0 5px 18px rgba(249,115,22,.07);}
+.goto-emoji{font-size:26px;margin-bottom:10px;}
+.goto-title{font-weight:700;font-size:13px;margin-bottom:4px;color:var(--navy);}
+.goto-who{font-size:13px;color:var(--orange);font-weight:600;margin-bottom:5px;text-decoration:none;display:inline-flex;align-items:center;gap:5px;}
+.goto-who:hover{text-decoration:underline;}
+.goto-desc{font-size:12px;color:var(--muted);line-height:1.6;}
+.checklist-container,.ce-container{background:#fff;border:1px solid var(--border);border-radius:20px;padding:36px;max-width:700px;margin-top:40px;}
+.cl-section-label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--orange);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);margin-top:24px;}
+.cl-section-label:first-child{margin-top:0;}
+.cl-items{display:flex;flex-direction:column;gap:9px;margin-bottom:4px;}
+.cl-item{display:flex;align-items:center;gap:12px;background:var(--offwhite);border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;cursor:pointer;transition:all .2s;font-size:13px;color:var(--navy);font-weight:500;}
+.cl-item:hover{background:rgba(249,115,22,.04);border-color:rgba(249,115,22,.2);}
+.cl-item input[type=checkbox]{width:17px;height:17px;accent-color:var(--orange);cursor:pointer;flex-shrink:0;}
+.cl-item:has(input:checked){background:rgba(249,115,22,.06);border-color:rgba(249,115,22,.3);}
+.cl-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;}
+.form-input{width:100%;background:var(--offwhite);border:1.5px solid var(--border);border-radius:10px;padding:10px 13px;color:var(--navy);font-size:13px;font-family:'DM Sans',sans-serif;transition:all .2s;outline:none;}
+.form-input:focus{border-color:var(--orange);background:#fff;}
+.form-input::placeholder{color:rgba(13,31,78,.28);}
+.form-note{background:rgba(249,115,22,.06);border:1px solid rgba(249,115,22,.18);border-radius:10px;padding:11px 14px;font-size:12px;color:rgba(13,31,78,.7);margin-bottom:20px;line-height:1.6;}
+.form-note strong{color:var(--orange);}
+.btn-submit{width:100%;background:linear-gradient(135deg,var(--orange),#d95c00);color:#fff;border:none;padding:14px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;box-shadow:0 8px 22px rgba(249,115,22,.22);margin-top:8px;}
+.btn-submit:hover{transform:translateY(-1px);box-shadow:0 12px 28px rgba(249,115,22,.32);}
+.btn-submit-navy{background:linear-gradient(135deg,var(--navy),var(--blue));box-shadow:0 8px 22px rgba(13,31,78,.18);}
+.btn-submit-navy:hover{box-shadow:0 12px 28px rgba(13,31,78,.28);}
+.success-msg{display:none;text-align:center;padding:40px 20px;}
+.success-msg .s-icon{font-size:56px;margin-bottom:14px;}
+.success-msg h3{font-family:'Fraunces',serif;font-size:26px;margin-bottom:8px;color:var(--navy);}
+.success-msg p{color:var(--muted);font-size:14px;}
+.form-group{margin-bottom:20px;}
+.form-group label{display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--navy);}
+.form-group label span{color:var(--orange);}
+.form-textarea{width:100%;background:var(--offwhite);border:1.5px solid var(--border);border-radius:10px;padding:11px 13px;color:var(--navy);font-size:13px;font-family:'DM Sans',sans-serif;transition:all .2s;outline:none;resize:vertical;min-height:85px;}
+.form-textarea:focus{border-color:var(--orange);background:#fff;}
+.form-textarea::placeholder{color:rgba(13,31,78,.28);}
+.stars-row{display:flex;gap:8px;margin-top:4px;}
+.star{font-size:26px;cursor:pointer;opacity:.28;transition:opacity .15s,transform .15s;}
+.star:hover,.star.active{opacity:1;transform:scale(1.12);}
+.form-select{width:100%;background:var(--offwhite);border:1.5px solid var(--border);border-radius:10px;padding:10px 13px;color:var(--navy);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:all .2s;}
+.form-select:focus{border-color:var(--orange);background:#fff;}
+.form-select option{background:#fff;}
+/* FAQ */
+.faq-list{display:flex;flex-direction:column;gap:12px;margin-top:40px;max-width:780px;}
+.faq-item{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:all .25s;}
+.faq-item:hover{border-color:rgba(249,115,22,.25);}
+.faq-q{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;cursor:pointer;font-size:14px;font-weight:700;color:var(--navy);gap:12px;}
+.faq-q .icon{font-size:18px;flex-shrink:0;transition:transform .3s;color:var(--orange);}
+.faq-item.open .faq-q .icon{transform:rotate(45deg);}
+.faq-a{display:none;padding:0 22px 18px;font-size:13px;color:var(--muted);line-height:1.7;border-top:1px solid var(--border);padding-top:14px;}
+.faq-item.open .faq-a{display:block;}
+.fade-in{opacity:0;transform:translateY(16px);transition:opacity .55s ease,transform .55s ease;}
+.fade-in.visible{opacity:1;transform:translateY(0);}
+footer{padding:36px 48px;text-align:center;border-top:1px solid var(--border);color:var(--muted);font-size:12px;}
+footer strong{color:var(--orange);}
+@media(max-width:768px){nav{padding:14px 18px;}.nav-links{display:none;}section{padding:64px 18px;}.checklist-container,.ce-container{padding:22px 16px;}.cl-row{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<style>.wmhrga-back-fab{position:fixed;bottom:16px;left:16px;z-index:99999;display:inline-flex;align-items:center;gap:6px;background:#14213D;color:#fff;text-decoration:none;font-family:'Plus Jakarta Sans',-apple-system,sans-serif;font-size:12.5px;font-weight:600;padding:9px 15px;border-radius:999px;box-shadow:0 6px 18px rgba(20,33,61,.35);transition:transform .15s ease,box-shadow .15s ease;}.wmhrga-back-fab:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(20,33,61,.45);}@media print{.wmhrga-back-fab{display:none;}}</style>
+<a href="index.html" class="wmhrga-back-fab">&#8592; Dashboard</a>
+
+
+<nav>
+  <a href="#home" class="nav-logo">
+    <img src="data:image/jpeg;base64,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" alt="WM Center">
+    <span class="nav-brand">WM Center</span>
+  </a>
+  <div class="nav-links">
+    <a href="#team">Meet the Team</a>
+    <a href="#goto">Who to Go To</a>
+    <a href="#checklist">Onboarding Checklist</a>
+    <a href="#feedback">Feedback</a>
+    <a href="#faq">FAQ</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-blob" style="width:650px;height:650px;background:rgba(37,88,201,.1);top:-180px;right:-200px;"></div>
+  <div class="hero-blob" style="width:320px;height:320px;background:rgba(0,201,177,.07);bottom:-60px;left:-60px;"></div>
+  <div class="hero-tag">● Onboarding Hub</div>
+  <h1>You're officially<br><em>WM Peeps!</em> 🎉</h1>
+  <p>Welcome to the team. Explore who your colleagues are, complete your onboarding checklist, and let us know how your journey went.</p>
+  <div class="hero-cta">
+    <a href="#team" class="btn-orange">Meet the Team →</a>
+    <a href="#checklist" class="btn-ghost">Onboarding Checklist</a>
+  </div>
+</section>
+
+<!-- MEET THE TEAM -->
+<section id="team" style="background:var(--offwhite);">
+  <div class="container fade-in">
+    <div class="sec-label">WM Center Team</div>
+    <h2 class="sec-title">Meet the WM Peeps 🤝</h2>
+    <p class="sec-sub">Get to know your colleagues across all divisions before day one!</p>
+    <div class="divisi-tabs">
+      <button class="tab-btn active" onclick="showDiv(this,'hrga')">HRGA &amp; Legal</button>
+      <button class="tab-btn" onclick="showDiv(this,'ops')">Operations</button>
+      <button class="tab-btn" onclick="showDiv(this,'creative')">Brand Team</button>
+      <button class="tab-btn" onclick="showDiv(this,'bd')">Business Development</button>
+      <button class="tab-btn" onclick="showDiv(this,'finance')">Finance &amp; Accounting</button>
+    </div>
+
+    <div class="divisi-panel active" id="panel-hrga">
+      <div class="divisi-header"><div class="divisi-icon">👥</div><div><div class="divisi-name">HRGA &amp; Legal</div><div class="divisi-count">8 people · People &amp; Legal</div></div></div>
+      <div class="team-grid">
+        <div class="team-card"><div class="team-avatar">A</div><div class="team-name">Asmiani Fawziah</div><div class="team-role">Head of HRGA & Legal</div></div>
+        <div class="team-card"><div class="team-avatar">A</div><div class="team-name">Aditya Rahadyan</div><div class="team-role">General Affairs</div></div>
+        <div class="team-card"><div class="team-avatar">N</div><div class="team-name">Nanda Putri</div><div class="team-role">Talent Acquisition</div></div>
+        <div class="team-card"><div class="team-avatar">N</div><div class="team-name">Nurdiyah Utari</div><div class="team-role">Purchasing</div></div>
+        <div class="team-card"><div class="team-avatar">R</div><div class="team-name">Rahmi Fadihila</div><div class="team-role">People Development</div></div>
+        <div class="team-card"><div class="team-avatar">C</div><div class="team-name">Choirie Nito</div><div class="team-role">Legal</div></div>
+        <div class="team-card"><div class="team-avatar">N</div><div class="team-name">Natasya Aisyah</div><div class="team-role">HR Generalist</div></div>
+        <div class="team-card"><div class="team-avatar">F</div><div class="team-name">Fionna Uguy</div><div class="team-role">HR Generalist</div></div>
+      </div>
+    </div>
+
+    <div class="divisi-panel" id="panel-ops">
+      <div class="divisi-header"><div class="divisi-icon">⚙️</div><div><div class="divisi-name">Operations</div><div class="divisi-count">17 people · Clinic Operations</div></div></div>
+      <div class="team-grid">
+        <div class="team-card"><div class="team-avatar">B</div><div class="team-name">Bella Indaini</div><div class="team-role">Head of Operation</div></div>
+        <div class="team-card"><div class="team-avatar">R</div><div class="team-name">Roby Satria Perdana</div><div class="team-role">Service Improvement</div></div>
+        <div class="team-card"><div class="team-avatar">M</div><div class="team-name">Muhammad Faqih</div><div class="team-role">Operations Associate</div></div>
+        <div class="team-card"><div class="team-avatar">O</div><div class="team-name">Oryzea Sativa</div><div class="team-role">Ops Tech Monitoring</div></div>
+        <div class="team-card"><div class="team-avatar">E</div><div class="team-name">Eri Wiguna</div><div class="team-role">Customer Service</div></div>
+        <div class="team-card"><div class="team-avatar">A</div><div class="team-name">Artarina</div><div class="team-role">Customer Service</div></div>
+        <div class="team-card"><div class="team-avatar">N</div><div class="team-name">Nabillah</div><div class="team-role">Customer Service</div></div>
+        <div class="team-card"><div class="team-avatar">N</div><div class="team-name">Nurul</div><div class="team-role">Customer Service</div></div>
+        <div class="team-card"><div class="team-avatar">E</div><div class="team-name">Enny Debora</div><div class="team-role">Area Manager</div></div>
+        <div class="team-card"><div class="team-avatar">Z</div><div class="team-name">Zhaiza Oktavia</div><div class="team-role">Branch Coordinator</div></div>
+        <div class="team-card"><div class="team-avatar">F</div><div class="team-name">Friscilia Rizka</div><div class="team-role">Branch Coordinator</div></div>
+        <div class="team-card"><div class="team-avatar">S</div><div class="team-name">Sabiya Nazneen</div><div class="team-role">Branch Coordinator</div></div>
+        <div class="team-card"><div class="team-avatar">N</div><div class="team-name">Najwa Kani</div><div class="team-role">Branch Coordinator</div></div>
+        <div class="team-card"><div class="team-avatar">T</div><div class="team-name">Tasya Apriani</div><div class="team-role">Branch Coordinator</div></div>
+        <div class="team-card"><div class="team-avatar">A</div><div class="team-name">Amira Sofia</div><div class="team-role">Branch Coordinator</div></div>
+        <div class="team-card"><div class="team-avatar">D</div><div class="team-name">Dewi Krismonika</div><div class="team-role">Branch Coordinator</div></div>
+        <div class="team-card"><div class="team-avatar">F</div><div class="team-name">Faradila Mutiara</div><div class="team-role">Branch Coordinator</div></div>
+      </div>
+    </div>
+
+    <div class="divisi-panel" id="panel-creative">
+      <div class="divisi-header"><div class="divisi-icon">🎨</div><div><div class="divisi-name">Brand Team</div><div class="divisi-count">12 people · Branding &amp; Content</div></div></div>
+      <div class="team-grid">
+        <div class="team-card"><div class="team-avatar">N</div><div class="team-name">Nana Kuinra</div><div class="team-role">Brand Lead</div></div>
+        <div class="team-card"><div class="team-avatar">A</div><div class="team-name">Asa Kalmia</div><div class="team-role">Creative Lead</div></div>
+        <div class="team-card"><div class="team-avatar">R</div><div class="team-name">Reza Rinaldi</div><div class="team-role">Videographer & Editor</div></div>
+        <div class="team-card"><div class="team-avatar">W</div><div class="team-name">Wahyu Ahmad</div><div class="team-role">Videographer & Editor</div></div>
+        <div class="team-card"><div class="team-avatar">N</div><div class="team-name">Nova Candra</div><div class="team-role">Videographer & Editor</div></div>
+        <div class="team-card"><div class="team-avatar">Y</div><div class="team-name">Yulia Annisatul</div><div class="team-role">Copywriter</div></div>
+        <div class="team-card"><div class="team-avatar">F</div><div class="team-name">Fadly Zakaria</div><div class="team-role">Graphic Designer</div></div>
+        <div class="team-card"><div class="team-avatar">A</div><div class="team-name">Azzam Ilham</div><div class="team-role">Jr. Graphic Designer</div></div>
+        <div class="team-card"><div class="team-avatar">L</div><div class="team-name">Loviya Azzahra</div><div class="team-role">Marketing Executive</div></div>
+        <div class="team-card"><div class="team-avatar">Y</div><div class="team-name">Yoanna Aprilia</div><div class="team-role">Social Media Specialist</div></div>
+        <div class="team-card"><div class="team-avatar">B</div><div class="team-name">Beryl Zumrotusholihah</div><div class="team-role">KOL Specialist</div></div>
+        <div class="team-card"><div class="team-avatar">G</div><div class="team-name">Galuh Pavita</div><div class="team-role">Content Writer</div></div>
+      </div>
+    </div>
+
+    <div class="divisi-panel" id="panel-bd">
+      <div class="divisi-header"><div class="divisi-icon">📈</div><div><div class="divisi-name">Business Development</div><div class="divisi-count">3 people · Business Growth</div></div></div>
+      <div class="team-grid">
+        <div class="team-card"><div class="team-avatar">S</div><div class="team-name">Shabrina Illiyin</div><div class="team-role">Business Development Associate</div></div>
+        <div class="team-card"><div class="team-avatar">A</div><div class="team-name">Ahmad Kemal</div><div class="team-role">Business Development Associate</div></div>
+        <div class="team-card"><div class="team-avatar">S</div><div class="team-name">Su'eng Grace Noftrilia</div><div class="team-role">Business Development Jr. Associate</div></div>
+      </div>
+    </div>
+
+    <div class="divisi-panel" id="panel-finance">
+      <div class="divisi-header"><div class="divisi-icon">💰</div><div><div class="divisi-name">Finance Accounting Tax</div><div class="divisi-count">5 people · Finance, Tax &amp; Data</div></div></div>
+      <div class="team-grid">
+        <div class="team-card"><div class="team-avatar">M</div><div class="team-name">Muhammad Akbar</div><div class="team-role">Head of Finance Accounting Tax</div></div>
+        <div class="team-card"><div class="team-avatar">D</div><div class="team-name">Deogy Ahmad</div><div class="team-role">Finance Accounting Tax Staff</div></div>
+        <div class="team-card"><div class="team-avatar">R</div><div class="team-name">Riyan Ardiansyah</div><div class="team-role">Finance Accounting Tax Staff</div></div>
+        <div class="team-card"><div class="team-avatar">M</div><div class="team-name">Maisah Zulfa</div><div class="team-role">Finance Accounting Tax Staff</div></div>
+        <div class="team-card"><div class="team-avatar">F</div><div class="team-name">Frensen Meisandy</div><div class="team-role">Data Analyst Staff</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHO TO GO TO -->
+<section id="goto">
+  <div class="container fade-in">
+    <div class="sec-label">Quick Guide</div>
+    <h2 class="sec-title">Who to Go To 🗺️</h2>
+    <p class="sec-sub">Not sure who to ask? Click the name to chat directly on WhatsApp!</p>
+    <div class="goto-grid">
+      <div class="goto-card"><div class="goto-emoji">📋</div><div class="goto-title">Administration &amp; HR</div><a href="https://wa.me/6285111232350" target="_blank" class="goto-who">Fionna Uguy 💬</a><div class="goto-desc">Attendance, contracts, benefits, and all HR administration matters.</div></div>
+      <div class="goto-card"><div class="goto-emoji">🏢</div><div class="goto-title">Facilities &amp; General Affairs</div><a href="https://wa.me/6281315387670" target="_blank" class="goto-who">Aditya Rahadyan 💬</a><div class="goto-desc">Office needs, work equipment, and general affairs.</div></div>
+      <div class="goto-card"><div class="goto-emoji">📣</div><div class="goto-title">Recruitment &amp; Onboarding</div><a href="https://wa.me/62895330140644" target="_blank" class="goto-who">Nanda Putri 💬</a><div class="goto-desc">Questions about the joining process and onboarding.</div></div>
+      <div class="goto-card"><div class="goto-emoji">🌱</div><div class="goto-title">Training &amp; Development</div><a href="https://wa.me/6281293155044" target="_blank" class="goto-who">Rahmi Fadihila 💬</a><div class="goto-desc">Training programs, skill development, and career path.</div></div>
+      <div class="goto-card"><div class="goto-emoji">💰</div><div class="goto-title">Finance &amp; Reimbursement</div><a href="https://wa.me/6282111731850" target="_blank" class="goto-who">Deogy Ahmad 💬</a><div class="goto-desc">Claims, reimbursements, and all finance matters.</div></div>
+      <div class="goto-card"><div class="goto-emoji">⚙️</div><div class="goto-title">Clinic Operations</div><a href="https://wa.me/6281221591805" target="_blank" class="goto-who">Roby Satria Perdana 💬</a><div class="goto-desc">Questions about clinic workflow and daily operations.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ONBOARDING CHECKLIST -->
+<section id="checklist" style="background:var(--offwhite);">
+  <div class="container fade-in">
+    <div class="sec-label">New Hire</div>
+    <h2 class="sec-title">Onboarding Checklist ✅</h2>
+    <p class="sec-sub">Check off everything you've received — your data goes straight to the HR team.</p>
+    <div class="checklist-container">
+      <div id="cl-form">
+        <div class="form-note"><strong>📋 For accepted candidates.</strong> Tick all items you've received or completed, then submit.</div>
+        <div class="cl-row">
+          <div><label style="font-size:12px;font-weight:700;color:var(--navy);display:block;margin-bottom:5px;">Full Name <span style="color:var(--orange)">*</span></label><input type="text" class="form-input" id="cl-nama" placeholder="Your full name..."></div>
+          <div><label style="font-size:12px;font-weight:700;color:var(--navy);display:block;margin-bottom:5px;">Position / Division <span style="color:var(--orange)">*</span></label><input type="text" class="form-input" id="cl-posisi" placeholder="Your position..."></div>
+        </div>
+        <div class="cl-section-label">📦 Employee Items</div>
+        <div class="cl-items">
+          <label class="cl-item"><input type="checkbox" id="cl-pkwt"> <span>PKWT / PKWTT / Agreement</span></label>
+          <label class="cl-item"><input type="checkbox" id="cl-email"> <span>Company Email</span></label>
+          <label class="cl-item"><input type="checkbox" id="cl-hris"> <span>Talenta HRIS Account</span></label>
+          <label class="cl-item"><input type="checkbox" id="cl-laptop"> <span>Laptop / Computer</span></label>
+          <label class="cl-item"><input type="checkbox" id="cl-kit"> <span>Onboarding Kit</span></label>
+          <label class="cl-item"><input type="checkbox" id="cl-seragam"> <span>WM Center Uniform <small style="color:var(--muted);font-weight:400;">(Except Back Office)</small></span></label>
+          <label class="cl-item"><input type="checkbox" id="cl-nameplate"> <span>Name Plate <small style="color:var(--muted);font-weight:400;">(Except Back Office)</small></span></label>
+        </div>
+        <div class="cl-section-label">🎓 Training</div>
+        <div class="cl-items">
+          <label class="cl-item"><input type="checkbox" id="cl-induction"> <span>General Induction WM Center</span></label>
+          <label class="cl-item"><input type="checkbox" id="cl-talenta"> <span>Talenta Usage Guideline</span></label>
+          <label class="cl-item"><input type="checkbox" id="cl-training"> <span>Basic Position Training (Division)</span></label>
+          <label class="cl-item"><input type="checkbox" id="cl-supervisor"> <span>Session with Supervisor</span></label>
+        </div>
+        <div class="cl-section-label">💬 Group Chats</div>
+        <div class="cl-items">
+          <label class="cl-item"><input type="checkbox" id="cl-grup-divisi"> <span>Division / Branch Group</span></label>
+          <label class="cl-item"><input type="checkbox" id="cl-grup-internal"> <span>Internal Info Group (WM Office / WM Branch)</span></label>
+          <label class="cl-item"><input type="checkbox" id="cl-grup-full"> <span>Full Team Group</span></label>
+        </div>
+        <div class="cl-section-label">📧 Email List</div>
+        <div class="cl-items">
+          <label class="cl-item"><input type="checkbox" id="cl-email-divisi"> <span>Division Internal Email</span></label>
+        </div>
+        <button class="btn-submit" onclick="submitChecklist()" style="margin-top:20px;">Submit Checklist 🚀</button>
+      </div>
+      <div class="success-msg" id="cl-success"><div class="s-icon">🎉</div><h3>Checklist submitted!</h3><p>The HR team has received your onboarding data. Welcome to WM Center!</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CANDIDATE EXPERIENCE -->
+<section id="feedback">
+  <div class="container fade-in">
+    <div class="sec-label">Recruitment Feedback</div>
+    <h2 class="sec-title">How Was Your Journey? 📋</h2>
+    <p class="sec-sub">Share your recruitment experience — your feedback helps us improve!</p>
+    <div class="ce-container">
+      <div id="ce-form">
+        <div class="form-note"><strong>📝 For all candidates</strong> — whether you've joined or not. Your feedback means a lot to us!</div>
+        <div class="form-group"><label>Full Name <span>*</span></label><input type="text" class="form-input" id="ce-nama" placeholder="Your name..."></div>
+        <div class="form-group"><label>Position Applied For <span>*</span></label><input type="text" class="form-input" id="ce-posisi" placeholder="Position you applied for..."></div>
+        <div class="form-group">
+          <label>Overall Recruitment Rating <span>*</span></label>
+          <div class="stars-row">
+            <span class="star" data-val="1" onclick="setRating(1)">⭐</span>
+            <span class="star" data-val="2" onclick="setRating(2)">⭐</span>
+            <span class="star" data-val="3" onclick="setRating(3)">⭐</span>
+            <span class="star" data-val="4" onclick="setRating(4)">⭐</span>
+            <span class="star" data-val="5" onclick="setRating(5)">⭐</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Clarity of Information Provided</label>
+          <select class="form-select" id="ce-kejelasan">
+            <option value="" disabled selected>Select...</option>
+            <option>Very Clear</option><option>Clear Enough</option>
+            <option>Not Very Clear</option><option>Unclear</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Impression of the Recruitment Team</label><textarea class="form-textarea" id="ce-kesan" placeholder="How was your experience with the WM Center recruitment team?"></textarea></div>
+        <div class="form-group"><label>Suggestions for WM Center 💡</label><textarea class="form-textarea" id="ce-saran" placeholder="Anything we can improve? Let us know!"></textarea></div>
+        <button class="btn-submit btn-submit-navy" onclick="submitFeedback()">Send Feedback 📩</button>
+      </div>
+      <div class="success-msg" id="ce-success"><div class="s-icon">🙏</div><h3>Thank you!</h3><p>Your feedback means a lot to us. We hope to see you again!</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" style="background:var(--offwhite);">
+  <div class="container fade-in">
+    <div class="sec-label">Frequently Asked Questions</div>
+    <h2 class="sec-title">FAQ 💡</h2>
+    <p class="sec-sub">Got questions? We've got answers. If yours isn't here, reach out to the team!</p>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span>What time should I arrive on my first day?</span><span class="icon">+</span></div>
+        <div class="faq-a">Please arrive 15 minutes before your scheduled start time. Your supervisor or the TA team will confirm your exact start time beforehand. If you haven't received confirmation, contact Nanda Putri via WhatsApp.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span>What should I wear on my first day?</span><span class="icon">+</span></div>
+        <div class="faq-a">Wear neat, professional attire on your first day. Your WM Center uniform will be given during onboarding (except for Back Office positions). Once you receive your uniform, please wear it on working days.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span>How do I set up my Talenta HRIS account?</span><span class="icon">+</span></div>
+        <div class="faq-a">Follow the step-by-step tutorial at <a href="https://bit.ly/TutorialTalentaWMCenter" target="_blank" style="color:var(--orange);font-weight:600;">bit.ly/TutorialTalentaWMCenter</a>. If you encounter any issues, contact Fionna Uguy from the HR team.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span>When will I receive my first paycheck?</span><span class="icon">+</span></div>
+        <div class="faq-a">Salary is paid monthly. The exact date will be communicated by the Finance team. Make sure your bank account information is submitted correctly through the Employee Data Form. For questions, contact Deogy Ahmad.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span>What documents do I need to submit?</span><span class="icon">+</span></div>
+        <div class="faq-a">You need to submit: KTP, KK (Family Card), recent non-formal photo, and diploma (for Physiotherapist & Front Office positions). Upload these through the Document Upload form on the Pre-Onboarding page. Also fill in the Personal Data Form completely.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span>Who do I contact if I have questions not listed here?</span><span class="icon">+</span></div>
+        <div class="faq-a">Reach out to the Recruitment & Onboarding team — <a href="https://wa.me/62895330140644" target="_blank" style="color:var(--orange);font-weight:600;">Nanda Putri</a> is your go-to person for any onboarding-related questions. You can also check the "Who to Go To" section above for other topics.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span>How do I claim reimbursements?</span><span class="icon">+</span></div>
+        <div class="faq-a">Reimbursement claims are processed through the Finance team. Contact Deogy Ahmad via WhatsApp and provide your receipts and claim details. Make sure to submit claims within the allowed timeframe as communicated by your supervisor.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span>What group chats should I be added to?</span><span class="icon">+</span></div>
+        <div class="faq-a">You should be added to: your Division/Branch group, the Internal Info Group (WM Office or WM Branch), and the Full Team group. If you haven't been added, contact Nanda Putri or your direct supervisor.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Made with ❤️ by the <strong>Talent Acquisition Team · WM Center</strong></p>
+  <p style="margin-top:6px;">© 2026 WM Center · Physiotherapy Clinic</p>
+</footer>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwQ99dLENbrA65N2swnfhueC977B2_XVAu4LEXvk9686aMR30oKotc83YrOQLlUtEXF/exec";
+
+function showDiv(btn, id) {
+  document.querySelectorAll('.divisi-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function toggleFaq(el) {
+  const item = el.parentElement;
+  item.classList.toggle('open');
+}
+
+let currentRating = 0;
+function setRating(val) {
+  currentRating = val;
+  document.querySelectorAll('.star').forEach(s => {
+    s.classList.toggle('active', parseInt(s.dataset.val) <= val);
+  });
+}
+
+async function submitChecklist() {
+  const nama = document.getElementById('cl-nama').value.trim();
+  const posisi = document.getElementById('cl-posisi').value.trim();
+  if (!nama || !posisi) { alert('Please fill in your name and position first! 😊'); return; }
+  const btn = document.querySelector('#cl-form .btn-submit');
+  btn.textContent = 'Submitting...'; btn.disabled = true;
+  const getCheck = id => document.getElementById(id).checked ? '✅' : '❌';
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST', mode: 'no-cors',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        formType: 'icebreaker', nama, posisi,
+        pkwt: getCheck('cl-pkwt'), email_perusahaan: getCheck('cl-email'),
+        hris_talenta: getCheck('cl-hris'), laptop: getCheck('cl-laptop'),
+        onboarding_kit: getCheck('cl-kit'), seragam: getCheck('cl-seragam'),
+        name_plate: getCheck('cl-nameplate'), general_induction: getCheck('cl-induction'),
+        guideline_talenta: getCheck('cl-talenta'), training_posisi: getCheck('cl-training'),
+        session_supervisor: getCheck('cl-supervisor'), grup_divisi: getCheck('cl-grup-divisi'),
+        grup_internal: getCheck('cl-grup-internal'), grup_full_team: getCheck('cl-grup-full'),
+        email_divisi: getCheck('cl-email-divisi'),
+      })
+    });
+  } catch(e) { console.log(e); }
+  document.getElementById('cl-form').style.display = 'none';
+  document.getElementById('cl-success').style.display = 'block';
+}
+
+async function submitFeedback() {
+  const nama = document.getElementById('ce-nama').value.trim();
+  const posisi = document.getElementById('ce-posisi').value.trim();
+  if (!nama || !posisi) { alert('Please fill in your name and position first! 😊'); return; }
+  const btn = document.querySelector('#ce-form .btn-submit');
+  btn.textContent = 'Sending...'; btn.disabled = true;
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST', mode: 'no-cors',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        formType: 'candidate', nama, posisi, rating: currentRating,
+        kejelasan: document.getElementById('ce-kejelasan').value,
+        kesan: document.getElementById('ce-kesan').value.trim(),
+        saran: document.getElementById('ce-saran').value.trim(),
+      })
+    });
+  } catch(e) { console.log(e); }
+  document.getElementById('ce-form').style.display = 'none';
+  document.getElementById('ce-success').style.display = 'block';
+}
+
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, {threshold: 0.1});
+document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>

@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WM Physio Benefit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #FBF7F2;
+    --card: #FFFFFF;
+    --ink: #2A2119;
+    --ink-soft: #8A7A6C;
+    --primary: #D9622B;
+    --primary-dim: #FBE6D6;
+    --amber: #B23A2E;
+    --amber-dim: #FBE3DE;
+    --line: #EEE5D9;
+    --used: #E7DFD4;
+    --radius: 18px;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding: 32px 16px 64px;
+  }
+  .wrap{ width:100%; max-width: 440px; }
+  header{ text-align:center; margin-bottom: 28px; }
+  .mark{
+    width:44px; height:44px; margin:0 auto 14px;
+    border-radius: 12px;
+    background: var(--primary);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .mark svg{ width:24px; height:24px; }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size: 26px;
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+  }
+  .sub{ color: var(--ink-soft); font-size: 14px; margin:0; line-height:1.5; }
+
+  .card{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px;
+    margin-bottom: 16px;
+  }
+  label{
+    display:block;
+    font-size: 13px;
+    font-weight:600;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  input[type=text], input[type=date], select, textarea{
+    width:100%;
+    font-family:'Inter', sans-serif;
+    font-size: 15px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1.5px solid var(--line);
+    background:#FAFCFB;
+    color: var(--ink);
+    outline: none;
+    transition: border-color .15s ease;
+  }
+  select{ appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238A7A6C' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; }
+  input:focus, textarea:focus{ border-color: var(--primary); }
+  textarea{ resize: vertical; min-height: 72px; font-family:'Inter',sans-serif; }
+
+  button{
+    width:100%;
+    font-family:'Inter', sans-serif;
+    font-size: 15px;
+    font-weight:600;
+    padding: 13px 16px;
+    border-radius: 12px;
+    border: none;
+    cursor:pointer;
+    margin-top: 14px;
+    transition: opacity .15s ease, transform .1s ease;
+  }
+  button:active{ transform: scale(0.98); }
+  button:disabled{ opacity:.55; cursor:not-allowed; }
+  .btn-primary{ background: var(--primary); color:#fff; }
+  .btn-primary:hover:not(:disabled){ opacity:.92; }
+
+  .hidden{ display:none !important; }
+
+  .msg{ font-size: 13.5px; margin-top: 10px; line-height:1.5; }
+  .msg.error{ color: #B4432E; }
+  .msg.loading{ color: var(--ink-soft); }
+
+  /* result header */
+  .who{ display:flex; align-items:center; justify-content:space-between; margin-bottom: 4px; }
+  .who .name{ font-weight:700; font-size:16px; }
+  .badge{
+    font-size: 11.5px; font-weight:700; padding: 3px 10px; border-radius: 999px;
+    background: var(--primary-dim); color: var(--primary); text-transform:uppercase; letter-spacing: .03em;
+  }
+  .meta{ color: var(--ink-soft); font-size: 13px; margin-bottom: 18px; }
+
+  /* gauge */
+  .gauge-wrap{ display:flex; flex-direction:column; align-items:center; margin: 4px 0 16px; }
+  .gauge-num{ font-family:'Fraunces', serif; font-size: 40px; font-weight:600; margin-top:-58px; }
+  .gauge-label{ font-size: 12.5px; color: var(--ink-soft); margin-top:2px; text-align:center; }
+  .period{ text-align:center; font-size: 12px; color: var(--ink-soft); margin-top: 6px; }
+
+  .warning{
+    background: var(--amber-dim);
+    border: 1px solid #F0CFC7;
+    color: var(--amber);
+    font-size: 13px;
+    line-height: 1.5;
+    padding: 12px 14px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+  }
+
+  .divider{ height:1px; background: var(--line); margin: 18px 0; }
+
+  .confirm-icon{
+    width:48px; height:48px; border-radius:50%;
+    background: var(--primary-dim); color: var(--primary);
+    display:flex; align-items:center; justify-content:center;
+    margin: 0 auto 14px;
+  }
+  .confirm-title{ text-align:center; font-family:'Fraunces',serif; font-size:20px; font-weight:600; margin-bottom:4px; }
+  .confirm-sub{ text-align:center; color: var(--ink-soft); font-size: 13.5px; margin-bottom: 18px; line-height:1.5; }
+
+  .footer-note{ text-align:center; font-size:11.5px; color:#B3A395; margin-top: 22px; line-height:1.6; }
+</style>
+</head>
+<body>
+<style>.wmhrga-back-fab{position:fixed;bottom:16px;left:16px;z-index:99999;display:inline-flex;align-items:center;gap:6px;background:#14213D;color:#fff;text-decoration:none;font-family:'Plus Jakarta Sans',-apple-system,sans-serif;font-size:12.5px;font-weight:600;padding:9px 15px;border-radius:999px;box-shadow:0 6px 18px rgba(20,33,61,.35);transition:transform .15s ease,box-shadow .15s ease;}.wmhrga-back-fab:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(20,33,61,.45);}@media print{.wmhrga-back-fab{display:none;}}</style>
+<a href="index.html" class="wmhrga-back-fab">&#8592; Dashboard</a>
+
+<div class="wrap">
+
+  <header>
+    <div class="mark">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 21C12 21 4 15.5 4 9.8C4 6.6 6.4 4 9.4 4C10.9 4 12 4.9 12 4.9C12 4.9 13.1 4 14.6 4C17.6 4 20 6.6 20 9.8C20 15.5 12 21 12 21Z" stroke="white" stroke-width="1.6" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h1>WM Physio Benefit</h1>
+    <p class="sub">Benefit karyawan WM Center — booking sesi fisioterapi gratis & cek kode referral kamu</p>
+  </header>
+
+  <!-- STEP 1: CEK NAMA -->
+  <div class="card" id="cardEmail">
+    <label for="inpNama">Nama kamu (sesuai data karyawan)</label>
+    <input type="text" id="inpNama" placeholder="Nama lengkap" autocomplete="name">
+    <button class="btn-primary" id="btnCheck">Cek Sisa Kuota</button>
+    <p class="msg hidden" id="checkMsg"></p>
+  </div>
+
+  <!-- STEP 2: HASIL + FORM BOOKING -->
+  <div class="card hidden" id="cardResult">
+    <div class="who">
+      <span class="name" id="resNama"></span>
+      <span class="badge" id="resKategori"></span>
+    </div>
+    <p class="meta" id="resCabang"></p>
+    <p class="meta" id="resReferralSingle" style="margin-top:-14px;"></p>
+    <p class="meta" id="resReferralPaket" style="margin-top:-14px; font-weight:700; color:var(--primary);"></p>
+    <p class="meta" id="resReferralStat" style="margin-top:-14px;"></p>
+    <div id="resReferralList" style="margin: 6px 0 0; font-size: 12.5px; color: var(--ink-soft); line-height: 1.7;"></div>
+
+    <div class="gauge-wrap">
+      <svg id="gaugeSvg" width="220" height="130" viewBox="0 0 220 130"></svg>
+      <div class="gauge-num" id="gaugeNum">0</div>
+      <div class="gauge-label">sesi tersisa dari <span id="gaugeTotal">0</span></div>
+    </div>
+    <p class="period" id="resPeriode"></p>
+
+    <div class="warning hidden" id="warnHabis">
+      Kuota gratis kamu untuk periode ini sudah habis. Kamu tetap bisa booking di bawah ini, tapi sesi ini akan tercatat <strong>di luar kuota</strong>.
+      <div style="margin-top:10px;">
+        <textarea id="inpAlasanTambahan" placeholder="Alasan kebutuhan tambahan sesi (medis)..." style="min-height:56px; font-size:13px;"></textarea>
+      </div>
+      <button id="btnAjukan" style="margin-top:8px; background:#fff; border:1.5px solid var(--amber); color:var(--amber); padding:9px 14px; font-size:13px; font-weight:600; border-radius:10px; cursor:pointer; width:auto;">Ajukan Tambahan Kuota via WhatsApp</button>
+      <p style="font-size:11.5px; margin:8px 0 0; line-height:1.5;">Siapkan juga rekomendasi tertulis dari fisioterapis yang menangani — HR akan verifikasi bersama Head of Fisioterapi.</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <label for="inpPengguna">Sesi ini untuk siapa?</label>
+    <select id="inpPengguna">
+      <option value="Diri Sendiri">Diri Sendiri</option>
+      <option value="Keluarga">Keluarga Inti (Orang Tua / Pasangan / Anak Kandung)</option>
+    </select>
+
+    <div id="familyFields" class="hidden" style="margin-top:14px;">
+      <label for="inpNamaKeluarga">Nama anggota keluarga</label>
+      <input type="text" id="inpNamaKeluarga" placeholder="Nama lengkap">
+      <div style="height:14px"></div>
+      <label for="inpHubungan">Hubungan dengan karyawan</label>
+      <select id="inpHubungan">
+        <option value="Orang Tua">Orang Tua</option>
+        <option value="Pasangan">Pasangan</option>
+        <option value="Anak Kandung">Anak Kandung</option>
+      </select>
+    </div>
+
+    <div class="warning hidden" id="warnBelumSendiri" style="margin-top:14px;">
+      Kamu wajib pakai minimal 1x sesi untuk diri sendiri dulu di periode ini, sebelum sisa kuota bisa dipakai keluarga.
+    </div>
+
+    <div style="height:16px"></div>
+
+    <label for="inpTanggal">Tanggal sesi yang diinginkan</label>
+    <input type="date" id="inpTanggal">
+    <p style="font-size:11.5px; color:var(--ink-soft); margin:8px 0 0; line-height:1.5;">Reservasi wajib H-1 dan tidak tersedia di hari Sabtu/Minggu. Kuota tidak bisa diuangkan atau dibawa ke tahun berikutnya.</p>
+    <p class="msg error hidden" id="tanggalMsg"></p>
+
+    <div style="height:14px"></div>
+
+    <label for="inpCatatan">Catatan (opsional)</label>
+    <textarea id="inpCatatan" placeholder="Contoh: keluhan nyeri punggung, preferensi jam, dll"></textarea>
+
+    <button class="btn-primary" id="btnSubmit">Booking Sekarang</button>
+    <p class="msg hidden" id="submitMsg"></p>
+  </div>
+
+  <!-- STEP 3: KONFIRMASI -->
+  <div class="card hidden" id="cardConfirm">
+    <div class="confirm-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 12L9 17L20 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="confirm-title">Booking tercatat</div>
+    <div class="confirm-sub" id="confirmSub">Tim akan menghubungi kamu untuk konfirmasi jadwal.</div>
+    <a id="waFallback" href="#" target="_blank" style="display:block; text-align:center; font-size:13px; color:var(--primary); font-weight:600; margin-bottom:14px;">Belum kebuka WhatsApp-nya? Klik di sini</a>
+    <button class="btn-primary" id="btnAgain" style="background:var(--primary-dim); color:var(--primary);">Booking Lain</button>
+  </div>
+
+  <p class="footer-note">Ada kendala? Hubungi tim HRGA WM Center.</p>
+</div>
+
+<script>
+/* =====================================================
+   KONFIGURASI — GANTI DENGAN URL WEB APP APPS SCRIPT KAMU
+   ===================================================== */
+const CONFIG = {
+  SCRIPT_URL: "https://script.google.com/macros/s/AKfycbzpVZY68SCA0x2ONA9ru3gz5M-sE8CpGUMhcuIxsMdpIHeYEz2L5Q0Mkg91Tnm-T59p/exec",
+  WA_ADMIN: "6285111232350",  // nomor buat pengajuan tambahan kuota
+  WA_FAQIH: "628998676468"    // nomor Faqih, tujuan konfirmasi booking
+};
+
+let currentData = null; // hasil cek kuota tersimpan sementara di memori
+
+/* ---------- JSONP helper (buat baca data lintas domain) ---------- */
+function jsonp(url, params, timeoutMs = 10000) {
+  return new Promise((resolve, reject) => {
+    const cbName = "cb_" + Math.random().toString(36).slice(2);
+    const query = new URLSearchParams({ ...params, callback: cbName }).toString();
+    const script = document.createElement("script");
+    let done = false;
+
+    const cleanup = () => {
+      delete window[cbName];
+      script.remove();
+      clearTimeout(timer);
+    };
+    const timer = setTimeout(() => {
+      if (done) return;
+      done = true;
+      cleanup();
+      reject(new Error("timeout"));
+    }, timeoutMs);
+
+    window[cbName] = (data) => {
+      if (done) return;
+      done = true;
+      cleanup();
+      resolve(data);
+    };
+    script.src = url + "?" + query;
+    script.onerror = () => {
+      if (done) return;
+      done = true;
+      cleanup();
+      reject(new Error("network"));
+    };
+    document.body.appendChild(script);
+  });
+}
+
+/* ---------- WhatsApp helper ---------- */
+function buildWaLink(number, message) {
+  return "https://wa.me/" + number + "?text=" + encodeURIComponent(message);
+}
+
+document.getElementById("btnAjukan").addEventListener("click", () => {
+  if (!currentData) return;
+  const alasan = document.getElementById("inpAlasanTambahan").value.trim();
+  let msg = `Halo, saya ${currentData.nama} (${currentData.kategori}, Cabang ${currentData.cabang}) ingin mengajukan penambahan kuota WM Physio Benefit karena kuota periode ini (${currentData.periodeMulai} – ${currentData.periodeSelesai}) sudah habis.`;
+  if (alasan) msg += ` Alasan: ${alasan}.`;
+  msg += ` (Rekomendasi fisioterapis akan menyusul terpisah.)`;
+  window.open(buildWaLink(CONFIG.WA_ADMIN, msg), "_blank");
+});
+
+/* ---------- Aturan penjadwalan: H-1, no Sabtu/Minggu ---------- */
+function tomorrowISO() {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  return d.toISOString().split("T")[0];
+}
+
+document.getElementById("inpTanggal").addEventListener("change", (e) => {
+  const msgEl = document.getElementById("tanggalMsg");
+  const val = e.target.value;
+  if (!val) { msgEl.classList.add("hidden"); return; }
+  const day = new Date(val + "T00:00:00").getDay(); // 0=Minggu, 6=Sabtu
+  if (day === 0 || day === 6) {
+    msgEl.textContent = "Reservasi tidak tersedia di hari Sabtu/Minggu. Pilih tanggal lain.";
+    msgEl.classList.remove("hidden");
+    e.target.value = "";
+    return;
+  }
+  msgEl.classList.add("hidden");
+});
+
+/* ---------- Toggle field keluarga ---------- */
+document.getElementById("inpPengguna").addEventListener("change", (e) => {
+  const isKeluarga = e.target.value === "Keluarga";
+  document.getElementById("familyFields").classList.toggle("hidden", !isKeluarga);
+  const belumSendiri = currentData && !currentData.sudahPakaiSendiri;
+  document.getElementById("warnBelumSendiri").classList.toggle("hidden", !(isKeluarga && belumSendiri));
+});
+
+/* ---------- Gauge (segmen busur gaya goniometer) ---------- */
+function polar(cx, cy, r, angleDeg) {
+  const rad = (angleDeg * Math.PI) / 180;
+  return { x: cx + r * Math.cos(rad), y: cy - r * Math.sin(rad) };
+}
+
+function renderGauge(total, terpakai) {
+  const svg = document.getElementById("gaugeSvg");
+  const cx = 110, cy = 115, r = 88, strokeW = 15;
+  const gap = total > 6 ? 2 : 4;
+  const step = 180 / total;
+  let paths = "";
+
+  for (let k = 0; k < total; k++) {
+    const startA = 180 - k * step - gap / 2;
+    const endA = 180 - (k + 1) * step + gap / 2;
+    const p1 = polar(cx, cy, r, startA);
+    const p2 = polar(cx, cy, r, endA);
+    const isUsed = k < terpakai;
+    const color = isUsed ? "var(--used)" : "var(--primary)";
+    paths += `<path d="M ${p1.x} ${p1.y} A ${r} ${r} 0 0 1 ${p2.x} ${p2.y}"
+                fill="none" stroke="${color}" stroke-width="${strokeW}" stroke-linecap="round"/>`;
+  }
+  svg.innerHTML = paths;
+}
+
+/* ---------- Step 1: cek kuota ---------- */
+document.getElementById("btnCheck").addEventListener("click", async () => {
+  const nama = document.getElementById("inpNama").value.trim();
+  const msgEl = document.getElementById("checkMsg");
+  const btn = document.getElementById("btnCheck");
+
+  document.getElementById("cardResult").classList.add("hidden");
+  document.getElementById("cardConfirm").classList.add("hidden");
+  msgEl.classList.remove("hidden");
+
+  if (!nama) {
+    msgEl.className = "msg error";
+    msgEl.textContent = "Masukkan nama kamu dulu ya.";
+    return;
+  }
+  if (CONFIG.SCRIPT_URL.includes("PASTE_URL")) {
+    msgEl.className = "msg error";
+    msgEl.textContent = "Tool ini belum terhubung ke Google Sheets. Hubungi admin untuk konfigurasi URL Apps Script.";
+    return;
+  }
+
+  btn.disabled = true;
+  msgEl.className = "msg loading";
+  msgEl.textContent = "Mengecek kuota kamu...";
+
+  try {
+    const data = await jsonp(CONFIG.SCRIPT_URL, { nama });
+    btn.disabled = false;
+
+    if (!data.found) {
+      msgEl.className = "msg error";
+      msgEl.textContent = "Nama belum terdaftar di data karyawan, atau ada lebih dari satu orang dengan nama sama — hubungi tim HRGA untuk verifikasi.";
+      return;
+    }
+
+    msgEl.classList.add("hidden");
+    currentData = data;
+    showResult(data);
+  } catch (err) {
+    btn.disabled = false;
+    msgEl.className = "msg error";
+    msgEl.textContent = "Gagal terhubung ke server. Coba lagi sebentar lagi.";
+  }
+});
+
+function showResult(data) {
+  document.getElementById("resNama").textContent = data.nama;
+  document.getElementById("resKategori").textContent = data.kategori;
+  document.getElementById("resCabang").textContent = "Cabang " + data.cabang;
+  document.getElementById("resReferralSingle").textContent = data.kodeReferralSendiri
+    ? "Kode Referral Paket Single: " + data.kodeReferralSendiri : "";
+  document.getElementById("resReferralPaket").textContent = data.kodeReferralPaket
+    ? "Kode Referral Paket 1 Tahun: " + data.kodeReferralPaket : "";
+  document.getElementById("resReferralStat").textContent = data.referralTotal > 0
+    ? `Sudah referral ${data.referralTotal} orang (${data.referralSingle} Single, ${data.referralPaket} Paket 1 Tahun)`
+    : "Belum ada yang pakai kode referral kamu";
+
+  const listEl = document.getElementById("resReferralList");
+  const daftar = data.referralDaftar || [];
+  if (daftar.length > 0) {
+    listEl.innerHTML = daftar.map(function(r) {
+      return `<div>• ${r.namaPasien} <span style="color:var(--ink-soft);">(${r.jenis}${r.tanggal ? ", " + r.tanggal : ""})</span></div>`;
+    }).join("");
+  } else {
+    listEl.innerHTML = "";
+  }
+  document.getElementById("gaugeNum").textContent = data.sisa;
+  document.getElementById("gaugeTotal").textContent = data.kuotaTotal;
+  document.getElementById("resPeriode").textContent =
+    "Periode berlaku: " + data.periodeMulai + " – " + data.periodeSelesai;
+  renderGauge(data.kuotaTotal, data.terpakai);
+
+  document.getElementById("warnHabis").classList.toggle("hidden", data.sisa > 0);
+  document.getElementById("inpAlasanTambahan").value = "";
+
+  document.getElementById("inpPengguna").value = "Diri Sendiri";
+  document.getElementById("familyFields").classList.add("hidden");
+  document.getElementById("warnBelumSendiri").classList.add("hidden");
+  document.getElementById("inpNamaKeluarga").value = "";
+  document.getElementById("inpHubungan").value = "Orang Tua";
+
+  document.getElementById("inpTanggal").min = tomorrowISO();
+  document.getElementById("inpTanggal").value = "";
+  document.getElementById("tanggalMsg").classList.add("hidden");
+  document.getElementById("inpCatatan").value = "";
+  document.getElementById("submitMsg").classList.add("hidden");
+
+  document.getElementById("cardResult").classList.remove("hidden");
+}
+
+/* ---------- Step 2: submit booking ---------- */
+document.getElementById("btnSubmit").addEventListener("click", () => {
+  const tanggal = document.getElementById("inpTanggal").value;
+  const catatan = document.getElementById("inpCatatan").value.trim();
+  const penggunaPilihan = document.getElementById("inpPengguna").value;
+  const namaKeluarga = document.getElementById("inpNamaKeluarga").value.trim();
+  const hubungan = document.getElementById("inpHubungan").value;
+  const msgEl = document.getElementById("submitMsg");
+
+  msgEl.classList.remove("hidden");
+
+  if (!currentData) {
+    msgEl.className = "msg error";
+    msgEl.textContent = "Data belum termuat, cek nama kamu dulu di atas.";
+    return;
+  }
+  if (!tanggal) {
+    msgEl.className = "msg error";
+    msgEl.textContent = "Pilih tanggal sesi dulu ya.";
+    return;
+  }
+
+  const isKeluarga = penggunaPilihan === "Keluarga";
+  if (isKeluarga && !namaKeluarga) {
+    msgEl.className = "msg error";
+    msgEl.textContent = "Isi nama anggota keluarga yang akan pakai sesi ini.";
+    return;
+  }
+  if (isKeluarga && !currentData.sudahPakaiSendiri) {
+    msgEl.className = "msg error";
+    msgEl.textContent = "Kamu wajib pakai minimal 1x sesi untuk diri sendiri dulu sebelum kuota bisa dipakai keluarga.";
+    return;
+  }
+
+  const pengguna = isKeluarga ? `Keluarga - ${namaKeluarga} (${hubungan})` : "Diri Sendiri";
+  const sisaBaru = Math.max(currentData.sisa - 1, 0);
+  const statusText = currentData.sisa > 0
+    ? `dalam kuota (sisa sekarang: ${sisaBaru} dari ${currentData.kuotaTotal})`
+    : `di luar kuota gratis`;
+  const waMsg = `Halo Faqih, saya ${currentData.nama} (${currentData.kategori}, Cabang ${currentData.cabang}) ingin booking sesi WM Physio Benefit pada ${tanggal} untuk ${pengguna}. Status: ${statusText}.${catatan ? " Catatan: " + catatan : ""}`;
+  const waLink = buildWaLink(CONFIG.WA_FAQIH, waMsg);
+
+  // buka WhatsApp LANGSUNG, sinkron, sebelum proses lain — ini yang bikin gak keblokir
+  window.open(waLink, "_blank");
+  document.getElementById("waFallback").href = waLink;
+
+  // catat ke Free Fisio Log di belakang layar (gak perlu ditunggu, no-cors gak bisa dibaca hasilnya)
+  const namaPasienFinal = isKeluarga ? `${namaKeluarga} (${hubungan})` : currentData.nama;
+  fetch(CONFIG.SCRIPT_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      nama: currentData.nama,
+      tanggalBooking: tanggal,
+      namaPasien: namaPasienFinal
+    })
+  }).catch(() => {});
+
+  document.getElementById("confirmSub").textContent =
+    "Booking sudah tercatat di sheet. Kirim pesan yang baru kebuka di WhatsApp untuk konfirmasi jadwal ke Faqih.";
+
+  document.getElementById("cardResult").classList.add("hidden");
+  document.getElementById("cardConfirm").classList.remove("hidden");
+});
+
+document.getElementById("btnAgain").addEventListener("click", () => {
+  document.getElementById("cardConfirm").classList.add("hidden");
+  document.getElementById("inpNama").value = "";
+  document.getElementById("checkMsg").classList.add("hidden");
+  document.getElementById("cardEmail").scrollIntoView({ behavior: "smooth" });
+});
+</script>
+</body>
+</html>
