@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WE Grow</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#1A3A5C;--orange:#E8773A;--ol:#FFF3EC;--bg:#F4F6F9;--w:#fff;--gray:#6B7280;--gl:#E5E7EB;--dark:#111827;--gold:#F59E0B;--silver:#94A3B8;--bronze:#CD7F32;--green:#2E7D32;--radius:14px;--rsm:10px;--shadow:0 2px 16px rgba(0,0,0,.07)}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);min-height:100vh;color:var(--dark);font-size:15px}
+.hidden{display:none!important}
+.page{display:none}.page.active{display:block}
+.home-wrap{max-width:420px;margin:0 auto;padding:60px 24px 40px;text-align:center}
+.home-logo{font-size:72px;margin-bottom:16px}
+.home-wrap h2{font-size:28px;font-weight:900;color:var(--navy);margin-bottom:6px}
+.home-wrap>p{font-size:14px;color:var(--gray);margin-bottom:32px}
+.home-btns{display:flex;flex-direction:column;gap:12px}
+.hbtn{width:100%;padding:18px;border-radius:14px;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;-webkit-tap-highlight-color:rgba(0,0,0,.1);touch-action:manipulation}
+.hbtn span{font-size:22px}
+.hbtn-navy{background:var(--navy);color:#fff}.hbtn-navy:hover{background:#0F2847;transform:translateY(-2px)}
+.hbtn-orange{background:var(--orange);color:#fff}.hbtn-orange:hover{background:#D4682B;transform:translateY(-2px)}
+.hbtn-book{background:#fff;color:var(--navy);border:2px solid var(--navy)}.hbtn-book:hover{background:#F0F4F8;transform:translateY(-2px)}
+.topbar{background:var(--navy);padding:12px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100}
+.tb-back{background:rgba(255,255,255,.15);border:none;color:#fff;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;touch-action:manipulation}
+.tb-back:hover{background:rgba(255,255,255,.25)}
+.tb-title{color:#fff;font-size:15px;font-weight:700;flex:1;text-align:center}
+.tb-action{background:var(--orange);color:#fff;border:none;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.tb-action:hover{background:#D4682B}
+.stats-bar{background:var(--navy);display:flex;justify-content:center;gap:32px;padding:10px 16px 16px}
+.stat{text-align:center}
+.stat span{font-size:22px;font-weight:800;color:var(--orange);display:block}
+.stat label{font-size:10px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.4px}
+.dbwrap{max-width:680px;margin:0 auto;padding:16px 14px 80px}
+.bnav{position:fixed;bottom:0;left:0;right:0;background:var(--w);border-top:1px solid var(--gl);display:flex;z-index:100;box-shadow:0 -2px 12px rgba(0,0,0,.08)}
+.nbtn{flex:1;border:none;background:transparent;padding:10px 4px 8px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--gray);font-size:10px;font-weight:600}
+.nbtn .ni{font-size:20px}
+.nbtn.on{color:var(--orange)}
+.loading{text-align:center;padding:48px 20px;color:var(--gray)}
+.spin{font-size:28px;display:inline-block;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.podium-wrap{display:flex;align-items:flex-end;justify-content:center;gap:6px;padding:16px 8px 0}
+.pod-slot{display:flex;flex-direction:column;align-items:center;flex:1;max-width:150px}
+.pod-info{text-align:center;padding:0 4px 10px;width:100%}
+.pod-emoji{font-size:26px;margin-bottom:4px}
+.pod-name{font-size:12px;font-weight:800;color:var(--dark);line-height:1.3;margin-bottom:2px}
+.pod-loc{font-size:10px;color:var(--gray);margin-bottom:5px}
+.pod-seeds{font-size:18px;font-weight:900;color:var(--navy)}
+.pod-seeds-lbl{font-size:8px;color:var(--gray);text-transform:uppercase;letter-spacing:.4px}
+.pod-platform{width:100%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:rgba(255,255,255,.9);border-radius:8px 8px 0 0}
+.pp1{height:88px;background:linear-gradient(180deg,#F59E0B,#D97706)}
+.pp2{height:60px;background:linear-gradient(180deg,#94A3B8,#64748B)}
+.pp3{height:44px;background:linear-gradient(180deg,#C97B2A,#A0522D)}
+.top3-title{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;text-align:center;margin-bottom:4px;margin-top:8px}
+.rank-section-lbl{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.4px;padding:12px 0 6px;border-top:1px solid var(--gl);margin-top:4px}
+.ri{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--w);border-radius:12px;margin-bottom:5px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.ri.zero{opacity:.5}
+.ri-num{font-size:13px;font-weight:700;color:var(--gray);min-width:24px;text-align:right}
+.ri-info{flex:1;min-width:0}
+.ri-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ri-name[onclick]:hover{color:var(--orange);text-decoration:underline}
+.clickable-name:hover{color:var(--orange)!important;text-decoration:underline!important}
+.ri-sub{font-size:11px;color:var(--gray);margin-top:1px}
+.ri-seeds{font-size:15px;font-weight:800;color:var(--orange);text-align:right;white-space:nowrap}
+.ri-seeds small{font-size:9px;color:var(--gray);font-weight:400;display:block}
+.zero-tag{font-size:10px;background:#F3F4F6;color:var(--gray);padding:2px 8px;border-radius:10px;font-weight:600}
+.au{color:#16A34A;font-weight:800;font-size:10px;background:#DCFCE7;padding:1px 5px;border-radius:6px;margin-left:3px}
+.ad{color:#DC2626;font-weight:800;font-size:10px;background:#FEE2E2;padding:1px 5px;border-radius:6px;margin-left:3px}
+.tabs{display:flex;gap:6px;background:var(--w);border-radius:12px;padding:4px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:16px}
+.tab{flex:1;padding:10px;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--gray);background:transparent;transition:all .2s;touch-action:manipulation}
+.tab.on{background:var(--navy);color:#fff}
+.sbtn{flex:1;padding:10px;border-radius:10px;border:2px solid var(--gl);background:var(--w);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--gray);transition:all .2s}
+.sbtn.on{border-color:var(--orange);background:var(--ol);color:var(--orange)}
+.sub-nav{display:flex;gap:8px;margin-bottom:14px}
+.donut-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.donut-card{background:var(--w);border-radius:14px;padding:16px 12px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.06);cursor:pointer;transition:transform .2s}
+.donut-card:hover{transform:translateY(-2px)}
+.dc-name{font-size:12px;font-weight:700;color:var(--navy);margin-bottom:10px;min-height:32px;display:flex;align-items:center;justify-content:center}
+.dc-sub{font-size:10px;color:var(--gray);margin-top:8px;line-height:1.4}
+.dc-rank{font-size:13px;font-weight:700;text-align:right;margin-bottom:2px}
+.info-note{font-size:12px;color:#555;background:var(--ol);border-left:3px solid var(--orange);padding:8px 12px;border-radius:0 8px 8px 0;margin-bottom:12px;line-height:1.5}
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:flex;align-items:flex-end;justify-content:center}
+.modal-ov.hidden{display:none}
+.modal{background:var(--w);border-radius:20px 20px 0 0;width:100%;max-width:680px;max-height:80vh;display:flex;flex-direction:column;animation:slideUp .25s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-hdr{padding:16px 20px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--gl);flex-shrink:0}
+.modal-hdr h3{font-size:15px;font-weight:700;color:var(--navy)}
+.modal-x{background:none;border:none;font-size:20px;cursor:pointer;color:var(--gray)}
+.modal-body{overflow-y:auto;padding:16px 20px}
+.name-section{margin-bottom:14px}
+.name-section h4{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--gl)}
+.name-section h4.green{color:#16A34A}.name-section h4.red{color:#DC2626}
+.name-pill{display:inline-block;background:#F3F4F6;border-radius:20px;padding:4px 10px;font-size:12px;margin:3px;color:var(--dark)}
+.name-pill.done{background:#DCFCE7;color:#166534}
+.fwrap{max-width:620px;margin:0 auto;padding:20px 16px 60px}
+.pbar{background:var(--navy);padding:14px 20px 18px}
+.pbar-in{max-width:620px;margin:0 auto}
+.psteps{display:flex;gap:6px;margin-bottom:7px}
+.ps{flex:1;height:3px;background:rgba(255,255,255,.2);border-radius:2px;transition:all .3s}
+.ps.done{background:rgba(255,255,255,.6)}.ps.active{background:var(--orange)}
+.plbl{font-size:11px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px}
+.card{background:var(--w);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:14px}
+.ctitle{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.csub{font-size:13px;color:var(--gray);margin-bottom:20px;line-height:1.5}
+.fld{margin-bottom:16px}
+.lbl{display:block;font-size:12px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
+.lbl-note{font-weight:400;color:var(--gray);text-transform:none;letter-spacing:0}
+input[type=text],input[type=number],input[type=date],select,textarea{width:100%;padding:12px 14px;border:1.5px solid var(--gl);border-radius:var(--rsm);font-size:14px;font-family:inherit;outline:none;transition:border .2s;color:var(--dark);background:#fff}
+input:focus,select:focus,textarea:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(232,119,58,.12)}
+textarea{resize:vertical;min-height:88px;line-height:1.5}
+.ac-wrap{position:relative}
+.ac-drop{position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid var(--orange);border-top:none;border-radius:0 0 var(--rsm) var(--rsm);max-height:240px;overflow-y:auto;z-index:200;display:none;box-shadow:0 8px 24px rgba(0,0,0,.1)}
+.ac-drop.open{display:block}
+.ac-item{padding:11px 14px;font-size:14px;cursor:pointer;transition:background .15s;border-bottom:1px solid #F5F5F5}
+.ac-item:hover{background:var(--ol)}
+.ac-item strong{color:var(--orange)}
+.ac-sub{font-size:11px;color:var(--gray)}
+.autofill-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.autofill-badge{background:#F0F4F8;border-radius:var(--rsm);padding:10px 14px}
+.autofill-val{font-size:14px;font-weight:600;color:var(--navy)}
+.prog-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+.prog-card{border:2px solid var(--gl);border-radius:var(--rsm);padding:14px 10px;cursor:pointer;transition:all .18s;text-align:center;user-select:none}
+.prog-card:hover{border-color:var(--orange);background:var(--ol)}
+.prog-card.sel{border-color:var(--orange);background:var(--ol);box-shadow:0 0 0 1px var(--orange)}
+.prog-icon{font-size:26px;margin-bottom:6px}
+.prog-name{font-size:12px;font-weight:700;color:var(--navy);line-height:1.3}
+.prog-seeds{font-size:11px;color:var(--orange);margin-top:3px;font-weight:600}
+.upbox{border:2px dashed var(--gl);border-radius:var(--rsm);padding:22px 16px;text-align:center;cursor:pointer;transition:all .2s;background:#FAFAFA}
+.upbox:hover{border-color:var(--orange);background:var(--ol)}
+.upbox.done{border-color:var(--green);background:#F1FFF4;border-style:solid}
+.upbox input{display:none}
+.up-icon{font-size:28px;margin-bottom:6px}
+.up-hint{font-size:12px;color:var(--gray);margin-top:4px}
+.up-name{font-size:13px;color:var(--green);font-weight:600;margin-top:4px}
+.radio-row{display:flex;gap:10px;margin-top:6px}
+.ropt{flex:1;border:2px solid var(--gl);border-radius:var(--rsm);padding:11px;text-align:center;cursor:pointer;font-size:14px;font-weight:600;color:var(--gray);transition:all .18s}
+.ropt:hover{border-color:var(--orange)}
+.ropt.sel{border-color:var(--orange);background:var(--ol);color:var(--orange)}
+.info{background:var(--ol);border-left:3px solid var(--orange);border-radius:0 8px 8px 0;padding:10px 14px;font-size:13px;color:#555;margin-bottom:14px;line-height:1.5}
+.info a{color:var(--orange);font-weight:600}
+.err{font-size:12px;color:#DC2626;margin-top:5px;display:none}
+.err.show{display:block}
+.badge{display:inline-flex;align-items:center;gap:5px;background:var(--orange);color:#fff;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:16px}
+.btn{padding:13px 24px;border-radius:var(--rsm);border:none;font-size:15px;font-weight:700;cursor:pointer;transition:all .18s;font-family:inherit;touch-action:manipulation}
+.btn-p{background:var(--orange);color:#fff;width:100%}
+.btn-p:hover{background:#D4682B;transform:translateY(-1px)}
+.btn-p:disabled{background:#ccc;cursor:not-allowed;transform:none}
+.btn-g{background:transparent;color:var(--navy);border:1.5px solid var(--gl)}
+.btn-g:hover{border-color:var(--navy);background:#F0F4F8}
+.brow{display:flex;gap:10px}
+.brow .btn-g{flex:1}.brow .btn-p{flex:2}
+.rrow{display:flex;padding:11px 0;border-bottom:1px solid #F0F0F0;font-size:14px;gap:12px}
+.rrow:last-child{border-bottom:none}
+.rkey{color:var(--gray);min-width:130px;font-size:13px;flex-shrink:0}
+.rval{font-weight:600;flex:1;word-break:break-word}
+.scard{text-align:center;padding:40px 20px}
+.s-icon{font-size:64px;margin-bottom:16px;animation:pop .4s ease}
+@keyframes pop{0%{transform:scale(.5);opacity:0}80%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+.scard h2{font-size:22px;font-weight:800;color:var(--navy);margin-bottom:8px}
+.scard p{font-size:14px;color:var(--gray);line-height:1.6;margin-bottom:20px}
+.mt8{margin-top:8px}.mt12{margin-top:12px}
+
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 480px) {
+  .home-wrap { padding: 40px 20px 30px; }
+  .home-logo { font-size: 56px; }
+  .home-wrap h2 { font-size: 24px; }
+  .hbtn { padding: 16px; font-size: 15px; }
+
+  .topbar { padding: 10px 12px; }
+  .tb-back { font-size: 11px; padding: 5px 10px; }
+  .tb-title { font-size: 13px; }
+  .tb-action { font-size: 11px; padding: 5px 10px; }
+
+  .stats-bar { gap: 20px; padding: 8px 12px 14px; }
+  .stat span { font-size: 20px; }
+
+  .dbwrap { padding: 12px 10px 80px; }
+
+  .tabs { gap: 4px; padding: 3px; }
+  .tab { font-size: 11px; padding: 8px 4px; }
+
+  .podium-wrap { gap: 4px; padding: 12px 4px 0; }
+  .pod-slot { max-width: 120px; }
+  .pod-name { font-size: 11px; }
+  .pod-seeds { font-size: 15px; }
+  .pp1 { height: 70px; font-size: 18px; }
+  .pp2 { height: 48px; font-size: 18px; }
+  .pp3 { height: 36px; font-size: 18px; }
+
+  .ri { padding: 10px 10px; gap: 8px; }
+  .ri-name { font-size: 12px; }
+  .ri-sub { font-size: 10px; }
+  .ri-seeds { font-size: 13px; }
+
+  .donut-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .donut-card { padding: 12px 8px; border-radius: 12px; }
+  .dc-name { font-size: 11px; margin-bottom: 6px; min-height: 28px; }
+  .dc-sub { font-size: 9px; }
+
+  .sub-nav { gap: 6px; }
+  .sbtn { font-size: 12px; padding: 8px; }
+
+  .bnav { padding-bottom: env(safe-area-inset-bottom, 0); }
+  .nbtn { font-size: 9px; padding: 8px 4px 6px; }
+  .nbtn .ni { font-size: 18px; }
+
+  /* Form mobile fixes */
+  .fwrap { padding: 14px 12px 60px; }
+  .card { padding: 18px 16px; }
+  .ctitle { font-size: 16px; }
+  .prog-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .prog-card { padding: 12px 8px; }
+  .prog-icon { font-size: 22px; }
+  .prog-name { font-size: 11px; }
+  .btn { padding: 13px 16px; font-size: 14px; }
+  .rrow { font-size: 13px; gap: 8px; }
+  .rkey { min-width: 100px; font-size: 12px; }
+
+  /* Modal */
+  .modal { border-radius: 16px 16px 0 0; }
+  .name-pill { font-size: 11px; padding: 3px 8px; }
+}
+
+/* Tap target minimum size */
+@media (hover: none) {
+  .donut-card { min-height: 160px; }
+  .tab, .nbtn, .sbtn, .btn, .hbtn, .tb-back, .tb-action { min-height: 44px; }
+  .ac-item { min-height: 44px; display: flex; align-items: center; }
+}
+</style>
+</head>
+<body>
+
+<div id="pageHome" class="page active">
+  <div class="home-wrap">
+    <div class="home-logo">&#127807;</div>
+    <h2>WE Grow</h2>
+    <p>Grow with every move</p>
+    <div class="home-btns">
+      <button class="hbtn hbtn-navy" onclick="goTo('pageDash')"><span>&#127942;</span>Lihat Dashboard</button>
+      <button class="hbtn hbtn-orange" onclick="goTo('pageForm')"><span>&#127807;</span>Submit Seeds</button>
+      <button class="hbtn hbtn-book" onclick="window.open('https://drive.google.com/file/d/1MYW1ZxTXytatsbT9hJK90H9hz3lAx5sm/preview','_blank')"><span>&#128218;</span>Booklet WE Grow</button>
+    </div>
+  </div>
+</div>
+
+<div id="pageDash" class="page">
+  <div class="topbar">
+    <button class="tb-back" onclick="goTo('pageHome')">&#8592; Home</button>
+    <span class="tb-title">WE Grow Dashboard</span>
+    <button class="tb-action" onclick="goTo('pageForm')">+ Submit</button>
+  </div>
+  <div class="stats-bar">
+    <div class="stat"><span id="dsStat">&#8212;</span><label>Peserta Aktif</label></div>
+    <div class="stat"><span id="dtStat">&#8212;</span><label>Total Seeds</label></div>
+  </div>
+  <div class="dbwrap">
+    <div class="tabs">
+      <button class="tab on" onclick="showTab('ranking')">&#127885; Ranking</button>
+      <button class="tab" onclick="showTab('penempatan')">&#128205; Penempatan</button>
+      <button class="tab" onclick="showTab('posisi')">&#128101; Posisi</button>
+    </div>
+    <div id="t-ranking">
+      <div class="loading" id="dashLoading"><div class="spin">&#9203;</div><br><br>Memuat data...</div>
+      <div id="rankContent" class="hidden">
+        <div class="top3-title">&#127942; Top Performers</div>
+        <div id="podium"></div>
+        <div id="rankList"></div>
+      </div>
+    </div>
+    <div id="t-penempatan" class="hidden">
+      <div class="sub-nav">
+        <button class="sbtn on" onclick="showPt('score')">&#128202; Skor</button>
+        <button class="sbtn" onclick="showPt('part')">&#127919; Partisipasi</button>
+      </div>
+      <div id="pt-score"></div>
+      <div id="pt-part" class="hidden"></div>
+    </div>
+    <div id="t-posisi" class="hidden">
+      <div class="info-note">Persentase per posisi yang sudah berpartisipasi. Ketuk untuk lihat nama-namanya.</div>
+      <div id="posisiGrid" class="donut-grid"></div>
+    </div>
+  </div>
+  <nav class="bnav" id="mainNav" style="display:none">
+    <button class="nbtn on" onclick="showTab('ranking')"><span class="ni">&#127885;</span>Ranking</button>
+    <button class="nbtn" onclick="showTab('penempatan')"><span class="ni">&#128205;</span>Penempatan</button>
+    <button class="nbtn" onclick="showTab('posisi')"><span class="ni">&#128101;</span>Posisi</button>
+  </nav>
+</div>
+
+<div id="pageForm" class="page">
+  <div class="topbar">
+    <button class="tb-back" onclick="goTo('pageHome')">&#8592; Home</button>
+    <span class="tb-title">Submit Seeds</span>
+    <span style="width:70px"></span>
+  </div>
+  <div class="pbar" id="formPbar">
+    <div class="pbar-in">
+      <div class="psteps"><div class="ps active" id="ps1"></div><div class="ps" id="ps2"></div><div class="ps" id="ps3"></div><div class="ps" id="ps4"></div></div>
+      <div class="plbl" id="plbl">Langkah 1 dari 4 &#8212; Identitas</div>
+    </div>
+  </div>
+  <div class="fwrap">
+    <div id="s1">
+      <div class="card">
+        <div class="ctitle">Halo, WM Peeps! &#128075;</div>
+        <div class="csub">Cari namamu &#8212; penempatan dan posisi akan terisi otomatis.</div>
+        <div class="fld">
+          <label class="lbl">Nama Kamu</label>
+          <div class="ac-wrap">
+            <input type="text" id="nameIn" placeholder="Ketik namamu..." autocomplete="off" oninput="filterN()" onfocus="filterN()">
+            <div class="ac-drop" id="acDrop"></div>
+          </div>
+          <div class="err" id="eName">Pilih nama dari daftar</div>
+        </div>
+        <div class="autofill-row" id="autoRow" style="display:none">
+          <div class="autofill-badge"><div class="lbl">Penempatan</div><div class="autofill-val" id="autoLoc">&#8212;</div></div>
+          <div class="autofill-badge"><div class="lbl">Posisi</div><div class="autofill-val" id="autoPos">&#8212;</div></div>
+        </div>
+        <button class="btn btn-p mt8" onclick="s1next()">Lanjut &#8594;</button>
+      </div>
+    </div>
+    <div id="s2" class="hidden">
+      <div class="card">
+        <div class="ctitle">Pilih Program &#127807;</div>
+        <div class="csub">Program mana yang ingin kamu submit hari ini?</div>
+        <div class="prog-grid" id="progGrid"></div>
+        <div class="err mt8" id="eProg">Pilih salah satu program</div>
+      </div>
+      <div class="brow"><button class="btn btn-g" onclick="gs(1)">&#8592; Kembali</button><button class="btn btn-p" onclick="s2next()">Lanjut &#8594;</button></div>
+    </div>
+    <div id="s3" class="hidden">
+      <div class="card" id="s3card"></div>
+      <div class="brow mt12"><button class="btn btn-g" onclick="gs(2)">&#8592; Kembali</button><button class="btn btn-p" onclick="s3next()">Review &#8594;</button></div>
+    </div>
+    <div id="s4" class="hidden">
+      <div class="card"><div class="ctitle">Review Submission &#9989;</div><div class="csub">Pastikan semua data sudah benar.</div><div id="rvBody"></div></div>
+      <div class="brow mt12"><button class="btn btn-g" onclick="gs(3)">&#8592; Kembali</button><button class="btn btn-p" onclick="doSubmit()" id="subBtn">Submit Seeds &#127807;</button></div>
+    </div>
+    <div id="sOK" class="hidden">
+      <div class="card scard">
+        <div class="s-icon">&#127807;</div>
+        <h2>Seeds Berhasil Ditanam!</h2>
+        <p>Submissionmu sudah diterima dan akan segera diproses.</p>
+        <div class="badge" id="okBadge">&#127807; Seeds berhasil disubmit</div><br>
+        <button class="btn btn-p mt8" onclick="resetAll()">Submit Lagi</button><br><br>
+        <button class="btn btn-g" onclick="goTo('pageHome')" style="margin-top:8px;width:100%">&#8592; Kembali ke Home</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-ov hidden" id="modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-hdr"><h3 id="modalTitle"></h3><button class="modal-x" onclick="closeModal()">&#10005;</button></div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyeUK09Qu1ONYc3JPXMuphmyFVyO-392Gjwe6fd7cWOLT1PenCBz29824mr82YyEejnRA/exec';
+
+// ── EMPLOYEE DATA (embedded for instant load) ──
+let EMP=[
+  {n:'Natalius Sinuhaji',l:'Pemuda',p:'Physiotherapist'},
+  {n:'Meutia Nuur Muhshii',l:'Puri',p:'Physiotherapist'},
+  {n:'Shara Amalia',l:'Pemuda',p:'Physiotherapist'},
+  {n:'Winda Ari Prehatyani',l:'Pemuda',p:'Physiotherapist'},
+  {n:'Alifa Akbar',l:'Pemuda',p:'Physiotherapist'},
+  {n:'Yunidar Niken Ayu',l:'Puri',p:'Physiotherapist'},
+  {n:'Lydia Rizka Achdenissa',l:'Pemuda',p:'Physiotherapist'},
+  {n:'Rahmahwati Halimah Nurfitriani',l:'Pemuda',p:'Physiotherapist'},
+  {n:'Anastalia',l:'Pemuda',p:'Front Office'},
+  {n:'Rini Noeraini',l:'Pemuda',p:'Front Office'},
+  {n:'Devi Hernita',l:'Pemuda',p:'Front Office'},
+  {n:'Filomena Fidelia',l:'Pemuda',p:'Front Office'},
+  {n:'Rynjani Hembas Sagara Hendratna',l:'Pemuda',p:'Front Office'},
+  {n:'Silfiani',l:'Pemuda',p:'Front Office'},
+  {n:'Taufik',l:'Pemuda',p:'Cleaning Service'},
+  {n:'Muhammad Reza Vivaldi',l:'BSD',p:'Physiotherapist'},
+  {n:'Milenia Vina Sacola',l:'Pemuda',p:'Physiotherapist'},
+  {n:'Lydia Armalia Kusumadewi Budiman',l:'BSD',p:'Physiotherapist'},
+  {n:'Musa\'al Kholid',l:'BSD',p:'Physiotherapist'},
+  {n:'Fitri Hasibuan',l:'Alam Sutera',p:'Physiotherapist'},
+  {n:'Tasyah',l:'BSD',p:'Physiotherapist'},
+  {n:'Tika Selina BR Tarigan',l:'BSD',p:'Physiotherapist'},
+  {n:'Terry Luciano Rasubala',l:'BSD',p:'Physiotherapist'},
+  {n:'Dewi Krismonika',l:'Head Office',p:'Branch Coordinator'},
+  {n:'Najwa Kani',l:'Head Office',p:'Branch Coordinator'},
+  {n:'Satrio Darmawan',l:'BSD',p:'Cleaning Service'},
+  {n:'Aldi Saputra',l:'BSD',p:'Cleaning Service'},
+  {n:'Nikky Novanisa',l:'Head Office',p:'Staff Business Development'},
+  {n:'Galuh Pavita Sari',l:'Head Office',p:'Staff Brand & Communication'},
+  {n:'Shabrina Illiyin',l:'Head Office',p:'Staff Business Development'},
+  {n:'Nova Candra Kirana',l:'Head Office',p:'Staff Brand & Communication'},
+  {n:'Wahyu Ahmad Shodiqin',l:'Head Office',p:'Staff Brand & Communication'},
+  {n:'Loviya Azzahra Yahya',l:'Head Office',p:'Staff Brand & Communication'},
+  {n:'Fadly Zakaria Maskat',l:'Head Office',p:'Staff Brand & Communication'},
+  {n:'Beryl Zumrotusholihah',l:'Head Office',p:'Staff Brand & Communication'},
+  {n:'Nurul Qurrata Ayuni',l:'Head Office',p:'Staff Brand & Communication'},
+  {n:'Sulistiani',l:'Bandung',p:'Physiotherapist'},
+  {n:'Selviana Hendarti',l:'Bandung',p:'Physiotherapist'},
+  {n:'Rama Anugrah Tubagus',l:'Bandung',p:'Physiotherapist'},
+  {n:'Dhea Putri Utami',l:'Bandung',p:'Physiotherapist'},
+  {n:'Yuni Meilani',l:'Bandung',p:'Physiotherapist'},
+  {n:'Andhika Wirayudha',l:'Bandung',p:'Physiotherapist'},
+  {n:'Tria Nur Alizah',l:'Bandung',p:'Front Office'},
+  {n:'Widy Rahayu',l:'Bandung',p:'Front Office'},
+  {n:'Andi Sutrisno',l:'Bandung',p:'Cleaning Service'},
+  {n:'Solehudin',l:'Bandung',p:'Cleaning Service'},
+  {n:'I Putu Eka Pramana Putra',l:'Alam Sutera',p:'Physiotherapist'},
+  {n:'Pandu Febriyanto',l:'Cibubur',p:'Physiotherapist'},
+  {n:'Elisa Isak Ena',l:'Cibubur',p:'Physiotherapist'},
+  {n:'Sarita Sri Astuti',l:'Cibubur',p:'Physiotherapist'},
+  {n:'Alfi Dian Purnamasari',l:'Cibubur',p:'Physiotherapist'},
+  {n:'Muhammad Mubarok',l:'Cibubur',p:'Front Office'},
+  {n:'Wardana',l:'Cibubur',p:'Cleaning Service'},
+  {n:'Zulfikar Pangestu',l:'Cibubur',p:'Cleaning Service'},
+  {n:'Ayu Legi Lestari',l:'Head Office',p:'Head of Physiotherapist'},
+  {n:'Nizatul Mumtazah',l:'Kemang',p:'Physiotherapist'},
+  {n:'Dara Luthfiyah Safinatunnajah',l:'Kemang',p:'Physiotherapist'},
+  {n:'Namira Putri Komara',l:'Bekasi',p:'Physiotherapist'},
+  {n:'Muhamad Rizki Ramadhan',l:'Pemuda',p:'Physiotherapist'},
+  {n:'David Lavius Prinanuel',l:'Surabaya',p:'Physiotherapist'},
+  {n:'Aulia Marsha Panandita',l:'Kemang',p:'Physiotherapist'},
+  {n:'Hasna Yasmin',l:'Kemang',p:'Physiotherapist'},
+  {n:'Muhammad Bilal Taufiqurrahman',l:'Kemang',p:'Physiotherapist'},
+  {n:'Faldi Renaldi',l:'Kemang',p:'Physiotherapist'},
+  {n:'Dea Ananda Halid',l:'Puri',p:'Physiotherapist'},
+  {n:'Vina Rezky Mahardani',l:'Surabaya',p:'Physiotherapist'},
+  {n:'Fadira Lailya Putri',l:'Kemang',p:'Front Office'},
+  {n:'Zahratul Janah',l:'Kemang',p:'Front Office'},
+  {n:'Verliana Stevevai',l:'Kemang',p:'Front Office'},
+  {n:'Eko Suroyo',l:'Kemang',p:'Cleaning Service'},
+  {n:'Aditia Saputra',l:'Kemang',p:'Cleaning Service'},
+  {n:'Citra Rahma Utami',l:'Kebayoran',p:'Physiotherapist'},
+  {n:'Andi Alya Amalia Yusuf',l:'Kebayoran',p:'Physiotherapist'},
+  {n:'Azmi Mayzardi',l:'Kebayoran',p:'Physiotherapist'},
+  {n:'Piya Ayu Ramadani',l:'Kebayoran',p:'Physiotherapist'},
+  {n:'Gres Indah Kasih Telaumbanua',l:'Kebayoran',p:'Physiotherapist'},
+  {n:'Nadhirah Nur Awliya',l:'Kebayoran',p:'Front Office'},
+  {n:'Laely Nur Inayah',l:'Kebayoran',p:'Front Office'},
+  {n:'Farhan Oktriviyanto',l:'Bekasi',p:'Cleaning Service'},
+  {n:'Ismail',l:'Kuningan',p:'Cleaning Service'},
+  {n:'Yoni Armansyah',l:'Kebayoran',p:'Security'},
+  {n:'Muhammad Akbar',l:'Head Office',p:'Head of Finance & Data'},
+  {n:'Shafina Salsabila',l:'BSD',p:'Physiotherapist'},
+  {n:'Abi Gail Marchela Perwitasari Priambodo Putri',l:'Kemang',p:'Physiotherapist'},
+  {n:'Oktavia Sukmawati',l:'BSD',p:'Physiotherapist'},
+  {n:'Deogy Ahmad',l:'Head Office',p:'Staff Finance & Data'},
+  {n:'Asmiani Fawziah',l:'Head Office',p:'Head of HRGA & Legal'},
+  {n:'Muhammad Faqih',l:'Head Office',p:'Staff Operations'},
+  {n:'Frensen Meisandy',l:'Head Office',p:'Staff Finance & Data'},
+  {n:'Oryzea Sativa Ilham',l:'Head Office',p:'Staff Operations'},
+  {n:'Muhamad Azzam Ilham',l:'Head Office',p:'Staff Brand & Communication'},
+  {n:'Muhammad Askar',l:'Head Office',p:'BOD'},
+  {n:'Muhammad Naufal',l:'Head Office',p:'BOD'},
+  {n:'Mulia Fitriani',l:'Bandung',p:'Front Office'},
+  {n:'Maisah Zulfa Alifianti',l:'Head Office',p:'Staff Finance & Data'},
+  {n:'Muhammad Dzulfikar Ghazy Khairuddin',l:'Puri',p:'Physiotherapist'},
+  {n:'Gusti Dwi Apriyanto',l:'Bekasi',p:'Physiotherapist'},
+  {n:'Nanda Roby Ardita',l:'Pemuda',p:'Physiotherapist'},
+  {n:'Muhammad Raihan Maulidan',l:'Pemuda',p:'Physiotherapist'},
+  {n:'Riyan Ardiansyah',l:'Head Office',p:'Staff Finance & Data'},
+  {n:'Choirie Nito Satrio',l:'Head Office',p:'Staff HRGA & Legal'},
+  {n:'Luluk Setya Arimbi',l:'Puri',p:'Physiotherapist'},
+  {n:'Nur Afni Agustyaningsih',l:'Puri',p:'Physiotherapist'},
+  {n:'Yulia Annisatul Rahma',l:'Head Office',p:'Staff Brand & Communication'},
+  {n:'Dede Melinda',l:'Puri',p:'Front Office'},
+  {n:'Nanda Putri Ayu Ramadani',l:'Head Office',p:'Staff HRGA & Legal'},
+  {n:'Putri Luthfi Amanda',l:'Cibubur',p:'Physiotherapist'},
+  {n:'Rizky Uliansyah Harahap',l:'BSD',p:'Security'},
+  {n:'Jujun Junaedi',l:'Kebayoran',p:'Cleaning Service'},
+  {n:'Ahmad Kelana',l:'Puri',p:'Cleaning Service'},
+  {n:'Oktania Rahmadani',l:'Pemuda',p:'Physiotherapist'},
+  {n:'Restu Amelia Gunawan',l:'BSD',p:'Front Office'},
+  {n:'Mohamad Alvy Dewantara',l:'Head Office',p:'Staff HRGA & Legal'},
+  {n:'Asri Lutfika Hidayati',l:'Puri',p:'Physiotherapist'},
+  {n:'Nurdiyah Utari',l:'Head Office',p:'Staff HRGA & Legal'},
+  {n:'Dika Tiara Salsabila',l:'Puri',p:'Physiotherapist'},
+  {n:'Evita Sari',l:'Kebayoran',p:'Physiotherapist'},
+  {n:'Nani Kusuma Wardani',l:'Puri',p:'Front Office'},
+  {n:'Klarisa Salsa Bila Maharani',l:'Pemuda',p:'Physiotherapist'},
+  {n:'Alya Nafis Azizah',l:'Surabaya',p:'Physiotherapist'},
+  {n:'Pratama Haris Kurniawan',l:'Alam Sutera',p:'Physiotherapist'},
+  {n:'Nyoto Trisno',l:'Puri',p:'Security'},
+  {n:'Eka Safitri Nurhidayah',l:'Pemuda',p:'Front Office'},
+  {n:'Aditya Rahadyan',l:'Head Office',p:'Staff HRGA & Legal'},
+  {n:'Tri Utami',l:'Pemuda',p:'Cleaning Service'},
+  {n:'Amalina Risti Rahardjo',l:'BSD',p:'Physiotherapist'},
+  {n:'Nur Ilma Amalia',l:'Kemang',p:'Physiotherapist'},
+  {n:'Tommy Ihza Lesmana',l:'Kemang',p:'Physiotherapist'},
+  {n:'Nur Muhammad Thoyib',l:'Surabaya',p:'Physiotherapist'},
+  {n:'Dinda Armita',l:'Pemuda',p:'Physiotherapist'},
+  {n:'Su\'eng Grace Noftrilia',l:'Head Office',p:'Staff Business Development'},
+  {n:'Dilla Ika Virly Erlita',l:'Surabaya',p:'Physiotherapist'},
+  {n:'Linggar Antasya Putri',l:'Surabaya',p:'Front Office'},
+  {n:'Rahmi Fadhila Rafiantika',l:'Head Office',p:'Staff HRGA & Legal'},
+  {n:'Mochammad Abdul Ajis',l:'Surabaya',p:'Cleaning Service'},
+  {n:'Muhamad Iqbal Avianto',l:'Surabaya',p:'Cleaning Service'},
+  {n:'Nurwahida Adrianti',l:'Surabaya',p:'Front Office'},
+  {n:'Fionna Clarissa A Uguy',l:'Head Office',p:'Staff HRGA & Legal'},
+  {n:'Natasya Aisyah Ulfa',l:'Head Office',p:'Staff HRGA & Legal'},
+  {n:'Sabiya Nazneen',l:'Head Office',p:'Staff Operations'},
+  {n:'Friscillia Rizki Amanda',l:'Head Office',p:'Staff Operations'},
+  {n:'Zhalza Oktavia Nuraeni Rahmat',l:'Head Office',p:'Staff Operations'},
+  {n:'Enny Debora',l:'Head Office',p:'Staff Operations'},
+  {n:'Eri Wiguna Sardi',l:'Head Office',p:'Staff Operations'},
+  {n:'Ahmad Kemal Maulana',l:'Head Office',p:'Staff Operations'},
+  {n:'Kirana Rafifa Kusuma',l:'Head Office',p:'Intern HRGA & Legal'},
+  {n:'Bella Indaini Haning',l:'Head Office',p:'Head of Operations'},
+  {n:'Yesi Damayanti',l:'Alam Sutera',p:'Front Office'},
+  {n:'Alfia Khairunnisa',l:'Bandung',p:'Physiotherapist'},
+  {n:'Winda Rahayu Wulandari',l:'Alam Sutera',p:'Physiotherapist'},
+  {n:'Analiya Putri Rachman',l:'Head Office',p:'Staff Brand & Communication'},
+  {n:'Salma Jauza',l:'Head Office',p:'Staff Brand & Communication'},
+  {n:'Aprilia Ayu Pratiwi',l:'Alam Sutera',p:'Physiotherapist'},
+  {n:'Ilma Kafifa Waliyani',l:'Kuningan',p:'Physiotherapist'},
+  {n:'Winda Fahiratunnisa',l:'Bandung',p:'Physiotherapist'},
+  {n:'Salma Marcela',l:'Kuningan',p:'Front Office'},
+  {n:'Ainun Nadila Onding',l:'Kuningan',p:'Physiotherapist'},
+  {n:'Adinda Salfa Sofia',l:'Cibubur',p:'Physiotherapist'},
+  {n:'Inez Deviantika',l:'Cibubur',p:'Physiotherapist'},
+  {n:'Riky Marjuki',l:'Kebayoran',p:'Cleaning Service'},
+  {n:'Roby Satria Perdana',l:'Head Office',p:'Staff Operations'},
+  {n:'Yoanna Aprillia Sanyoto',l:'Head Office',p:'Staff Brand & Communication'},
+  {n:'Patricia Dewi',l:'Kebayoran',p:'Front Office'},
+  {n:'Aisyah Putri Edisti',l:'Cibubur',p:'Front Office'},
+  {n:'Adis Saputra',l:'Pemuda',p:'Cleaning Service'},
+  {n:'Deny Hepi Qoriyah',l:'BSD',p:'Physiotherapist'},
+  {n:'Nisa Anita Rahmalia',l:'Alam Sutera',p:'Physiotherapist'},
+  {n:'Ahmad Ibnu Athoillah',l:'Alam Sutera',p:'Front Office'},
+  {n:'Hanif Massyahhaq',l:'Pemuda',p:'Physiotherapist'},
+  {n:'Nabilah Nurjihan',l:'Head Office',p:'Customer Service'},
+  {n:'Anastasia Kartika Niken Aribowo',l:'Pemuda',p:'Physiotherapist'},
+  {n:'Muhamad Abi Karami',l:'Kebayoran',p:'Physiotherapist'},
+  {n:'Nurul Defeyorima',l:'Head Office',p:'Customer Service'},
+  {n:'Andhika Pradana',l:'Head Office',p:'Intern HRGA & Legal'},
+  {n:'Anand Julio Sulaeman',l:'Head Office',p:'Intern HRGA & Legal'},
+  {n:'Muhammad Ismar Miharja',l:'Alam Sutera',p:'Cleaning Service'},
+  {n:'Aldhie Alzanuar',l:'Head Office',p:'Intern Brand & Communication'},
+  {n:'Ahmad Sayuti',l:'Head Office',p:'Staff Teknisi'},
+  {n:'Agnes Darin Alimah Yusandy',l:'Bekasi',p:'Physiotherapist'},
+  {n:'Dzakira Butsainah',l:'Bekasi',p:'Physiotherapist'},
+  {n:'Ilham Alamsyah',l:'Pemuda',p:'Physiotherapist'},
+  {n:'Ilham Rafi Syahbana',l:'Bekasi',p:'Physiotherapist'},
+  {n:'Cut Lola Shakira',l:'Bekasi',p:'Physiotherapist'},
+  {n:'Dewi Salma',l:'Bekasi',p:'Physiotherapist'},
+  {n:'Rizka Wahyu Byantari',l:'Bekasi',p:'Front Office'},
+  {n:'Muhammad Jalaludin',l:'Bekasi',p:'Cleaning Service'},
+  {n:'Nana Uli',l:'Head Office',p:'Head of Brand & Communication'},
+  {n:'Indra Perdana Kusuma',l:'Surabaya',p:'Security'},
+  {n:'Revita Safitri Febrianingrum',l:'Sunter',p:'Front Office'},
+  {n:'Septiani Putri Haryono',l:'Puri',p:'Front Office'},
+  {n:'Salma Syifanaurah',l:'Head Office',p:'Staff Brand & Communication'},
+  {n:'Tasya Apriani',l:'Head Office',p:'Branch Coordinator'},
+  {n:'Faradila Mutiara Amalika',l:'Head Office',p:'Branch Coordinator'},
+  {n:'Amira Sofia',l:'Head Office',p:'Branch Coordinator'},
+  {n:'Fida Nurahma',l:'Pemuda',p:'Physiotherapist'},
+  {n:'Fathia Noor Zafira',l:'Kebayoran',p:'Physiotherapist'},
+  {n:'Reyzhar Alfanorizkillah',l:'Surabaya',p:'Physiotherapist'},
+  {n:'Mohamad Ramadhan',l:'BSD',p:'Physiotherapist'},
+  {n:'Aisya Annida Qurany',l:'Kemang',p:'Physiotherapist'},
+  {n:'Ratu Laksmi Zahra Nurwaya',l:'Kebayoran',p:'Physiotherapist'},
+  {n:'Derio Fakhri Putra',l:'Kemang',p:'Physiotherapist'},
+  {n:'Siti Jasmine Rosyyida',l:'BSD',p:'Physiotherapist'},
+  {n:'Puteri Fadeli',l:'Head Office',p:'Staff Brand & Communication'},
+  {n:'Kholilah Anis Muryani',l:'Pemuda',p:'Physiotherapist'},
+  {n:'Muhammad Mualfi Fakhrul Hadi',l:'Pemuda',p:'Physiotherapist'},
+  {n:'Ghaitsa Zahira Shofa',l:'Head Office',p:'Customer Service'},
+  {n:'Evi Tri Utami',l:'Sunter',p:'Front Office'},
+  {n:'Lutvia Aviva Naila Lantana',l:'Head Office',p:'Customer Service'},
+  {n:'Siska Pramesti',l:'Sunter',p:'Physiotherapist'},
+  {n:'Vanya Naura Qatrunnada',l:'Sunter',p:'Physiotherapist'},
+  {n:'Irma Rama Danti',l:'Surabaya',p:'Physiotherapist'},
+  {n:'Hasnah Hamidah',l:'Puri',p:'Physiotherapist'},
+  {n:'Winda Safitri Fakhira',l:'Sunter',p:'Physiotherapist'},
+  {n:'Anisa Rizki Fadhilah',l:'Sunter',p:'Physiotherapist'},
+  {n:'Nabilah Musdalifa',l:'Kemang',p:'Physiotherapist'},
+  {n:'Alviah Salsabila Rizqi',l:'Bekasi',p:'Front Office'},
+  {n:'Asri Darmawanti',l:'BSD',p:'Front Office'},
+  {n:'Muhammad Rizki',l:'Puri',p:'Cleaning Service'},
+  {n:'Reza Rinaldi',l:'Head Office',p:'Staff Brand & Communication'}
+];
+
+// ── PAGE NAVIGATION ──
+function goTo(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  window.scrollTo(0,0);
+  // Show bottom nav only on dashboard
+  const nav = document.getElementById('mainNav');
+  if (nav) nav.style.display = pageId === 'pageDash' ? 'flex' : 'none';
+  if (pageId === 'pageDash') {
+    if (allRanked.length === 0) {
+      // First time - fetch data
+      loadDash();
+    } else {
+      // Already have data - show immediately, refresh in background
+      document.getElementById('dashLoading').classList.add('hidden');
+      document.getElementById('rankContent').classList.remove('hidden');
+      // Silently refresh in background
+      setTimeout(loadDash, 100);
+    }
+  }
+  if (pageId === 'pageForm') {
+    resetAll();
+    setTimeout(bgRefreshEmp, 500);
+  }
+}
+
+// ── DASHBOARD ──
+
+
+
+function getDiv(pos) {
+  if (!pos) return 'Lainnya';
+  const p = pos.toLowerCase().trim();
+  if (p.includes('physiotherapist') || p.includes('fisioterapis')) return 'Fisioterapis';
+  if (p === 'front office') return 'Front Office';
+  if (p === 'cleaning service') return 'Cleaning Service';
+  if (p === 'security') return 'Security';
+  if (p === 'bod') return 'BOD';
+  if (p.includes('finance') || (p.includes('data') && !p.includes('business'))) return 'Finance & Data';
+  if (p.includes('brand') || p.includes('creative') || p.includes('marketing') || p.includes('communication')) return 'Brand & Communication';
+  if (p.includes('business development')) return 'Business Development';
+  if (p.includes('hrga') || p.includes('legal') || p.includes('teknisi') || p.includes('intern')) return 'HRGA & Legal';
+  if (p.includes('operations') || p === 'branch coordinator' || p.includes('customer service')) return 'Operations';
+  return 'Lainnya';
+}
+
+const POSISI_ORDER = ['Fisioterapis','Front Office','Cleaning Service','Operations','HRGA & Legal','Finance & Data','Brand & Communication','BOD','Business Development'];
+const POSISI_ICON  = {'Fisioterapis':'🦴','Front Office':'🖥️','Cleaning Service':'🧹','Operations':'⚙️','HRGA & Legal':'⚖️','Finance & Data':'📊','Brand & Communication':'🎨','BOD':'👔','Business Development':'💼'};
+
+
+let allRanked   = [];
+let snapRankMap = {};
+let approvedLog = [];
+let ptRendered  = false;
+let posRendered = false;
+
+function showPt(t) {
+  document.getElementById('pt-score').classList.toggle('hidden', t!=='score');
+  document.getElementById('pt-part').classList.toggle('hidden', t!=='part');
+  document.querySelectorAll('.sbtn').forEach((b,i)=>b.classList.toggle('on',['score','part'][i]===t));
+}
+
+
+
+
+
+// ── LOAD DATA ──
+async function loadDash() {
+  try {
+    // Fetch with timeout (15 detik)
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+    let res, json;
+    try {
+      res  = await fetch(SCRIPT_URL, { redirect:'follow', signal: controller.signal });
+      json = await res.json();
+    } finally {
+      clearTimeout(timeout);
+    }
+    if (!json || json.status === 'error') throw new Error(json?.message || 'Server error');
+
+    // Seeds map + track who has ever submitted
+    const seedMap = {};
+    const hasSubmitted = new Set();
+    if (json.data) {
+      json.data.forEach(r => {
+        if (!r.name) return;
+        hasSubmitted.add(r.name);
+        seedMap[r.name] = (seedMap[r.name]||0) + (r.seeds||0);
+      });
+    }
+
+    // Snapshot map
+    snapRankMap = {};
+    if (json.snapshot) {
+      json.snapshot.forEach(s => { snapRankMap[s.name] = s.rank; });
+    }
+    // Store all approved data for history lookup
+    approvedLog = json.data || [];
+
+    // Employee list from API (always fresh from employee sheet)
+    const empList = (json.employees && json.employees.length) ? json.employees : [];
+
+    // Build ranked list
+    const seen = new Set();
+    allRanked = empList.map(e => {
+      seen.add(e.n);
+      return {name:e.n, loc:e.l, pos:e.p, div:getDiv(e.p), seeds:seedMap[e.n]||0, submitted:hasSubmitted.has(e.n)};
+    });
+    // Add anyone in seeds but not in employee list
+    Object.keys(seedMap).forEach(name => {
+      if (!seen.has(name)) allRanked.push({name, loc:'—', pos:'—', div:'Lainnya', seeds:seedMap[name]||0});
+    });
+    allRanked.sort((a,b) => b.seeds - a.seeds);
+
+    // Home stats
+    const active = allRanked.filter(x=>x.seeds>0).length;
+    const total  = allRanked.reduce((s,x)=>s+x.seeds, 0);
+    const fmt = n => n.toLocaleString('id');
+    document.getElementById('dsStat').textContent = active;
+    document.getElementById('dtStat').textContent = fmt(total);
+
+    renderRanking();
+    // Re-render other tabs only if they were already shown
+    if (ptRendered)  { renderPenempatan(); }
+    if (posRendered) { renderPosisi(); }
+  } catch(err) {
+    console.error('loadData error:', err);
+    document.getElementById('dashLoading').classList.remove('hidden');
+    document.getElementById('rankContent').classList.add('hidden');
+    document.getElementById('dashLoading').innerHTML =
+      '<div style="text-align:center;padding:40px">' +
+      '<div style="font-size:32px;margin-bottom:12px">😵</div>' +
+      '<div style="font-weight:700;color:var(--navy);margin-bottom:8px">Gagal memuat data</div>' +
+      '<div style="font-size:12px;color:var(--gray);margin-bottom:20px">Error: ' + err.message + '</div>' +
+      '<button onclick="loadDash()" style="background:var(--orange);color:#fff;border:none;padding:12px 24px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">🔄 Coba Lagi</button>' +
+      '</div>';
+  }
+}
+
+// ── ARROWS ──
+function getArrow(name, rank) {
+  const prev = snapRankMap[name];
+  if (prev === undefined) return '';
+  const d = prev - rank;
+  if (d > 0) return ' <span class="au">↑' + d + '</span>';
+  if (d < 0) return ' <span class="ad">↓' + Math.abs(d) + '</span>';
+  return '';
+}
+
+// ── RANKING ──
+function renderRanking() {
+  document.getElementById('dashLoading').classList.add('hidden');
+  document.getElementById('rankContent').classList.remove('hidden');
+
+  const hasSeed = allRanked.filter(x => x.seeds > 0);
+  const rest    = allRanked.filter(x => x.seeds <= 0);
+  const top3    = hasSeed.slice(0, 3);
+  const below   = hasSeed.slice(3);
+
+  // Podium
+  const podData  = [top3[1], top3[0], top3[2]];
+  const podEmoji = ['🥈', '👑', '🥉'];
+  const podClass = ['pp2', 'pp1', 'pp3'];
+  const podRank  = [2, 1, 3];
+
+  const podHTML = podData.map((p, i) => {
+    if (!p) return '';
+    return '<div class="pod-slot">' +
+      '<div class="pod-info">' +
+        '<div class="pod-emoji">' + podEmoji[i] + '</div>' +
+        '<div class="pod-name clickable-name" style="cursor:pointer">' + p.name + getArrow(p.name, podRank[i]) + '</div>' +
+        '<div class="pod-loc">' + p.loc + '</div>' +
+        '<div class="pod-seeds">' + p.seeds.toLocaleString('id') + '</div>' +
+        '<div class="pod-seeds-lbl">Seeds</div>' +
+      '</div>' +
+      '<div class="pod-platform ' + podClass[i] + '">' + podRank[i] + '</div>' +
+    '</div>';
+  }).join('');
+  document.getElementById('podium').innerHTML = '<div class="podium-wrap">' + podHTML + '</div>';
+
+  // Ranks 4 onwards (has seeds)
+  let html = below.map((p, i) => {
+    const rank = i + 4;
+    return '<div class="ri">' +
+      '<div class="ri-num">' + rank + '</div>' +
+      '<div class="ri-info">' +
+        '<div class="ri-name clickable-name" style="cursor:pointer">' + p.name + getArrow(p.name, rank) + '</div>' +
+        '<div class="ri-sub">' + p.loc + ' · ' + p.pos.replace('Physiotherapist', 'Fisio') + '</div>' +
+      '</div>' +
+      '<div class="ri-seeds">' + p.seeds.toLocaleString('id') + '<small>Seeds</small></div>' +
+    '</div>';
+  }).join('');
+
+  // Seeds <= 0 section
+  if (rest.length) {
+    rest.forEach(p => {
+      if (p.submitted) {
+        // Pernah submit tapi saldo 0 atau minus — tampilkan angkanya
+        const color = p.seeds < 0 ? '#DC2626' : '#6B7280';
+        const label = p.seeds.toLocaleString('id') + ' Seeds';
+        html += '<div class="ri">' +
+          '<div class="ri-num">—</div>' +
+          '<div class="ri-info">' +
+            '<div class="ri-name clickable-name" style="cursor:pointer">' + p.name + '</div>' +
+            '<div class="ri-sub">' + p.loc + ' · ' + p.pos.replace('Physiotherapist', 'Fisio') + '</div>' +
+          '</div>' +
+          '<div class="ri-seeds" style="color:' + color + '">' + label + '<small>Seeds</small></div>' +
+        '</div>';
+      } else {
+        // Belum pernah submit sama sekali
+        html += '<div class="ri zero">' +
+          '<div class="ri-num">—</div>' +
+          '<div class="ri-info">' +
+            '<div class="ri-name">' + p.name + '</div>' +
+            '<div class="ri-sub">' + p.loc + ' · ' + p.pos.replace('Physiotherapist', 'Fisio') + '</div>' +
+          '</div>' +
+          '<div class="ri-seeds"><span class="zero-tag">Belum ikutan</span></div>' +
+        '</div>';
+      }
+    });
+  }
+
+  document.getElementById('rankList').innerHTML = html;
+
+  // Click handlers
+  document.getElementById('podium').onclick = function(e) {
+    const el = e.target.closest('.clickable-name');
+    if (el) { const m = allRanked.find(r => el.textContent.replace(/[↑↓][0-9]+/g,'').trim() === r.name); if (m) showHistory(m.name); }
+  };
+  document.getElementById('rankList').onclick = function(e) {
+    const el = e.target.closest('.clickable-name');
+    if (el) { const m = allRanked.find(r => el.textContent.replace(/[↑↓][0-9]+/g,'').trim() === r.name); if (m) showHistory(m.name); }
+  };
+}
+
+
+// ── DONUT ──
+function donut(pct, color, size, sw) {
+  size = size||110; sw = sw||14;
+  const r=((size-sw)/2), c=2*Math.PI*r, off=c*(1-Math.min(pct,100)/100);
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'">' +
+    '<circle cx="'+(size/2)+'" cy="'+(size/2)+'" r="'+r+'" fill="none" stroke="#E5E7EB" stroke-width="'+sw+'"/>' +
+    '<circle cx="'+(size/2)+'" cy="'+(size/2)+'" r="'+r+'" fill="none" stroke="'+color+'" stroke-width="'+sw+'"' +
+    ' stroke-dasharray="'+c.toFixed(2)+'" stroke-dashoffset="'+off.toFixed(2)+'"' +
+    ' stroke-linecap="round" transform="rotate(-90 '+(size/2)+' '+(size/2)+')"/>' +
+    '<text x="'+(size/2)+'" y="'+(size/2-4)+'" text-anchor="middle" dominant-baseline="middle"' +
+    ' font-size="18" font-weight="900" fill="#1A3A5C" font-family="Segoe UI,sans-serif">'+pct+'%</text>' +
+    '<text x="'+(size/2)+'" y="'+(size/2+12)+'" text-anchor="middle" dominant-baseline="middle"' +
+    ' font-size="9" fill="#6B7280" font-family="Segoe UI,sans-serif">PARTISIPASI</text>' +
+  '</svg>';
+}
+
+function donutScore(val, max, size, sw) {
+  size = size||110; sw = sw||14;
+  const pct=max>0?Math.round(val/max*100):0, r=((size-sw)/2), c=2*Math.PI*r, off=c*(1-pct/100);
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'">' +
+    '<circle cx="'+(size/2)+'" cy="'+(size/2)+'" r="'+r+'" fill="none" stroke="#E5E7EB" stroke-width="'+sw+'"/>' +
+    '<circle cx="'+(size/2)+'" cy="'+(size/2)+'" r="'+r+'" fill="none" stroke="#E8773A" stroke-width="'+sw+'"' +
+    ' stroke-dasharray="'+c.toFixed(2)+'" stroke-dashoffset="'+off.toFixed(2)+'"' +
+    ' stroke-linecap="round" transform="rotate(-90 '+(size/2)+' '+(size/2)+')"/>' +
+    '<text x="'+(size/2)+'" y="'+(size/2-4)+'" text-anchor="middle" dominant-baseline="middle"' +
+    ' font-size="16" font-weight="900" fill="#1A3A5C" font-family="Segoe UI,sans-serif">'+val.toFixed(1)+'</text>' +
+    '<text x="'+(size/2)+'" y="'+(size/2+12)+'" text-anchor="middle" dominant-baseline="middle"' +
+    ' font-size="9" fill="#6B7280" font-family="Segoe UI,sans-serif">AVG SEEDS</text>' +
+  '</svg>';
+}
+
+// Ring = participation %, center = avg seeds value
+function donutWithValue(pct, avgVal, size, sw) {
+  size = size||110; sw = sw||14;
+  const r=((size-sw)/2), c=2*Math.PI*r, off=c*(1-Math.min(pct,100)/100);
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'">' +
+    '<circle cx="'+(size/2)+'" cy="'+(size/2)+'" r="'+r+'" fill="none" stroke="#E5E7EB" stroke-width="'+sw+'"/>' +
+    '<circle cx="'+(size/2)+'" cy="'+(size/2)+'" r="'+r+'" fill="none" stroke="#E8773A" stroke-width="'+sw+'"' +
+    ' stroke-dasharray="'+c.toFixed(2)+'" stroke-dashoffset="'+off.toFixed(2)+'"' +
+    ' stroke-linecap="round" transform="rotate(-90 '+(size/2)+' '+(size/2)+')"/>' +
+    '<text x="'+(size/2)+'" y="'+(size/2-8)+'" text-anchor="middle" dominant-baseline="middle"' +
+    ' font-size="15" font-weight="900" fill="#1A3A5C" font-family="Segoe UI,sans-serif">'+avgVal.toFixed(1)+'</text>' +
+    '<text x="'+(size/2)+'" y="'+(size/2+6)+'" text-anchor="middle" dominant-baseline="middle"' +
+    ' font-size="8" fill="#6B7280" font-family="Segoe UI,sans-serif">AVG SEEDS</text>' +
+    '<text x="'+(size/2)+'" y="'+(size/2+17)+'" text-anchor="middle" dominant-baseline="middle"' +
+    ' font-size="8" fill="#E8773A" font-family="Segoe UI,sans-serif" font-weight="700">'+pct+'% aktif</text>' +
+  '</svg>';
+}
+
+
+// ── PENEMPATAN & POSISI — uses cardStore to avoid escaping issues ──
+const cardStore = {};
+let cardIdx = 0;
+
+function storeCard(members) {
+  const key = 'c' + (cardIdx++);
+  cardStore[key] = members;
+  return key;
+}
+
+function renderPenempatan() {
+  const locMap = {};
+  allRanked.forEach(p => {
+    if (!p.loc || p.loc === '—' || p.loc === '-') return; // skip unknown
+    if (!locMap[p.loc]) locMap[p.loc] = {total:0,active:0,seeds:0,members:[]};
+    locMap[p.loc].total++;
+    locMap[p.loc].members.push(p);
+    if (p.seeds>0) { locMap[p.loc].active++; locMap[p.loc].seeds+=p.seeds; }
+  });
+  const locs = Object.values(
+    Object.fromEntries(Object.entries(locMap).map(([loc,d]) => [loc, {
+      loc, total:d.total, active:d.active,
+      pct:Math.round(d.active/d.total*100),
+      avg:Math.round(d.seeds/d.total*10)/10,
+      members:d.members
+    }]))
+  );
+  const maxAvg = Math.max(...locs.map(l=>l.avg), 1);
+  const byScore = locs.slice().sort((a,b) => b.avg-a.avg);
+  const byPart  = locs.slice().sort((a,b) => b.pct-a.pct);
+  const medals  = ['\ud83e\udd47','\ud83e\udd48','\ud83e\udd49'];
+
+  function locCard(l, i, type) {
+    const key   = storeCard(l.members);
+    const badge = medals[i] || '#'+(i+1);
+    // Score tab: ring = participation%, center = avg seeds value
+    // Part tab: ring = participation%
+    const chart = type==='score' ? donutWithValue(l.pct, l.avg) : donut(l.pct, '#1A3A5C');
+    const sub   = type==='score'
+      ? l.active+' dari '+l.total+' orang aktif · avg '+l.avg+' seeds'
+      : l.active+' dari '+l.total+' orang sudah ikut';
+    return '<div class="donut-card" onclick="openCard(\'' + key + '\')">'
+      + '<div class="dc-rank">'+badge+'</div>'
+      + '<div class="dc-name">\ud83d\udccd '+l.loc+'</div>'
+      + chart
+      + '<div class="dc-sub">'+sub+'</div>'
+      + '</div>';
+  }
+
+  document.getElementById('pt-score').innerHTML =
+    '<div class="info-note">Rata-rata Seeds per orang. Ketuk untuk lihat nama-namanya.</div>'
+    + '<div class="donut-grid">' + byScore.map((l,i) => locCard(l,i,'score')).join('') + '</div>';
+
+  document.getElementById('pt-part').innerHTML =
+    '<div class="info-note">Persentase yang sudah submit. Ketuk untuk lihat nama-namanya.</div>'
+    + '<div class="donut-grid">' + byPart.map((l,i) => locCard(l,i,'part')).join('') + '</div>';
+}
+
+function renderPosisi() {
+  const divMap = {};
+  POSISI_ORDER.forEach(d => divMap[d] = {total:0,active:0,members:[]});
+  allRanked.forEach(p => {
+    const d = p.div;
+    if (!divMap[d]) return;
+    divMap[d].total++;
+    divMap[d].members.push(p);
+    if (p.seeds>0) divMap[d].active++;
+  });
+  const medals = ['\ud83e\udd47','\ud83e\udd48','\ud83e\udd49'];
+  const sorted = POSISI_ORDER
+    .filter(d => divMap[d].total>0)
+    .map(d => { const v=divMap[d]; return {div:d,...v,pct:v.total>0?Math.round(v.active/v.total*100):0}; })
+    .sort((a,b) => b.pct-a.pct);
+
+  document.getElementById('posisiGrid').innerHTML = sorted.map((d,i) => {
+    const key   = storeCard(d.members);
+    const badge = medals[i] || '#'+(i+1);
+    return '<div class="donut-card" onclick="openCard(\'' + key + '\')">'
+      + '<div class="dc-rank">'+badge+'</div>'
+      + '<div class="dc-name">'+(POSISI_ICON[d.div]||'\ud83d\udccc')+' '+d.div+'</div>'
+      + donut(d.pct, '#E8773A')
+      + '<div class="dc-sub">'+d.active+' dari '+d.total+' orang sudah ikut</div>'
+      + '</div>';
+  }).join('');
+}
+
+function openCard(key) {
+  const members = cardStore[key] || [];
+  showNames(members);
+}
+
+// ── MODAL ──
+function showNames(members) {
+  const done    = members.filter(m=>m.seeds>0).sort((a,b)=>b.seeds-a.seeds);
+  const notDone = members.filter(m=>m.seeds===0);
+  document.getElementById('modalTitle').textContent = '';
+  document.getElementById('modalBody').innerHTML =
+    '<div class="name-section"><h4 class="green">✅ Sudah ikutan ('+done.length+')</h4>'+
+    (done.map(m=>'<span class="name-pill done">'+m.name+'</span>').join('')||'<span style="color:var(--gray);font-size:13px">Belum ada</span>')+
+    '</div><div class="name-section"><h4 class="red">❌ Belum ikutan ('+notDone.length+')</h4>'+
+    (notDone.map(m=>'<span class="name-pill">'+m.name+'</span>').join('')||'<span style="color:var(--gray);font-size:13px">Semua sudah ikutan! 🎉</span>')+
+    '</div>';
+  document.getElementById('modal').classList.remove('hidden');
+}
+
+function showHistory(name) {
+  const entries = approvedLog
+    .filter(r => r.name === name)
+    .sort((a,b) => new Date(b.submitDate||0) - new Date(a.submitDate||0));
+
+  let html = '<div style="margin-bottom:12px">';
+  html += '<div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px">' + name + '</div>';
+
+  if (entries.length === 0) {
+    html += '<div style="font-size:13px;color:var(--gray);padding:16px 0;text-align:center">Belum ada submission yang diapprove.</div>';
+  } else {
+    html += '<div style="font-size:11px;color:var(--gray);margin-bottom:12px">' + entries.length + ' submission diapprove</div>';
+    entries.forEach(e => {
+      const isNeg = (e.seeds||0) < 0;
+      const color = isNeg ? '#DC2626' : '#16A34A';
+      const sign  = isNeg ? '' : '+';
+      html += '<div style="display:flex;align-items:center;justify-content:space-between;' +
+        'padding:10px 0;border-bottom:1px solid #F0F0F0;gap:12px">' +
+        '<div>' +
+          '<div style="font-size:13px;font-weight:600;color:var(--dark)">' + (e.program||'—') + '</div>' +
+          '<div style="font-size:11px;color:var(--gray);margin-top:2px">' + (e.submitDate||'—') + '</div>' +
+        '</div>' +
+        '<div style="font-size:15px;font-weight:800;color:'+color+';white-space:nowrap">' +
+          sign + (e.seeds||0) + ' Seeds' +
+        '</div>' +
+      '</div>';
+    });
+  }
+  html += '</div>';
+
+  document.getElementById('modalTitle').textContent = 'Riwayat Submission';
+  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('modal').classList.remove('hidden');
+}
+
+function closeModal(e) {
+  if (!e || e.target.id==='modal') document.getElementById('modal').classList.add('hidden');
+}
+
+
+
+
+// ── TAB NAVIGATION (dashboard) ──
+function showTab(t) {
+  ['ranking','penempatan','posisi'].forEach(id => {
+    document.getElementById('t-'+id).classList.toggle('hidden', id !== t);
+  });
+  document.querySelectorAll('.tab, .nbtn').forEach((b,i) => {
+    const tabs = ['ranking','penempatan','posisi'];
+    if (b.getAttribute('onclick') && b.getAttribute('onclick').includes(tabs[i] !== undefined ? tabs[i] : '')) {
+      // handled below
+    }
+  });
+  document.querySelectorAll('.tab').forEach((b,i) => b.classList.toggle('on', ['ranking','penempatan','posisi'][i] === t));
+  document.querySelectorAll('.nbtn').forEach((b,i) => b.classList.toggle('on', ['ranking','penempatan','posisi'][i] === t));
+  if (t === 'penempatan' && allRanked.length) { renderPenempatan(); ptRendered = true; }
+  if (t === 'posisi' && allRanked.length) { renderPosisi(); posRendered = true; }
+}
+
+// ── FORM ──
+
+const ADMIN_PW='wegrow2026';
+
+
+const PROGS=[
+  {id:'we_strength',icon:'💪',name:'WE Strength',seeds:'10 Seeds / kedatangan'},
+  {id:'grow_hour',icon:'📚',name:'Grow Hour',seeds:'10 Seeds / jam training'},
+  {id:'strava',icon:'🏃',name:'1K Move (Strava)',seeds:'1,5 Seeds / 1 km'},
+  {id:'steps',icon:'👟',name:'1K Steps',seeds:'1,5 Seeds / 1.000 langkah'},
+  {id:'episoden',icon:'🗣️',name:'Language Learn (Episoden)',seeds:'2 Seeds / sesi'},
+  {id:'duolingo',icon:'🦜',name:'Language Learn (Duolingo)',seeds:'5 Seeds / 6-day streak'},
+  {id:'lunch',icon:'🥗',name:'Healthy Lunch Check',seeds:'5 Seeds / submission'},
+  {id:'weight',icon:'⚖️',name:'Weight Management',seeds:'10 Seeds / minggu'},
+  {id:'clockin',icon:'🕐',name:'Clock In Streak',seeds:'10 Seeds / streak'},
+  {id:'pageturner',icon:'📖',name:'Page Turner',seeds:'10 Seeds / buku'},
+  {id:'quran',icon:'🌙',name:'Quran Time',seeds:'2 Seeds/2hal · 10 Seeds/juz'},
+];
+
+let S={name:'',loc:'',pos:'',prog:null,d:{},files:{}};
+let nameOK=false;
+let logoCnt=0,logoTimer=null;
+
+// Load saved employees from localStorage
+try{const saved=localStorage.getItem('wegrow_emp');if(saved)EMP=JSON.parse(saved);}catch(e){}
+
+// ── AUTOCOMPLETE ──
+function filterN(){
+  const q=document.getElementById('nameIn').value.trim().toLowerCase();
+  const drop=document.getElementById('acDrop');
+  nameOK=false;
+  document.getElementById('autoRow').style.display='none';
+  if(!q){drop.classList.remove('open');return}
+  const hits=EMP.map((e,i)=>({...e,i})).filter(e=>e.n.toLowerCase().includes(q));
+  if(!hits.length){drop.innerHTML='<div class="ac-empty">Nama tidak ditemukan</div>';drop.classList.add('open');return}
+  drop.innerHTML=hits.slice(0,20).map(e=>{
+    const idx=e.n.toLowerCase().indexOf(q);
+    const hi=e.n.slice(0,idx)+'<strong>'+e.n.slice(idx,idx+q.length)+'</strong>'+e.n.slice(idx+q.length);
+    return`<div class="ac-item" onmousedown="event.preventDefault();pickN(${e.i})"><div>${hi}</div><div class="ac-sub">${e.l} \u00b7 ${e.p}</div></div>`;
+  }).join('');
+  drop.classList.add('open');
+}
+function pickN(idx){
+  const emp=EMP[idx];
+  if(!emp)return;
+  S.name=emp.n;S.loc=emp.l;S.pos=emp.p;nameOK=true;
+  document.getElementById('nameIn').value=emp.n;
+  document.getElementById('acDrop').classList.remove('open');
+  document.getElementById('autoLoc').textContent=emp.l;
+  document.getElementById('autoPos').textContent=emp.p;
+  document.getElementById('autoRow').style.display='grid';
+  document.getElementById('eName').classList.remove('show');
+}
+document.addEventListener('click',e=>{if(!e.target.closest('.ac-wrap'))document.getElementById('acDrop').classList.remove('open');});
+
+// ── LOGO CLICK → ADMIN ──
+const _lb=document.getElementById('logoBtn'); if(_lb) _lb.addEventListener('click',()=>{
+  logoCnt++;
+  clearTimeout(logoTimer);
+  logoTimer=setTimeout(()=>logoCnt=0,2000);
+  if(logoCnt>=5){logoCnt=0;openAdmin();}
+});
+
+// ── NAV ──
+const LBLS=['','Identitas','Pilih Program','Detail Program','Review & Submit'];
+function gs(n){
+  [1,2,3,4].forEach(i=>{
+    document.getElementById('s'+i).classList.toggle('hidden',i!==n);
+    const ps=document.getElementById('ps'+i);
+    ps.className='ps'+(i<n?' done':i===n?' active':'');
+  });
+  document.getElementById('sOK').classList.add('hidden');
+  document.getElementById('plbl').textContent=`Langkah ${n} dari 4 — ${LBLS[n]}`;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function s1next(){
+  if(!nameOK){document.getElementById('eName').classList.add('show');return;}
+  document.getElementById('eName').classList.remove('show');
+  // Explicitly save identity from DOM elements
+  S.name = document.getElementById('nameIn').value.trim();
+  S.loc  = document.getElementById('autoLoc').textContent.trim();
+  S.pos  = document.getElementById('autoPos').textContent.trim();
+  if(!S.name){document.getElementById('eName').classList.add('show');return;}
+  renderProgs();gs(2);
+}
+function s2next(){
+  if(!S.prog){document.getElementById('eProg').classList.add('show');return;}
+  document.getElementById('eProg').classList.remove('show');
+  renderDet();gs(3);
+}
+function s3next(){if(!validate())return;renderRv();gs(4);}
+
+// ── PROGRAMS ──
+function renderProgs(){
+  document.getElementById('progGrid').innerHTML=PROGS.map(p=>`
+    <div class="prog-card${S.prog===p.id?' sel':''}" onclick="pickP('${p.id}')">
+      <div class="prog-icon">${p.icon}</div>
+      <div class="prog-name">${p.name}</div>
+      <div class="prog-seeds">${p.seeds}</div>
+    </div>`).join('');
+}
+function pickP(id){S.prog=id;S.d={};S.files={};renderProgs();document.getElementById('eProg').classList.remove('show');}
+
+// ── DETAIL FORM ──
+function renderDet(){
+  const p=PROGS.find(x=>x.id===S.prog);
+  let h=`<div class="ctitle">${p.icon} ${p.name}</div><div class="badge">🌱 ${p.seeds}</div><br><br>`;
+  const fld=(lbl,eid,inp)=>`<div class="fld"><label class="lbl">${lbl}</label>${inp}<div class="err" id="e_${eid}">Wajib diisi</div></div>`;
+  const up=(id,hint)=>`<div class="upbox${S.files[id]?' done':''}" id="ub_${id}" onclick="document.getElementById('${id}').click()"><input type="file" id="${id}" accept="image/*,application/pdf" onchange="pickF('${id}')"><div class="up-icon">${S.files[id]?'✅':'📎'}</div><div class="up-hint">${S.files[id]?'<span class="up-name">'+S.files[id].name+'</span>':hint}</div><div class="up-hint">JPG/PNG/PDF · Maks. 10 MB</div></div><div class="err" id="e_${id}">Upload foto diperlukan</div>`;
+  switch(S.prog){
+    case 'we_strength':
+      h+=fld('Tanggal Kedatangan','d_date',`<input type="date" id="d_date" max="${td()}" value="${S.d.date||''}">`)
+        +fld('Foto Kehadiran <span class="lbl-note">(wajah harus terlihat, maks. 10MB)</span>','d_photo',up('d_photo','Upload foto kehadiran'));
+      break;
+    case 'grow_hour':
+      h+=fld('Nama Training / Course','d_course',`<input type="text" id="d_course" placeholder="Contoh: Training Dry Needling" value="${S.d.course||''}">`)
+        +fld('Durasi Training (jam bulat)','d_dur',`<input type="number" id="d_dur" min="1" step="1" placeholder="Contoh: 2 (untuk 2,5 jam tulis 2)" value="${S.d.dur||''}">`)
+        +fld('Bukti Kehadiran / Sertifikat','d_cert',up('d_cert','Upload foto atau sertifikat'));
+      break;
+    case 'strava':
+      h+=`<div class="info">Tulis jarak dalam <strong>km bulat</strong>. Contoh: 3,7 km → tulis 3</div>`
+        +fld('Jarak Ditempuh (km bulat)','d_dist',`<input type="number" id="d_dist" min="1" step="1" placeholder="Contoh: 5" value="${S.d.dist||''}">`)
+        +fld('Screenshot Halaman Activities Strava','d_strava',up('d_strava','Upload screenshot Strava'));
+      break;
+    case 'steps':
+      h+=fld('Total Langkah Hari Ini','d_steps',`<input type="number" id="d_steps" min="1000" step="1" placeholder="Contoh: 10500" value="${S.d.steps||''}">`)
+        +fld('Screenshot Jumlah Langkah','d_steps_ss',`<div class="info">Bisa dari Strava, Google Fit, Apple Health, atau app lainnya.</div>`+up('d_steps_ss','Upload screenshot langkah'));
+      break;
+    case 'episoden':
+      h+=`<div class="info">Kamu akan mendapat <strong>2 Seeds</strong> untuk setiap sesi Episoden.</div>`
+        +fld('Screenshot Sesi Episoden','d_ep',up('d_ep','Upload screenshot sesi Episoden'));
+      break;
+    case 'duolingo':
+      h+=`<div class="info">Kamu akan mendapat <strong>5 Seeds</strong> untuk 6-day streak Duolingo.</div>`
+        +fld('Screenshot Streak Duolingo','d_duo',up('d_duo','Upload screenshot streak Duolingo'));
+      break;
+    case 'lunch':
+      h+=fld('Tanggal Makan Siang Sehat','d_ldate',`<input type="date" id="d_ldate" max="${td()}" value="${S.d.ldate||''}">`)
+        +fld('Foto Makanan','d_lp',up('d_lp','Upload foto makan siangmu'));
+      break;
+    case 'weight':
+      h+=`<div class="info">Cek BMI di <a href="https://www.calculator.net/bmi-calculator.html" target="_blank">calculator.net/bmi-calculator</a></div>`
+        +fld('BMI Saat Ini','d_bmi',`<input type="number" id="d_bmi" step="0.1" min="10" placeholder="Contoh: 22.5" value="${S.d.bmi||''}">`)
+        +fld('Berat Badan Hari ke-1 (kg)','d_w1',`<input type="number" id="d_w1" step="0.1" min="20" placeholder="Contoh: 65.2" value="${S.d.w1||''}">`)
+        +fld('Berat Badan Hari ke-7 (kg)','d_w7',`<input type="number" id="d_w7" step="0.1" min="20" placeholder="Contoh: 64.7" value="${S.d.w7||''}">`)
+        +fld('Foto Timbangan Hari ke-1 (Before)','d_wb',up('d_wb','Upload foto timbangan + timestamp hari ke-1'))
+        +fld('Foto Timbangan Hari ke-7 (After)','d_wa',up('d_wa','Upload foto timbangan + timestamp hari ke-7'));
+      break;
+    case 'clockin':
+      h+=`<div class="info">Upload screenshot rekap kehadiran dari <strong>Talenta</strong> — clock in hijau selama 6 hari kerja penuh.</div>`
+        +fld('Screenshot Clock In Talenta','d_ci',up('d_ci','Upload screenshot Talenta'));
+      break;
+    case 'pageturner':
+      h+=fld('Judul Buku','d_btitle',`<input type="text" id="d_btitle" placeholder="Judul buku yang kamu baca" value="${S.d.btitle||''}">`)
+        +fld('Jumlah Halaman','d_bpg',`<input type="number" id="d_bpg" min="200" step="1" placeholder="Min. 200 halaman" value="${S.d.bpg||''}">`)
+        +fld('Buku Ini Tentang Apa?','d_bsyn',`<textarea id="d_bsyn" placeholder="Ceritakan singkat isi buku ini...">${S.d.bsyn||''}</textarea>`)
+        +fld('Lesson Learned Kamu','d_bls',`<textarea id="d_bls" placeholder="Apa yang paling kamu pelajari?">${S.d.bls||''}</textarea>`)
+        +fld('Foto Buku','d_bph',up('d_bph','Upload foto bukunya'));
+      break;
+    case 'quran':
+      h+=`<div class="fld"><label class="lbl">Jenis Pembacaan</label>
+          <div class="radio-row">
+            <div class="ropt${S.d.qt==='halaman'?' sel':''}" onclick="pickQT('halaman')">📄 Per Halaman</div>
+            <div class="ropt${S.d.qt==='juz'?' sel':''}" onclick="pickQT('juz')">📗 Per Juz</div>
+          </div>
+          <div class="err${S.d.qt?'':' show'}" id="e_qt" style="display:none">Pilih jenis</div></div>`
+        +`<div id="qHal" class="${S.d.qt==='halaman'?'':'hidden'}">${fld('Berapa Halaman Dibaca?','d_qh','<input type="number" id="d_qh" min="1" step="1" placeholder="Contoh: 2">')}</div>`
+        +`<div id="qJuz" class="${S.d.qt==='juz'?'':'hidden'}">${fld('Berapa Juz Diselesaikan?','d_qj','<input type="number" id="d_qj" min="1" max="30" step="1" placeholder="Contoh: 1">')}</div>`
+        +fld('Mulai dari Surat','d_qss',`<input type="text" id="d_qss" placeholder="Contoh: Al-Baqarah" value="${S.d.qss||''}">`)
+        +fld('Ayat Ke-','d_qsa',`<input type="number" id="d_qsa" min="1" step="1" placeholder="Contoh: 1" value="${S.d.qsa||''}">`)
+        +fld('Selesai di Surat','d_qes',`<input type="text" id="d_qes" placeholder="Contoh: Al-Baqarah" value="${S.d.qes||''}">`)
+        +fld('Sampai Ayat Ke-','d_qea',`<input type="number" id="d_qea" min="1" step="1" placeholder="Contoh: 10" value="${S.d.qea||''}">`);
+      break;
+  }
+  document.getElementById('s3card').innerHTML=h;
+}
+function pickQT(t){
+  S.d.qt=t;
+  document.querySelectorAll('.ropt').forEach(e=>e.classList.remove('sel'));
+  event.currentTarget.classList.add('sel');
+  document.getElementById('qHal').classList.toggle('hidden',t!=='halaman');
+  document.getElementById('qJuz').classList.toggle('hidden',t!=='juz');
+  const e=document.getElementById('e_qt');if(e)e.style.display='none';
+}
+function pickF(id){
+  const f=document.getElementById(id).files[0];
+  if(!f)return;
+  if(f.size>10*1024*1024){alert('Ukuran file melebihi 10 MB. Mohon kompres foto terlebih dahulu.');document.getElementById(id).value='';return;}
+  S.files[id]=f;
+  const box=document.getElementById('ub_'+id);
+  box.classList.add('done');
+  box.querySelector('.up-icon').textContent='✅';
+  box.querySelector('.up-hint').innerHTML=`<span class="up-name">${f.name}</span>`;
+  const e=document.getElementById('e_'+id);if(e)e.classList.remove('show');
+}
+
+// ── VALIDATION ──
+function validate(){
+  let ok=true;
+  function req(id){const el=document.getElementById(id);const v=(el?.value||'').trim();if(!v){show('e_'+id);ok=false;}else{hide('e_'+id);}return v;}
+  function rf(id){if(!S.files[id]){show('e_'+id);ok=false;}else{hide('e_'+id);}}
+  switch(S.prog){
+    case 'we_strength':S.d.date=req('d_date');rf('d_photo');break;
+    case 'grow_hour':S.d.course=req('d_course');S.d.dur=req('d_dur');rf('d_cert');break;
+    case 'strava':S.d.dist=req('d_dist');rf('d_strava');break;
+    case 'steps':S.d.steps=req('d_steps');rf('d_steps_ss');break;
+    case 'episoden':rf('d_ep');break;
+    case 'duolingo':rf('d_duo');break;
+    case 'lunch':S.d.ldate=req('d_ldate');rf('d_lp');break;
+    case 'weight':S.d.bmi=req('d_bmi');S.d.w1=req('d_w1');S.d.w7=req('d_w7');rf('d_wb');rf('d_wa');break;
+    case 'clockin':rf('d_ci');break;
+    case 'pageturner':
+      S.d.btitle=req('d_btitle');
+      const pg=document.getElementById('d_bpg')?.value;
+      if(!pg||parseInt(pg)<200){show('e_d_bpg');ok=false;}else{hide('e_d_bpg');S.d.bpg=pg;}
+      S.d.bsyn=req('d_bsyn');S.d.bls=req('d_bls');rf('d_bph');break;
+    case 'quran':
+      if(!S.d.qt){const e=document.getElementById('e_qt');if(e){e.style.display='block';}ok=false;}
+      else{if(S.d.qt==='halaman'){S.d.qh=req('d_qh');}else{S.d.qj=req('d_qj');}
+        S.d.qss=req('d_qss');S.d.qsa=req('d_qsa');S.d.qes=req('d_qes');S.d.qea=req('d_qea');}
+      break;
+  }
+  return ok;
+}
+
+// ── REVIEW ──
+function renderRv(){
+  const p=PROGS.find(x=>x.id===S.prog);
+  let rows=[['Nama',S.name],['Penempatan',S.loc],['Posisi',S.pos],['Program',`${p.icon} ${p.name}`],['Seeds',p.seeds]];
+  const d=S.d;
+  switch(S.prog){
+    case 'we_strength':rows.push(['Tanggal',d.date]);break;
+    case 'grow_hour':rows.push(['Training',d.course],['Durasi',d.dur+' jam']);break;
+    case 'strava':rows.push(['Jarak',d.dist+' km']);break;
+    case 'steps':rows.push(['Langkah',Number(d.steps).toLocaleString('id')+' langkah']);break;
+    case 'lunch':rows.push(['Tanggal',d.ldate]);break;
+    case 'weight':
+      const df=(parseFloat(d.w7)-parseFloat(d.w1)).toFixed(1);
+      rows.push(['BMI',d.bmi],['BB Hari 1',d.w1+' kg'],['BB Hari 7',d.w7+' kg'],['Selisih',(df>0?'+':'')+df+' kg']);break;
+    case 'pageturner':rows.push(['Judul Buku',d.btitle],['Halaman',d.bpg+' hal']);break;
+    case 'quran':
+      rows.push(['Jenis',d.qt==='halaman'?'Per Halaman':'Per Juz']);
+      rows.push(['Jumlah',d.qt==='halaman'?d.qh+' halaman':d.qj+' juz']);
+      rows.push(['Mulai',`${d.qss} ayat ${d.qsa}`],['Selesai',`${d.qes} ayat ${d.qea}`]);break;
+  }
+  const fc=Object.keys(S.files).length;
+  if(fc)rows.push(['File Terlampir',fc+' foto/dokumen ✅']);
+  document.getElementById('rvBody').innerHTML=rows.map(([k,v])=>`<div class="rrow"><span class="rkey">${k}</span><span class="rval">${v}</span></div>`).join('');
+}
+
+// ── SUBMIT ──
+// Compress image before upload (max 1200px, quality 0.75) — drastically reduces payload size
+function compressImg(file){
+  return new Promise(resolve=>{
+    if(!file.type.startsWith('image/')){resolve(file);return;}
+    const img=new Image();
+    const url=URL.createObjectURL(file);
+    img.onload=()=>{
+      URL.revokeObjectURL(url);
+      const MAX=1200;
+      let w=img.width,h=img.height;
+      if(w>MAX){h=Math.round(h*(MAX/w));w=MAX;}
+      const c=document.createElement('canvas');
+      c.width=w;c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      c.toBlob(blob=>resolve(new File([blob],file.name.replace(/\.[^.]+$/,'.jpg'),{type:'image/jpeg'})),'image/jpeg',0.75);
+    };
+    img.onerror=()=>resolve(file);
+    img.src=url;
+  });
+}
+function b64(f){return new Promise((r,j)=>{const x=new FileReader();x.onload=e=>r(e.target.result.split(',')[1]);x.onerror=j;x.readAsDataURL(f);});}
+
+async function doSubmit(){
+  const btn=document.getElementById('subBtn');
+  btn.disabled=true;
+  const total=Object.keys(S.files).length;
+  let done=0;
+  const updBtn=()=>{btn.textContent=total>0?`Mengompres foto ${done}/${total}… ⏳`:'Mengirim… ⏳';};
+  updBtn();
+  try{
+    const fb={};
+    for(const[k,f] of Object.entries(S.files)){
+      const compressed=await compressImg(f);
+      done++;updBtn();
+      fb[k]={name:compressed.name,type:compressed.type,data:await b64(compressed)};
+    }
+    btn.textContent='Mengirim ke server… ⏳';
+    const payload={timestamp:new Date().toISOString(),name:S.name,location:S.loc,position:S.pos,program:S.prog,details:S.d,files:fb};
+    const res=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)});
+    const json=await res.json();
+    if(json.status==='success')showOK();
+    else throw new Error(json.message||'Error');
+  }catch(e){
+    console.error(e);
+    alert('Gagal mengirim. Coba lagi atau hubungi admin WE Grow.\n\n'+e.message);
+    btn.disabled=false;btn.textContent='Submit Seeds 🌱';
+  }
+}
+function showOK(){
+  const p=PROGS.find(x=>x.id===S.prog);
+  document.getElementById('okBadge').textContent='🌱 '+p.seeds;
+  document.getElementById('sOK').classList.remove('hidden');
+  [1,2,3,4].forEach(i=>document.getElementById('s'+i).classList.add('hidden'));
+  document.getElementById('formPbar').style.display='none';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function resetAll(){
+  // Reset state
+  S={name:'',loc:'',pos:'',prog:null,d:{},files:{}};
+  nameOK=false;
+
+  // Reset UI elements
+  const nameIn = document.getElementById('nameIn');
+  if (nameIn) nameIn.value='';
+
+  const autoRow = document.getElementById('autoRow');
+  if (autoRow) autoRow.style.display='none';
+
+  const pbar = document.getElementById('formPbar');
+  if (pbar) pbar.style.display='';
+
+  const sOK = document.getElementById('sOK');
+  if (sOK) sOK.classList.add('hidden');
+
+  // Re-enable submit button if disabled
+  const subBtn = document.getElementById('subBtn');
+  if (subBtn) { subBtn.disabled=false; subBtn.textContent='Submit Seeds 🌱'; }
+
+  // Clear all file inputs
+  document.querySelectorAll('#s3card input[type=file]').forEach(inp => { inp.value=''; });
+
+  // Reset acDrop
+  const acDrop = document.getElementById('acDrop');
+  if (acDrop) { acDrop.innerHTML=''; acDrop.classList.remove('open'); }
+
+  gs(1);
+}
+
+// ── ADMIN ──
+function openAdmin(){document.getElementById('adminModal').classList.remove('hidden');document.getElementById('adminPw').value='';document.getElementById('adminContent').classList.add('hidden');}
+function closeAdmin(){document.getElementById('adminModal').classList.add('hidden');}
+function checkPw(){
+  const pw=document.getElementById('adminPw').value;
+  if(pw===ADMIN_PW){document.getElementById('adminContent').classList.remove('hidden');renderEmpTable();}
+  else{alert('Password salah!');}
+}
+function renderEmpTable(){
+  const q=(document.getElementById('empSearch')?.value||'').toLowerCase();
+  const filtered=EMP.filter(e=>e.n.toLowerCase().includes(q)||e.l.toLowerCase().includes(q)||e.p.toLowerCase().includes(q));
+  document.getElementById('empCount').textContent=`Total: ${EMP.length} karyawan${q?' ('+filtered.length+' hasil)':''}`;
+  document.getElementById('empTableWrap').innerHTML=`
+    <div style="overflow-x:auto;max-height:320px;overflow-y:auto">
+    <table class="emp-table">
+      <thead><tr><th>#</th><th>Nama</th><th>Penempatan</th><th>Posisi</th><th></th></tr></thead>
+      <tbody>${filtered.map((e,i)=>{
+        const idx=EMP.indexOf(e);
+        return`<tr><td>${idx+1}</td><td>${e.n}</td><td>${e.l}</td><td>${e.p}</td><td><button class="btn-del" onclick="delEmp(${idx})">Hapus</button></td></tr>`;
+      }).join('')}</tbody>
+    </table></div>`;
+}
+function delEmp(i){
+  if(!confirm(`Hapus "${EMP[i].n}"?`))return;
+  EMP.splice(i,1);
+  saveEmp();renderEmpTable();
+}
+function addEmp(){
+  const n=document.getElementById('addName').value.trim();
+  const l=document.getElementById('addLoc').value.trim();
+  const p=document.getElementById('addPos').value.trim();
+  if(!n||!l||!p){alert('Isi semua kolom: Nama, Penempatan, dan Posisi.');return;}
+  EMP.push({n,l,p});
+  saveEmp();
+  document.getElementById('addName').value='';
+  document.getElementById('addLoc').value='';
+  document.getElementById('addPos').value='';
+  renderEmpTable();
+}
+function saveEmp(){try{localStorage.setItem('wegrow_emp',JSON.stringify(EMP));}catch(e){}}
+function resetEmp(){
+  if(!confirm('Reset ke data awal? Semua perubahan akan hilang.'))return;
+  EMP=[...DEFAULT_EMP];
+  try{localStorage.removeItem('wegrow_emp');}catch(e){}
+  renderEmpTable();
+}
+
+// ── HELPERS ──
+function show(id){const e=document.getElementById(id);if(e)e.classList.add('show');}
+function hide(id){const e=document.getElementById(id);if(e)e.classList.remove('show');}
+function td(){return new Date().toISOString().split('T')[0];}
+
+// Background refresh - silently update employee list from server
+async function loadEmployees() {
+  try {
+    // Fetch with timeout (15 detik)
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+    let res, json;
+    try {
+      res  = await fetch(SCRIPT_URL, { redirect:'follow', signal: controller.signal });
+      json = await res.json();
+    } finally {
+      clearTimeout(timeout);
+    }
+    if (!json || json.status === 'error') throw new Error(json?.message || 'Server error');
+    if (json.employees && json.employees.length) {
+      EMP = json.employees;
+    }
+  } catch(e) { /* silently fail - embedded list still works */ }
+}
+// Refresh in background after page loads
+
+
+
+// ── BACKGROUND REFRESH ──
+function bgRefreshEmp() {
+  fetch(SCRIPT_URL, {redirect:'follow'}).then(r=>r.json()).then(j=>{
+    if (j.employees && j.employees.length) EMP = j.employees;
+  }).catch(()=>{});
+}
+
+</script>
+</body>
+</html>
