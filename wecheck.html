@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Penjadwalan — WeCheck</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  :root {
+    --navy: #152A54;
+    --navy-light: #1E3A6E;
+    --cream: #F7F8FA;
+    --border: #E2E5EA;
+    --text-muted: #6B7280;
+    --text-primary: #1A1D29;
+    --success: #1E7B4D;
+    --success-bg: #E9F7EF;
+    --danger: #C0392B;
+    --danger-bg: #FBEAE8;
+    --warn: #92600A;
+    --warn-bg: #FDF3E2;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--cream);
+    color: var(--text-primary);
+  }
+
+  /* ===================== BOOKING (KARYAWAN) ===================== */
+  #bookingScreen { display: flex; justify-content: center; padding: 32px 16px; }
+
+  .card {
+    width: 100%; max-width: 820px; background: #fff; border-radius: 16px; overflow: hidden;
+    box-shadow: 0 4px 24px rgba(21, 42, 84, 0.08); display: grid; grid-template-columns: 240px 1fr;
+  }
+  @media (max-width: 640px) { .card { grid-template-columns: 1fr; } }
+
+  .sidebar { background: var(--navy); padding: 28px 24px; color: #fff; display: flex; flex-direction: column; gap: 24px; }
+  .logo-mark {
+    width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.12);
+    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px;
+  }
+  .brand-name { font-size: 16px; font-weight: 600; margin: 12px 0 2px; }
+  .brand-sub { font-size: 13px; color: rgba(255,255,255,0.65); margin: 0; }
+  .sidebar-divider { border-top: 1px solid rgba(255,255,255,0.15); padding-top: 20px; }
+  .sidebar-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: rgba(255,255,255,0.5); margin: 0 0 8px; }
+  .sidebar-meta { font-size: 13px; color: rgba(255,255,255,0.8); display: flex; align-items: center; gap: 8px; }
+  .sidebar-links { margin-top: auto; display: flex; flex-direction: column; gap: 6px; }
+  .admin-link { font-size: 12px; color: rgba(255,255,255,0.5); text-decoration: none; }
+  .admin-link:hover { color: rgba(255,255,255,0.8); }
+
+  .main { padding: 28px 28px 32px; }
+  h1 { font-size: 18px; margin: 0 0 4px; }
+  .subtitle { font-size: 13px; color: var(--text-muted); margin: 0 0 20px; }
+
+  .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .cal-header span { font-size: 14px; font-weight: 600; }
+  .cal-nav { display: flex; gap: 4px; }
+  .cal-nav button { border: none; background: var(--cream); width: 28px; height: 28px; border-radius: 8px; cursor: pointer; font-size: 14px; color: var(--text-primary); }
+  .cal-nav button:hover { background: var(--border); }
+
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 22px; }
+  .cal-dow { font-size: 11px; color: var(--text-muted); text-align: center; padding: 4px 0 8px; }
+  .cal-day { text-align: center; font-size: 13px; padding: 8px 0; border-radius: 8px; cursor: pointer; color: var(--text-primary); }
+  .cal-day.muted { color: var(--border); cursor: default; }
+  .cal-day.past { color: var(--border); cursor: default; }
+  .cal-day:hover:not(.muted):not(.past):not(.selected) { background: var(--cream); }
+  .cal-day.selected { background: var(--navy); color: #fff; font-weight: 600; }
+
+  .slots-title { font-size: 13px; font-weight: 600; color: var(--text-muted); margin: 0 0 10px; }
+  .slots-list { display: flex; flex-direction: column; gap: 8px; }
+  .slot-btn {
+    width: 100%; text-align: left; padding: 11px 14px; border-radius: 10px; border: 1px solid var(--border);
+    background: #fff; font-size: 14px; cursor: pointer; display: flex; justify-content: space-between; color: var(--text-primary);
+  }
+  .slot-btn:hover { border-color: var(--navy); }
+  .slot-btn .sisa { color: var(--text-muted); font-size: 12px; }
+  .slot-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .slot-btn.selected { border-color: var(--navy); background: #EEF1F8; }
+
+  .empty-state { font-size: 13px; color: var(--text-muted); padding: 12px 0; }
+
+  form { display: flex; flex-direction: column; gap: 12px; margin-top: 18px; }
+  label { font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px; }
+  input, select {
+    width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); font-size: 14px; font-family: inherit;
+    background: #fff; color: var(--text-primary);
+  }
+  input:focus, select:focus { outline: none; border-color: var(--navy); }
+  .field-hint { font-size: 11px; color: var(--text-muted); margin-top: -6px; }
+
+  .btn-primary {
+    background: var(--navy); color: #fff; border: none; padding: 12px; border-radius: 10px;
+    font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 6px;
+  }
+  .btn-primary:hover { background: var(--navy-light); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .msg { font-size: 13px; padding: 10px 12px; border-radius: 10px; margin-top: 10px; }
+  .msg.error { background: var(--danger-bg); color: var(--danger); }
+  .msg.success { background: var(--success-bg); color: var(--success); }
+  .msg.warn { background: var(--warn-bg); color: var(--warn); }
+
+  .confirm-box { text-align: center; padding: 12px 0; }
+  .confirm-icon {
+    width: 48px; height: 48px; border-radius: 50%; background: var(--success-bg); color: var(--success);
+    display: flex; align-items: center; justify-content: center; font-size: 22px; margin: 0 auto 14px;
+  }
+  .confirm-box h2 { font-size: 16px; margin: 0 0 6px; }
+  .confirm-box p { font-size: 13px; color: var(--text-muted); margin: 0 0 4px; }
+
+  /* ===================== ADMIN (HR) ===================== */
+  #loginScreen {
+    display: none; min-height: 100vh; flex-direction: column; align-items: center; justify-content: center;
+    gap: 16px; text-align: center; padding: 24px;
+  }
+  #loginScreen .logo-mark {
+    width: 52px; height: 52px; background: var(--navy); color: #fff; font-size: 16px; margin-bottom: 4px;
+  }
+  #loginScreen h1 { font-size: 18px; margin: 0; }
+  #loginScreen p { font-size: 13px; color: var(--text-muted); margin: 0 0 8px; max-width: 320px; }
+
+  #adminScreen { display: none; max-width: 1060px; margin: 0 auto; padding: 28px 20px 60px; }
+
+  .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .topbar-left { display: flex; align-items: center; gap: 10px; }
+  .topbar-left .logo-mark { width: 34px; height: 34px; background: var(--navy); color: #fff; font-size: 12px; }
+  .topbar h1 { font-size: 15px; margin: 0; }
+  .topbar .user-email { font-size: 12px; color: var(--text-muted); }
+  .logout-btn { font-size: 12px; color: var(--text-muted); background: none; border: none; cursor: pointer; text-decoration: underline; }
+
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 22px; }
+  .tab-btn {
+    background: none; border: none; padding: 10px 14px; font-size: 13px; font-family: inherit;
+    color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px;
+  }
+  .tab-btn.active { color: var(--navy); font-weight: 600; border-bottom-color: var(--navy); }
+
+  .date-picker { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+  .date-picker label { font-size: 13px; color: var(--text-muted); margin-bottom: 0; }
+  .date-picker input { width: auto; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); font-size: 14px; font-family: inherit; }
+
+  .panel { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 18px; }
+  .panel h2 { font-size: 14px; margin: 0 0 14px; }
+  .panel-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+  .panel-head h2 { margin: 0; }
+
+  .slot-row {
+    display: grid; grid-template-columns: 90px 90px 1fr auto; gap: 10px; align-items: center;
+    padding: 8px 0; border-bottom: 1px solid var(--cream); font-size: 13px;
+  }
+  .slot-row:last-child { border-bottom: none; }
+  .slot-row .terisi { color: var(--text-muted); }
+  .slot-row button { background: var(--danger-bg); color: var(--danger); border: none; border-radius: 8px; padding: 6px 10px; font-size: 12px; cursor: pointer; }
+
+  .add-slot-form { display: flex; flex-direction: row; gap: 8px; margin-top: 14px; flex-wrap: wrap; align-items: center; }
+  .add-slot-form input { width: auto; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px; font-family: inherit; }
+  .add-slot-form input[name="jam"] { width: 100px; }
+  .add-slot-form input[name="kapasitas"] { width: 90px; }
+  .add-slot-form button { background: var(--navy); color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-size: 13px; cursor: pointer; }
+  .add-slot-form button:hover { background: var(--navy-light); }
+
+  .booking-row { padding: 12px 0; border-bottom: 1px solid var(--cream); display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .booking-row:last-child { border-bottom: none; }
+  .booking-info .nama { font-size: 13px; font-weight: 600; }
+  .booking-info .meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .status-badge { font-size: 11px; padding: 3px 9px; border-radius: 8px; white-space: nowrap; }
+  .status-badge.terjadwal { background: var(--success-bg); color: var(--success); }
+  .status-badge.dibatalkan { background: var(--danger-bg); color: var(--danger); }
+  .booking-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+  .cancel-link { font-size: 12px; color: var(--danger); background: none; border: none; cursor: pointer; text-decoration: underline; }
+
+  .logo-mark.round { border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+
+  /* ===================== DASHBOARD (dipakai bersama) ===================== */
+  .stat {
+    background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px;
+  }
+  .stat .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); margin: 0 0 6px; }
+  .stat .stat-value { font-size: 26px; font-weight: 700; line-height: 1.1; }
+  .stat .stat-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+  .stat.hero { background: var(--navy); border-color: var(--navy); color: #fff; }
+  .stat.hero .stat-value { font-size: 32px; }
+
+  /* Ringkasan: kartu navy + 3 angka digabung jadi satu kotak, dipisah garis */
+  .summary-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 12px; margin-bottom: 18px; }
+  @media (max-width: 700px) { .summary-grid { grid-template-columns: 1fr; } }
+  .stat-strip {
+    background: #fff; border: 1px solid var(--border); border-radius: 14px;
+    padding: 18px 4px; display: grid; grid-template-columns: repeat(3, 1fr); align-items: center;
+  }
+  .stat-cell { text-align: center; padding: 0 6px; }
+  .stat-cell + .stat-cell { border-left: 1px solid var(--border); }
+  .stat-cell-value { font-size: 28px; font-weight: 700; line-height: 1; }
+  .stat-cell-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); margin: 8px 0 0; }
+  .stat.hero .stat-label { color: rgba(255,255,255,0.6); }
+  .stat.hero .stat-sub { color: rgba(255,255,255,0.7); }
+
+  .bar { height: 7px; border-radius: 999px; background: var(--border); overflow: hidden; display: flex; }
+  .bar .fill-selesai { background: var(--success); height: 100%; }
+  .bar .fill-terjadwal { background: #A8B4CC; height: 100%; }
+  .bar.on-navy { background: rgba(255,255,255,0.18); }
+
+  .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .filter-bar input, .filter-bar select { width: auto; min-width: 140px; padding: 8px 10px; font-size: 13px; border-radius: 8px; }
+  .filter-bar input[type="search"] { min-width: 200px; flex: 1; }
+  .btn-ghost {
+    background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px;
+    font-size: 13px; font-family: inherit; color: var(--text-primary); cursor: pointer; white-space: nowrap;
+  }
+  .btn-ghost:hover { border-color: var(--navy); }
+
+  .table-wrap { overflow-x: auto; }
+  table.data { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.data th {
+    text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--text-muted); font-weight: 600; padding: 8px 10px; border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
+  table.data td { padding: 10px; border-bottom: 1px solid var(--cream); vertical-align: top; }
+  table.data tr:last-child td { border-bottom: none; }
+  table.data td .sub { font-size: 11px; color: var(--text-muted); }
+  .pill { font-size: 11px; padding: 3px 9px; border-radius: 8px; white-space: nowrap; display: inline-block; }
+  .pill.selesai { background: var(--success-bg); color: var(--success); }
+  .pill.terjadwal { background: #EEF1F8; color: var(--navy); }
+  .pill.belum { background: var(--danger-bg); color: var(--danger); }
+
+  .branch-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+  .branch-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 18px 12px; text-align: center; }
+  .branch-card .branch-name { font-size: 13px; font-weight: 600; color: var(--navy); margin-bottom: 10px; }
+  .branch-card svg { width: 112px; height: 112px; display: block; margin: 0 auto; }
+  .branch-card .branch-meta { font-size: 11.5px; color: var(--text-muted); margin-top: 10px; line-height: 1.5; }
+
+  #cabangScreen { display: none; max-width: 860px; margin: 0 auto; padding: 32px 20px 60px; }
+  #cabangScreen .page-head { margin-bottom: 20px; }
+  #cabangScreen .page-head h1 { font-size: 20px; margin: 0 0 4px; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--text-muted); margin-top: 14px; }
+  .legend span { display: flex; align-items: center; gap: 6px; }
+  .legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+</style>
+</head>
+<body>
+<style>.wmhrga-back-fab{position:fixed;bottom:16px;left:16px;z-index:99999;display:inline-flex;align-items:center;gap:6px;background:#14213D;color:#fff;text-decoration:none;font-family:'Plus Jakarta Sans',-apple-system,sans-serif;font-size:12.5px;font-weight:600;padding:9px 15px;border-radius:999px;box-shadow:0 6px 18px rgba(20,33,61,.35);transition:transform .15s ease,box-shadow .15s ease;}.wmhrga-back-fab:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(20,33,61,.45);}@media print{.wmhrga-back-fab{display:none;}}</style>
+<a href="index.html" class="wmhrga-back-fab">&#8592; Dashboard</a>
+
+
+<!-- ===================== HALAMAN BOOKING (KARYAWAN) ===================== -->
+<div id="bookingScreen">
+  <div class="card">
+    <div class="sidebar">
+      <div>
+        <div class="logo-mark round">WM</div>
+        <p class="brand-name">WeCheck</p>
+        <p class="brand-sub">1 on 1 session with HR</p>
+      </div>
+      <div class="sidebar-divider">
+        <p class="sidebar-label">Durasi</p>
+        <div class="sidebar-meta">⏱ 60 menit</div>
+      </div>
+      <div class="sidebar-divider">
+        <p class="sidebar-label">Format</p>
+        <div class="sidebar-meta">🎥 Google Meet</div>
+      </div>
+      <div class="sidebar-links">
+        <a href="?cabang=1" class="admin-link">Progres per cabang →</a>
+        <a href="?admin=1" class="admin-link">HR Dashboard →</a>
+      </div>
+    </div>
+
+    <div class="main" id="mainContent">
+      <h1>Penjadwalan</h1>
+      <p class="subtitle">Silakan jadwalkan sesimu di sini</p>
+
+      <div class="cal-header">
+        <span id="calMonthLabel"></span>
+        <div class="cal-nav">
+          <button id="prevMonth" aria-label="Bulan sebelumnya">‹</button>
+          <button id="nextMonth" aria-label="Bulan berikutnya">›</button>
+        </div>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+
+      <p class="slots-title" id="slotsTitle">Pilih tanggal terlebih dahulu</p>
+      <div class="slots-list" id="slotsList"></div>
+
+      <div id="formArea"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== HALAMAN LOGIN ADMIN ===================== -->
+<div id="loginScreen">
+  <div class="logo-mark round">WM</div>
+  <h1>Admin Booking HR</h1>
+  <p>Login pakai akun @wmcenter.id kamu untuk mengelola bank waktu dan melihat daftar booking.</p>
+  <div id="googleBtn"></div>
+  <div id="loginMsg"></div>
+</div>
+
+<!-- ===================== HALAMAN ADMIN HR ===================== -->
+<div id="adminScreen">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo-mark round">WM</div>
+      <div>
+        <h1>Admin Booking HR</h1>
+        <div class="user-email" id="userEmailLabel"></div>
+      </div>
+    </div>
+    <button class="logout-btn" id="logoutBtn">Keluar</button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="jadwal">Jadwal &amp; booking</button>
+    <button class="tab-btn" data-tab="partisipasi">Partisipasi karyawan</button>
+  </div>
+
+  <!-- ---------- TAB 1: jadwal & booking (yang lama) ---------- -->
+  <div id="tabJadwal">
+    <div class="date-picker">
+      <label>Tanggal</label>
+      <input type="date" id="tanggalInput">
+    </div>
+
+    <div class="panel">
+      <h2>Bank waktu</h2>
+      <div id="slotList"></div>
+      <form class="add-slot-form" id="addSlotForm">
+        <input type="time" name="jam" required>
+        <input type="number" name="kapasitas" placeholder="Kapasitas" min="1" required>
+        <button type="submit">+ Tambah slot</button>
+      </form>
+      <div id="slotMsg"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Daftar booking</h2>
+      <div id="bookingList"></div>
+    </div>
+  </div>
+
+  <!-- ---------- TAB 2: DASHBOARD 1 — partisipasi karyawan (HR only) ---------- -->
+  <div id="tabPartisipasi" style="display:none;">
+    <div id="hrSummary"></div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Daftar karyawan</h2>
+        <div style="display:flex; gap:8px;">
+          <button class="btn-ghost" id="refreshHrBtn">Muat ulang</button>
+          <button class="btn-ghost" id="exportCsvBtn">Unduh CSV</button>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <input type="search" id="cariKaryawan" placeholder="Cari nama, posisi, divisi…">
+        <select id="filterCabang"><option value="">Semua cabang</option></select>
+        <select id="filterDivisi"><option value="">Semua divisi</option></select>
+        <select id="filterStatus">
+          <option value="">Semua status</option>
+          <option value="selesai">Sudah selesai</option>
+          <option value="terjadwal">Terjadwal</option>
+          <option value="belum">Belum ikut</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data" id="hrTable">
+          <thead>
+            <tr>
+              <th>Nama</th>
+              <th>Posisi</th>
+              <th>Cabang</th>
+              <th>Status</th>
+              <th>Jadwal sesi</th>
+            </tr>
+          </thead>
+          <tbody id="hrTableBody">
+            <tr><td colspan="5" class="empty-state">Memuat…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="hrCount" class="empty-state"></div>
+    </div>
+
+    <div class="panel" id="tidakCocokPanel" style="display:none;">
+      <h2>Booking yang belum cocok dengan master karyawan</h2>
+      <p class="empty-state" style="padding-top:0;">
+        Booking ini tidak ketemu orangnya di tab Karyawan, jadi belum ikut terhitung.
+        Biasanya karena nama ditulis beda atau emailnya belum terdaftar.
+      </p>
+      <div id="tidakCocokList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== DASHBOARD 2 — PROGRES CABANG (PUBLIK) ===================== -->
+<div id="cabangScreen">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo-mark round" style="background:var(--navy); color:#fff; width:34px; height:34px; font-size:12px;">WM</div>
+      <div>
+        <h1>Progres WeCheck per Cabang</h1>
+        <div class="user-email" id="periodeLabel"></div>
+      </div>
+    </div>
+    <a href="./" class="admin-link" style="color:var(--text-muted);">← Halaman booking</a>
+  </div>
+
+  <div id="cabangSummary"></div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <h2>Rincian per cabang</h2>
+      <button class="btn-ghost" id="refreshCabangBtn">Muat ulang</button>
+    </div>
+    <div id="cabangList" class="branch-grid"><div class="empty-state">Memuat…</div></div>
+    <div class="legend">
+      <span><i style="background:var(--success);"></i> Sudah selesai</span>
+      <span><i style="background:#A8B4CC;"></i> Sudah terjadwal</span>
+      <span><i style="background:var(--border);"></i> Belum ikut</span>
+    </div>
+  </div>
+
+  <p class="empty-state">
+    Halaman ini hanya menampilkan angka gabungan per cabang. Nama karyawan tidak ditampilkan di sini.
+  </p>
+</div>
+
+<script>
+  // ===== GANTI DENGAN URL WEB APP APPS SCRIPT KAMU =====
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxDfZQIu2A7wGvImBRiuo7jXMlEEZquHdgDaFkJlOkVSraPXdK4WJhiWjB0VGO_Lg8/exec";
+
+  // ===== GANTI DENGAN CLIENT ID OAUTH DARI STEP AWAL (dipakai buat login admin) =====
+  const GOOGLE_CLIENT_ID = "393421984186-naetlho4uaju90ms2lt6hoabucsn056e.apps.googleusercontent.com";
+
+  function pad(n) { return n < 10 ? "0" + n : "" + n; }
+  function todayStr() {
+    const d = new Date();
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  }
+  function esc(s) {
+    return String(s === undefined || s === null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+  function apiGet(params) {
+    const qs = Object.keys(params)
+      .map(k => encodeURIComponent(k) + "=" + encodeURIComponent(params[k]))
+      .join("&");
+    return fetch(APPS_SCRIPT_URL + "?" + qs + "&_ts=" + Date.now(), { cache: "no-store" })
+      .then(r => r.json());
+  }
+
+  // Prefix "WM Center" dipotong di tampilan kartu cabang — sama semua, jadi cuma
+  // makan tempat dan bikin nama panjang kayak "Alam Sutera" turun jadi dua baris.
+  function shortCabang(nama) {
+    const s = String(nama || "").replace(/^WM\s*Center\s+/i, "").trim();
+    return s || String(nama || "");
+  }
+
+  // Satu donat = komposisi satu cabang. Cincin abu muda = total karyawan,
+  // lapisan biru-abu = selesai + terjadwal, lapisan hijau = yang sudah selesai.
+  function donutCabang(c) {
+    const KELILING = 263.89; // 2 * pi * 42
+    const porsi = (n) => (c.total ? (n / c.total) * KELILING : 0);
+    const lenSelesai = porsi(c.selesai);
+    const lenTerjadwal = porsi(c.selesai + c.terjadwal);
+    const warnaAngka = c.selesai > 0 ? "#1E7B4D" : "#6B7280";
+
+    return `
+      <svg viewBox="0 0 120 120" role="img" aria-label="${esc(shortCabang(c.cabang))}: ${c.persen} persen selesai">
+        <circle cx="60" cy="60" r="42" fill="none" stroke="#E2E5EA" stroke-width="15"/>
+        ${lenTerjadwal > 0 ? `<circle cx="60" cy="60" r="42" fill="none" stroke="#A8B4CC" stroke-width="15" stroke-dasharray="${lenTerjadwal.toFixed(1)} ${KELILING}" transform="rotate(-90 60 60)"/>` : ""}
+        ${lenSelesai > 0 ? `<circle cx="60" cy="60" r="42" fill="none" stroke="#1E7B4D" stroke-width="15" stroke-dasharray="${lenSelesai.toFixed(1)} ${KELILING}" transform="rotate(-90 60 60)"/>` : ""}
+        <text x="60" y="56" text-anchor="middle" style="font-size:22px;font-weight:700;fill:#152A54;">${c.persen}%</text>
+        <text x="60" y="72" text-anchor="middle" style="font-size:10px;fill:#6B7280;">selesai</text>
+        <text x="60" y="86" text-anchor="middle" style="font-size:10px;font-weight:600;fill:${warnaAngka};">${c.selesai} dari ${c.total}</text>
+      </svg>
+    `;
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const isAdminView = params.get("admin") === "1";
+  const isCabangView = params.get("cabang") === "1";
+
+  if (isCabangView) {
+    document.getElementById("bookingScreen").style.display = "none";
+    document.getElementById("cabangScreen").style.display = "block";
+    initCabang();
+  } else if (isAdminView) {
+    document.getElementById("bookingScreen").style.display = "none";
+    initAdmin();
+  } else {
+    initBooking();
+  }
+
+  /* ========================================================
+     BAGIAN BOOKING (KARYAWAN)
+     ======================================================== */
+  function initBooking() {
+    const DOW = ["Min","Sen","Sel","Rab","Kam","Jum","Sab"];
+    const MONTHS = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+
+    let viewYear, viewMonth, selectedDateStr = null, selectedSlot = null;
+    let direktori = [];        // daftar karyawan buat autocomplete
+    let employeeIdTerpilih = "";
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    viewYear = today.getFullYear();
+    viewMonth = today.getMonth();
+
+    // Ambil direktori karyawan di background, biar form nanti bisa autocomplete.
+    apiGet({ action: "getDirektoriKaryawan" })
+      .then(res => { if (res.success) direktori = res.data; })
+      .catch(() => { /* gagal ambil direktori, form tetap bisa diisi manual */ });
+
+    function toDateStr(y, m, d) { return y + "-" + pad(m + 1) + "-" + pad(d); }
+
+    function renderCalendar() {
+      document.getElementById("calMonthLabel").textContent = MONTHS[viewMonth] + " " + viewYear;
+      const grid = document.getElementById("calGrid");
+      grid.innerHTML = "";
+
+      DOW.forEach(d => {
+        const el = document.createElement("div");
+        el.className = "cal-dow";
+        el.textContent = d;
+        grid.appendChild(el);
+      });
+
+      const firstDay = new Date(viewYear, viewMonth, 1).getDay();
+      const totalDays = new Date(viewYear, viewMonth + 1, 0).getDate();
+
+      for (let i = 0; i < firstDay; i++) {
+        const el = document.createElement("div");
+        el.className = "cal-day muted";
+        grid.appendChild(el);
+      }
+
+      for (let d = 1; d <= totalDays; d++) {
+        const el = document.createElement("div");
+        const dateStr = toDateStr(viewYear, viewMonth, d);
+        const thisDate = new Date(viewYear, viewMonth, d);
+        el.textContent = d;
+        el.className = "cal-day";
+
+        if (thisDate < today) {
+          el.classList.add("past");
+        } else {
+          if (dateStr === selectedDateStr) el.classList.add("selected");
+          el.addEventListener("click", () => selectDate(dateStr, el));
+        }
+        grid.appendChild(el);
+      }
+    }
+
+    function selectDate(dateStr, el) {
+      selectedDateStr = dateStr;
+      selectedSlot = null;
+      document.querySelectorAll(".cal-day").forEach(d => d.classList.remove("selected"));
+      el.classList.add("selected");
+      document.getElementById("formArea").innerHTML = "";
+      loadSlots(dateStr);
+    }
+
+    function loadSlots(dateStr) {
+      const list = document.getElementById("slotsList");
+      const title = document.getElementById("slotsTitle");
+      title.textContent = "Memuat jam tersedia…";
+      list.innerHTML = "";
+
+      apiGet({ action: "getSlots", tanggal: dateStr })
+        .then(res => {
+          if (!res.success) {
+            title.textContent = "Gagal memuat jadwal.";
+            list.innerHTML = '<div class="msg error">' + esc(res.message) + '</div>';
+            return;
+          }
+          const slots = res.data;
+          if (!slots.length) {
+            title.textContent = "Jam tersedia";
+            list.innerHTML = '<div class="empty-state">Belum ada jam yang dibuka HR untuk tanggal ini.</div>';
+            return;
+          }
+          title.textContent = "Jam tersedia";
+          list.innerHTML = "";
+          slots.forEach(s => {
+            const btn = document.createElement("button");
+            btn.className = "slot-btn";
+            btn.disabled = s.sisa <= 0;
+            btn.innerHTML = "<span>" + esc(s.jam) + "</span><span class='sisa'>" + (s.sisa > 0 ? s.sisa + " sisa" : "Penuh") + "</span>";
+            if (!btn.disabled) btn.addEventListener("click", () => selectSlot(s.jam, btn));
+            list.appendChild(btn);
+          });
+        })
+        .catch(() => {
+          title.textContent = "Gagal memuat jadwal.";
+          list.innerHTML = '<div class="msg error">Tidak bisa terhubung ke sistem. Coba muat ulang halaman.</div>';
+        });
+    }
+
+    function selectSlot(jam, btn) {
+      selectedSlot = jam;
+      document.querySelectorAll(".slot-btn").forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      renderForm(jam);
+    }
+
+    function renderForm(jam) {
+      const area = document.getElementById("formArea");
+      const opsi = direktori.map(k => '<option value="' + esc(k.nama) + '"></option>').join("");
+
+      area.innerHTML = `
+        <form id="bookingForm">
+          <div>
+            <label>Nama lengkap</label>
+            <input type="text" name="nama" list="daftarKaryawan" autocomplete="off" required>
+            <datalist id="daftarKaryawan">${opsi}</datalist>
+            <p class="field-hint">Ketik beberapa huruf, lalu pilih namamu dari daftar yang muncul.</p>
+          </div>
+          <div>
+            <label>Posisi</label>
+            <input type="text" name="posisi" required>
+          </div>
+          <div>
+            <label>Divisi</label>
+            <input type="text" name="divisi" required>
+          </div>
+          <div>
+            <label>Nomor HP aktif</label>
+            <input type="tel" name="noHp" required>
+          </div>
+          <div>
+            <label>Email pribadi</label>
+            <input type="email" name="email" required>
+          </div>
+          <button type="submit" class="btn-primary">Booking slot ${esc(jam)}</button>
+          <div id="formMsg"></div>
+        </form>
+      `;
+
+      const form = document.getElementById("bookingForm");
+      employeeIdTerpilih = "";
+
+      // Kalau nama yang diketik persis sama dengan salah satu di direktori,
+      // posisi & divisi diisi otomatis dan EmployeeID ikut dikirim ke backend.
+      form.nama.addEventListener("input", function () {
+        const nilai = form.nama.value.trim().toLowerCase();
+        const cocok = direktori.find(k => k.nama.toLowerCase() === nilai);
+        if (cocok) {
+          employeeIdTerpilih = cocok.id;
+          if (cocok.posisi) form.posisi.value = cocok.posisi;
+          if (cocok.divisi) form.divisi.value = cocok.divisi;
+        } else {
+          employeeIdTerpilih = "";
+        }
+      });
+
+      form.addEventListener("submit", submitBooking);
+    }
+
+    function submitBooking(e) {
+      e.preventDefault();
+      const form = e.target;
+      const btn = form.querySelector(".btn-primary");
+      const msg = document.getElementById("formMsg");
+      btn.disabled = true;
+      btn.textContent = "Memproses…";
+      msg.innerHTML = "";
+
+      const payload = {
+        action: "createBooking",
+        tanggal: selectedDateStr,
+        jam: selectedSlot,
+        nama: form.nama.value,
+        posisi: form.posisi.value,
+        divisi: form.divisi.value,
+        noHp: form.noHp.value,
+        email: form.email.value,
+        employeeId: employeeIdTerpilih
+      };
+
+      fetch(APPS_SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      })
+        .then(r => r.json())
+        .then(res => {
+          if (!res.success) {
+            msg.innerHTML = '<div class="msg error">' + esc(res.message) + '</div>';
+            btn.disabled = false;
+            btn.textContent = "Booking slot " + selectedSlot;
+            return;
+          }
+          showConfirmation();
+        })
+        .catch(() => {
+          msg.innerHTML = '<div class="msg error">Booking gagal terkirim. Coba lagi ya.</div>';
+          btn.disabled = false;
+          btn.textContent = "Booking slot " + selectedSlot;
+        });
+    }
+
+    function showConfirmation() {
+      document.getElementById("mainContent").innerHTML = `
+        <div class="confirm-box">
+          <div class="confirm-icon">✓</div>
+          <h2>Booking berhasil dibuat</h2>
+          <p>Sesi kamu dijadwalkan pada <strong>${esc(selectedDateStr)}, ${esc(selectedSlot)}</strong></p>
+          <p>Undangan Google Meet sudah dikirim ke email yang kamu isi tadi.</p>
+        </div>
+      `;
+    }
+
+    document.getElementById("prevMonth").addEventListener("click", () => {
+      viewMonth--;
+      if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+      renderCalendar();
+    });
+    document.getElementById("nextMonth").addEventListener("click", () => {
+      viewMonth++;
+      if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+      renderCalendar();
+    });
+
+    renderCalendar();
+  }
+
+  /* ========================================================
+     BAGIAN ADMIN (HR)
+     ======================================================== */
+  let currentAdminEmail = null;
+
+  function initAdmin() {
+    const savedEmail = sessionStorage.getItem("adminEmail");
+
+    window.addEventListener("load", () => {
+      if (typeof google !== "undefined") {
+        google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: handleLogin,
+        });
+        if (!savedEmail) {
+          google.accounts.id.renderButton(document.getElementById("googleBtn"), {
+            theme: "filled_blue",
+            text: "signin_with",
+            shape: "pill",
+          });
+        }
+      }
+
+      if (savedEmail) {
+        currentAdminEmail = savedEmail;
+        showAdminScreen(savedEmail);
+      } else {
+        document.getElementById("loginScreen").style.display = "flex";
+      }
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      sessionStorage.removeItem("adminEmail");
+      location.reload();
+    });
+
+    document.getElementById("addSlotForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const form = e.target;
+      const tanggal = document.getElementById("tanggalInput").value;
+      const msg = document.getElementById("slotMsg");
+
+      fetch(APPS_SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({
+          action: "addBankWaktu",
+          adminEmail: currentAdminEmail,
+          tanggal: tanggal,
+          jam: form.jam.value,
+          kapasitas: form.kapasitas.value,
+        }),
+      })
+        .then(r => r.json())
+        .then(res => {
+          msg.innerHTML = res.success
+            ? '<div class="msg success">' + esc(res.message) + '</div>'
+            : '<div class="msg error">' + esc(res.message) + '</div>';
+          if (res.success) { form.reset(); loadBankWaktu(); }
+        });
+    });
+
+    // Pindah tab
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const tab = btn.dataset.tab;
+        document.getElementById("tabJadwal").style.display = tab === "jadwal" ? "block" : "none";
+        document.getElementById("tabPartisipasi").style.display = tab === "partisipasi" ? "block" : "none";
+        if (tab === "partisipasi" && !dataHR) loadDashboardHR();
+      });
+    });
+
+    document.getElementById("refreshHrBtn").addEventListener("click", loadDashboardHR);
+    document.getElementById("exportCsvBtn").addEventListener("click", exportCsv);
+    ["cariKaryawan", "filterCabang", "filterDivisi", "filterStatus"].forEach(id => {
+      document.getElementById(id).addEventListener("input", renderHrTable);
+    });
+  }
+
+  function decodeJwt(token) {
+    const payload = token.split(".")[1];
+    return JSON.parse(decodeURIComponent(escape(atob(payload.replace(/-/g, "+").replace(/_/g, "/")))));
+  }
+
+  function handleLogin(response) {
+    const data = decodeJwt(response.credential);
+    const email = data.email;
+
+    // Pengecekan "boleh akses atau tidak" sepenuhnya dilakukan di backend (ALLOWED_ADMINS di Code.gs).
+    // Di sini kita cuma simpan sementara emailnya, nanti kalau ternyata gak ada di allowlist,
+    // pesan error dari server bakal muncul begitu dia coba load data.
+    currentAdminEmail = email;
+    sessionStorage.setItem("adminEmail", email);
+    showAdminScreen(email);
+  }
+
+  function showAdminScreen(email) {
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("adminScreen").style.display = "block";
+    document.getElementById("userEmailLabel").textContent = email;
+
+    const dateInput = document.getElementById("tanggalInput");
+    dateInput.value = todayStr();
+    dateInput.addEventListener("change", loadAdminDate);
+
+    loadAdminDate();
+  }
+
+  function loadAdminDate() {
+    loadBankWaktu();
+    loadBookings();
+  }
+
+  function loadBankWaktu() {
+    const tanggal = document.getElementById("tanggalInput").value;
+    const list = document.getElementById("slotList");
+    list.innerHTML = '<div class="empty-state">Memuat…</div>';
+
+    apiGet({ action: "getBankWaktu", adminEmail: currentAdminEmail, tanggal: tanggal }).then(res => {
+      if (!res.success) { list.innerHTML = '<div class="msg error">' + esc(res.message) + '</div>'; return; }
+      if (!res.data.length) { list.innerHTML = '<div class="empty-state">Belum ada slot untuk tanggal ini.</div>'; return; }
+      list.innerHTML = "";
+      res.data.forEach(s => {
+        const row = document.createElement("div");
+        row.className = "slot-row";
+        row.innerHTML = `
+          <span>${esc(s.jam)}</span>
+          <span>Kap. ${esc(s.kapasitas)}</span>
+          <span class="terisi">Terisi ${esc(s.terisi)} dari ${esc(s.kapasitas)}</span>
+          <button data-id="${esc(s.id)}">Hapus</button>
+        `;
+        row.querySelector("button").addEventListener("click", () => deleteSlot(s.id));
+        list.appendChild(row);
+      });
+    });
+  }
+
+  function deleteSlot(id) {
+    if (!confirm("Hapus slot ini?")) return;
+    fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action: "deleteBankWaktu", adminEmail: currentAdminEmail, id: id }),
+    }).then(r => r.json()).then(() => loadBankWaktu());
+  }
+
+  function loadBookings() {
+    const tanggal = document.getElementById("tanggalInput").value;
+    const list = document.getElementById("bookingList");
+    list.innerHTML = '<div class="empty-state">Memuat…</div>';
+
+    apiGet({ action: "listBookings", adminEmail: currentAdminEmail, tanggal: tanggal }).then(res => {
+      if (!res.success) { list.innerHTML = '<div class="msg error">' + esc(res.message) + '</div>'; return; }
+      if (!res.data.length) { list.innerHTML = '<div class="empty-state">Belum ada yang booking di tanggal ini.</div>'; return; }
+      list.innerHTML = "";
+      res.data.forEach(b => {
+        const row = document.createElement("div");
+        row.className = "booking-row";
+        const isCancelled = b.status === "Dibatalkan";
+        row.innerHTML = `
+          <div class="booking-info">
+            <div class="nama">${esc(b.jam)} — ${esc(b.nama)}</div>
+            <div class="meta">${esc(b.posisi)} · ${esc(b.divisi)} · ${esc(b.noHp)} · ${esc(b.email)}</div>
+            ${isCancelled ? '<div class="meta">Alasan batal: ' + esc(b.alasanBatal || '-') + '</div>' : ''}
+          </div>
+          <div class="booking-actions">
+            <span class="status-badge ${isCancelled ? 'dibatalkan' : 'terjadwal'}">${esc(b.status)}</span>
+            ${!isCancelled ? '<button class="cancel-link" data-id="' + esc(b.id) + '">Batalkan</button>' : ''}
+          </div>
+        `;
+        if (!isCancelled) row.querySelector(".cancel-link").addEventListener("click", () => cancelBooking(b.id));
+        list.appendChild(row);
+      });
+    });
+  }
+
+  function cancelBooking(id) {
+    const alasan = prompt("Alasan pembatalan:");
+    if (alasan === null) return;
+
+    fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action: "cancelBooking", adminEmail: currentAdminEmail, id: id, alasan: alasan }),
+    }).then(r => r.json()).then(() => { loadBookings(); loadBankWaktu(); });
+  }
+
+  /* ========================================================
+     DASHBOARD 1 — PARTISIPASI KARYAWAN (HR only)
+     ======================================================== */
+  let dataHR = null;
+
+  function loadDashboardHR() {
+    const body = document.getElementById("hrTableBody");
+    body.innerHTML = '<tr><td colspan="5" class="empty-state">Memuat…</td></tr>';
+    document.getElementById("hrSummary").innerHTML = "";
+
+    apiGet({ action: "dashboardHR", adminEmail: currentAdminEmail })
+      .then(res => {
+        if (!res.success) {
+          dataHR = null;
+          body.innerHTML = '<tr><td colspan="5"><div class="msg error">' + esc(res.message) + '</div></td></tr>';
+          return;
+        }
+        dataHR = res;
+        renderHrSummary(res);
+        isiFilter(res.data);
+        renderHrTable();
+        renderTidakCocok(res.tidakCocok || []);
+      })
+      .catch(() => {
+        body.innerHTML = '<tr><td colspan="5"><div class="msg error">Tidak bisa terhubung ke sistem. Coba muat ulang.</div></td></tr>';
+      });
+  }
+
+  function renderHrSummary(res) {
+    const r = res.ringkasan;
+    const sisaPersen = r.total ? Math.round((r.terjadwal / r.total) * 100) : 0;
+    document.getElementById("hrSummary").innerHTML = `
+      <div class="summary-grid">
+        <div class="stat hero">
+          <p class="stat-label">Sudah ikut WeCheck</p>
+          <div class="stat-value">${r.persenSelesai}%</div>
+          <div class="bar on-navy" style="margin-top:14px;">
+            <div class="fill-selesai" style="width:${r.persenSelesai}%"></div>
+            <div class="fill-terjadwal" style="width:${sisaPersen}%"></div>
+          </div>
+          <div class="stat-sub">${r.selesai} dari ${r.total} karyawan · periode: ${esc(res.periode)}</div>
+        </div>
+        <div class="stat-strip">
+          <div class="stat-cell">
+            <div class="stat-cell-value" style="color:var(--success);">${r.selesai}</div>
+            <p class="stat-cell-label">Selesai</p>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-cell-value">${r.terjadwal}</div>
+            <p class="stat-cell-label">Terjadwal</p>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-cell-value" style="color:var(--danger);">${r.belum}</div>
+            <p class="stat-cell-label">Belum ikut</p>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function isiFilter(data) {
+    const cabang = [...new Set(data.map(d => d.cabang).filter(Boolean))].sort();
+    const divisi = [...new Set(data.map(d => d.divisi).filter(Boolean))].sort();
+
+    const selCabang = document.getElementById("filterCabang");
+    const selDivisi = document.getElementById("filterDivisi");
+    const cabangLama = selCabang.value, divisiLama = selDivisi.value;
+
+    selCabang.innerHTML = '<option value="">Semua cabang</option>' +
+      cabang.map(c => '<option value="' + esc(c) + '">' + esc(c) + '</option>').join("");
+    selDivisi.innerHTML = '<option value="">Semua divisi</option>' +
+      divisi.map(c => '<option value="' + esc(c) + '">' + esc(c) + '</option>').join("");
+
+    selCabang.value = cabangLama;
+    selDivisi.value = divisiLama;
+  }
+
+  function filterHrData() {
+    if (!dataHR) return [];
+    const q = document.getElementById("cariKaryawan").value.toLowerCase().trim();
+    const fCabang = document.getElementById("filterCabang").value;
+    const fDivisi = document.getElementById("filterDivisi").value;
+    const fStatus = document.getElementById("filterStatus").value;
+
+    return dataHR.data.filter(d => {
+      if (fCabang && d.cabang !== fCabang) return false;
+      if (fDivisi && d.divisi !== fDivisi) return false;
+      if (fStatus && d.status !== fStatus) return false;
+      if (q) {
+        const teks = (d.nama + " " + d.posisi + " " + d.divisi + " " + d.cabang).toLowerCase();
+        if (teks.indexOf(q) === -1) return false;
+      }
+      return true;
+    });
+  }
+
+  const LABEL_STATUS = { selesai: "Selesai", terjadwal: "Terjadwal", belum: "Belum ikut" };
+
+  function renderHrTable() {
+    const body = document.getElementById("hrTableBody");
+    const rows = filterHrData();
+
+    if (!rows.length) {
+      body.innerHTML = '<tr><td colspan="5" class="empty-state">Tidak ada karyawan yang cocok dengan filter ini.</td></tr>';
+      document.getElementById("hrCount").textContent = "";
+      return;
+    }
+
+    // Yang belum ikut ditaruh di atas, biar gampang ditindaklanjuti
+    const urutan = { belum: 0, terjadwal: 1, selesai: 2 };
+    rows.sort((a, b) => urutan[a.status] - urutan[b.status] || a.nama.localeCompare(b.nama));
+
+    body.innerHTML = rows.map(d => `
+      <tr>
+        <td>
+          <div>${esc(d.nama)}</div>
+          <div class="sub">${esc(d.divisi)}</div>
+        </td>
+        <td>${esc(d.posisi)}</td>
+        <td>${esc(d.cabang)}</td>
+        <td><span class="pill ${d.status}">${LABEL_STATUS[d.status]}</span></td>
+        <td>${d.tanggalSesi ? esc(d.tanggalSesi) + ' · ' + esc(d.jamSesi) : '<span class="sub">—</span>'}</td>
+      </tr>
+    `).join("");
+
+    document.getElementById("hrCount").textContent =
+      "Menampilkan " + rows.length + " dari " + dataHR.data.length + " karyawan.";
+  }
+
+  function renderTidakCocok(list) {
+    const panel = document.getElementById("tidakCocokPanel");
+    if (!list.length) { panel.style.display = "none"; return; }
+    panel.style.display = "block";
+    document.getElementById("tidakCocokList").innerHTML = list.map(b => `
+      <div class="booking-row">
+        <div class="booking-info">
+          <div class="nama">${esc(b.nama)}</div>
+          <div class="meta">${esc(b.email)} · ${esc(b.divisi)} · sesi ${esc(b.tanggal)}</div>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  function exportCsv() {
+    const rows = filterHrData();
+    if (!rows.length) { alert("Tidak ada data untuk diunduh."); return; }
+
+    const header = ["Employee ID", "Nama", "Posisi", "Divisi", "Cabang", "Status WeCheck", "Tanggal sesi", "Jam sesi"];
+    const isi = rows.map(d => [
+      d.id, d.nama, d.posisi, d.divisi, d.cabang, LABEL_STATUS[d.status], d.tanggalSesi, d.jamSesi
+    ]);
+
+    const csv = [header].concat(isi)
+      .map(r => r.map(v => '"' + String(v === undefined || v === null ? "" : v).replace(/"/g, '""') + '"').join(","))
+      .join("\r\n");
+
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "partisipasi-wecheck-" + todayStr() + ".csv";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  /* ========================================================
+     DASHBOARD 2 — PROGRES PER CABANG (publik)
+     ======================================================== */
+  function initCabang() {
+    document.getElementById("refreshCabangBtn").addEventListener("click", loadDashboardCabang);
+    loadDashboardCabang();
+  }
+
+  function loadDashboardCabang() {
+    const list = document.getElementById("cabangList");
+    list.classList.remove("branch-grid");
+    list.innerHTML = '<div class="empty-state">Memuat…</div>';
+    document.getElementById("cabangSummary").innerHTML = "";
+
+    apiGet({ action: "dashboardCabang" })
+      .then(res => {
+        if (!res.success) {
+          list.classList.remove("branch-grid");
+          list.innerHTML = '<div class="msg error">' + esc(res.message) + '</div>';
+          return;
+        }
+        document.getElementById("periodeLabel").textContent = "Periode: " + res.periode;
+
+        const r = res.ringkasan;
+        const persenTerjadwal = r.total ? Math.round((r.terjadwal / r.total) * 100) : 0;
+        document.getElementById("cabangSummary").innerHTML = `
+          <div class="summary-grid">
+            <div class="stat hero">
+              <p class="stat-label">Progres seluruh WM Center</p>
+              <div class="stat-value">${r.persenSelesai}%</div>
+              <div class="bar on-navy" style="margin-top:14px;">
+                <div class="fill-selesai" style="width:${r.persenSelesai}%"></div>
+                <div class="fill-terjadwal" style="width:${persenTerjadwal}%"></div>
+              </div>
+              <div class="stat-sub">${r.selesai} dari ${r.total} karyawan di ${r.jumlahCabang} cabang</div>
+            </div>
+            <div class="stat-strip">
+              <div class="stat-cell">
+                <div class="stat-cell-value" style="color:var(--success);">${r.selesai}</div>
+                <p class="stat-cell-label">Selesai</p>
+              </div>
+              <div class="stat-cell">
+                <div class="stat-cell-value">${r.terjadwal}</div>
+                <p class="stat-cell-label">Terjadwal</p>
+              </div>
+              <div class="stat-cell">
+                <div class="stat-cell-value" style="color:var(--danger);">${r.belum}</div>
+                <p class="stat-cell-label">Belum ikut</p>
+              </div>
+            </div>
+          </div>
+        `;
+
+        if (!res.data.length) {
+          list.classList.remove("branch-grid");
+          list.innerHTML = '<div class="empty-state">Belum ada data cabang.</div>';
+          return;
+        }
+        list.classList.add("branch-grid");
+
+        list.innerHTML = res.data.map(c => `
+          <div class="branch-card">
+            <div class="branch-name">${esc(shortCabang(c.cabang))}</div>
+            ${donutCabang(c)}
+            <div class="branch-meta">
+              ${c.selesai} selesai · ${c.terjadwal} terjadwal<br>${c.belum} belum ikut
+            </div>
+          </div>
+        `).join("");
+      })
+      .catch(() => {
+        list.innerHTML = '<div class="msg error">Tidak bisa terhubung ke sistem. Coba muat ulang halaman.</div>';
+      });
+  }
+</script>
+
+</body>
+</html>
