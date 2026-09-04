@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PIP: We Improve</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  :root{
+    --ink:#0f1e3d; --ink-soft:#33415f; --muted:#66708a;
+    --brand:#e8762c; --brand-600:#d3661f; --brand-050:#fdeee2;
+    --bg:#f4f5f9; --surface:#ffffff; --line:#e2e6ef; --line-strong:#cdd3e2;
+    --ok:#0f9d6f; --ok-bg:#e6f6ef; --ok-line:#bfe8d7;
+    --danger:#d02525; --danger-bg:#fbe9e9; --danger-line:#f3c8c8;
+    --radius:14px; --shadow:0 1px 2px rgba(15,30,61,.05),0 10px 30px rgba(15,30,61,.08);
+    --font-d:'Plus Jakarta Sans',system-ui,sans-serif;
+    --font-b:'Inter',system-ui,sans-serif;
+    --sidebar-w:256px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{font-family:var(--font-b);background:var(--bg);color:var(--ink);font-size:14px;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3,.font-display{font-family:var(--font-d);letter-spacing:-.01em;color:var(--ink);}
+  a{color:var(--brand);}
+  input,select,textarea,button{font-family:var(--font-b);}
+
+  /* ---------- SIDEBAR ---------- */
+  .sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:linear-gradient(180deg,var(--ink) 0%, #0a1530 100%);color:#fff;display:flex;flex-direction:column;z-index:20;}
+  .sb-brand{padding:22px 20px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.08);}
+  .sb-mark{width:34px;height:34px;border-radius:9px;background:var(--brand);display:flex;align-items:center;justify-content:center;font-family:var(--font-d);font-weight:800;font-size:14px;color:#fff;box-shadow:0 4px 12px rgba(232,118,44,.35);}
+  .sb-title{font-family:var(--font-d);font-weight:700;font-size:14.5px;line-height:1.2;}
+  .sb-sub{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px;}
+  .sb-nav{padding:16px 12px;flex:1;}
+  .sb-section-label{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.35);padding:6px 10px 8px;}
+  .sb-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;font-size:13.5px;font-weight:500;color:rgba(255,255,255,.72);cursor:pointer;margin-bottom:2px;transition:background .12s ease,color .12s ease;}
+  .sb-item svg{flex-shrink:0;opacity:.85;}
+  .sb-item:hover{background:rgba(255,255,255,.07);color:#fff;}
+  .sb-item.active{background:var(--brand);color:#fff;}
+  .sb-item.active svg{opacity:1;}
+  .sb-foot{padding:14px 16px 18px;border-top:1px solid rgba(255,255,255,.08);}
+  .sb-role-label{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:8px;}
+  .role-toggle{display:flex;background:rgba(255,255,255,.08);border-radius:9px;padding:3px;gap:3px;margin-bottom:12px;}
+  .role-toggle button{flex:1;border:none;background:transparent;color:rgba(255,255,255,.55);font-size:12.5px;font-weight:600;padding:7px 0;border-radius:6px;cursor:pointer;}
+  .role-toggle button.active{background:#fff;color:var(--ink);}
+  .sync-status{display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:600;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.75);cursor:pointer;}
+  .sync-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+  .sync-status:hover{background:rgba(255,255,255,.1);}
+
+  /* ---------- MAIN ---------- */
+  .main{margin-left:var(--sidebar-w);min-height:100vh;}
+  .topbar{background:rgba(255,255,255,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:18px 32px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;position:sticky;top:0;z-index:10;flex-wrap:wrap;}
+  .page-title{font-family:var(--font-d);font-weight:700;font-size:19px;color:var(--ink);}
+  .page-desc{font-size:13px;color:var(--muted);margin-top:3px;max-width:580px;}
+  .content{padding:26px 32px 56px;}
+  .banner{display:flex;align-items:center;gap:10px;padding:11px 16px;border-radius:10px;font-size:12.5px;font-weight:600;margin-bottom:18px;border:1px solid transparent;}
+  .banner-warn{background:#fdf3e2;color:#8a5a06;border-color:#f2ddac;}
+  .banner-ok{background:var(--ok-bg);color:#0a7a56;border-color:var(--ok-line);}
+
+  /* ---------- COMPONENTS ---------- */
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);}
+  .stat-card{padding:16px 18px;}
+  .stat-label{font-size:11px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+  .stat-value{font-family:var(--font-d);font-weight:700;font-size:24px;color:var(--ink);}
+
+  .template-card{display:flex;align-items:center;gap:14px;padding:16px 18px;margin-bottom:18px;background:var(--brand-050);border:1px solid #cfe6e2;}
+  .template-icon{width:42px;height:42px;border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center;color:var(--brand);flex-shrink:0;box-shadow:var(--shadow);}
+  .template-title{font-family:var(--font-d);font-weight:700;font-size:14px;color:var(--ink);}
+  .template-sub{font-size:12px;color:var(--ink-soft);margin-top:1px;}
+
+  table{border-collapse:collapse;width:100%;}
+  thead th{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);text-align:left;padding:11px 16px;white-space:nowrap;background:#FAFCFB;border-bottom:1px solid var(--line);}
+  tbody td{padding:13px 16px;font-size:13.5px;color:var(--ink);border-bottom:1px solid var(--line);vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:#FAFCFB;}
+  .cell-sub{font-size:12px;color:var(--muted);margin-top:1px;}
+  .cell-muted{color:var(--muted);}
+
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:6px;font-size:12px;font-weight:600;border:1px solid transparent;}
+  .badge-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+  .badge-ok{background:var(--ok-bg);color:var(--ok);border-color:var(--ok-line);}
+  .badge-ok .badge-dot{background:var(--ok);}
+  .badge-danger{background:var(--danger-bg);color:var(--danger);border-color:var(--danger-line);}
+  .badge-danger .badge-dot{background:var(--danger);}
+
+  .btn{font-family:var(--font-b);font-weight:600;font-size:13px;padding:9px 16px;border-radius:10px;cursor:pointer;border:1px solid transparent;transition:all .13s ease;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
+  .btn-primary{background:var(--brand);color:#fff;box-shadow:0 6px 14px rgba(232,118,44,.22);}
+  .btn-primary:hover{background:var(--brand-600);transform:translateY(-1px);}
+  .btn-outline{background:#fff;color:var(--ink);border-color:var(--line-strong);}
+  .btn-outline:hover{background:#F7FAF9;border-color:var(--brand);color:var(--brand);}
+  .btn-sm{padding:6px 12px;font-size:12.5px;}
+  .btn-disabled{background:#EEF2F1;color:var(--muted);cursor:not-allowed;border-color:var(--line);}
+  .btn-link-sm{font-size:12px;font-weight:600;color:var(--brand);cursor:pointer;display:inline-flex;align-items:center;gap:4px;}
+  .btn-link-sm:hover{text-decoration:underline;}
+
+  .icon-btn{width:30px;height:30px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink-soft);transition:all .12s ease;}
+  .icon-btn:hover{background:#F5FAF9;border-color:var(--brand);color:var(--brand);}
+
+  input[type=text],input[type=date],select,textarea{width:100%;padding:10px 13px;border:1px solid var(--line-strong);border-radius:10px;font-size:13.5px;font-family:var(--font-b);background:#fcfefe;color:var(--ink);transition:.13s;}
+  input:focus,textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(232,118,44,.13);background:#fff;}
+  input:disabled,textarea:disabled{background:#F4F6F5;color:var(--ink-soft);}
+  ::placeholder{color:#a7b6b2;}
+  label.field-label{font-size:11.5px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.03em;display:block;margin-bottom:6px;}
+  .field-hint{font-size:11.5px;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;margin-top:5px;}
+
+  .section-title{font-family:var(--font-d);font-weight:700;font-size:14.5px;color:var(--ink);display:flex;align-items:center;gap:10px;}
+  .section-num{width:26px;height:26px;border-radius:8px;background:var(--brand-050);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;}
+
+  .modal-backdrop{position:fixed;inset:0;background:rgba(14,43,40,.5);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;overflow-y:auto;}
+  .progress-track{height:7px;border-radius:99px;background:#E9EFEE;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--brand);border-radius:99px;transition:width .4s ease;}
+  .file-drop{border:1.5px dashed var(--line-strong);border-radius:11px;padding:15px;background:#fbfdfd;text-align:left;}
+  .file-chip{display:inline-flex;align-items:center;gap:8px;padding:9px 13px;border:1px solid var(--line);border-radius:9px;background:#fbfdfd;font-size:13px;}
+  .empty-state{text-align:center;padding:56px 20px;color:var(--muted);}
+  .divider{border-top:1px solid var(--line);}
+
+  .pagination{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 16px;flex-wrap:wrap;border-top:1px solid var(--line);}
+  .pagination-info{font-size:12.5px;color:var(--muted);}
+  .pagination-pages{display:flex;align-items:center;gap:4px;}
+  .page-btn{min-width:30px;height:30px;padding:0 6px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink-soft);font-size:12.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
+  .page-btn:hover:not(:disabled){border-color:var(--brand);color:var(--brand);}
+  .page-btn.active{background:var(--brand);border-color:var(--brand);color:#fff;}
+  .page-btn:disabled{opacity:.4;cursor:not-allowed;}
+  .page-ellipsis{color:var(--muted);font-size:12.5px;padding:0 2px;}
+
+  .login-gate{max-width:400px;margin:60px auto;text-align:center;padding:36px 30px;}
+  .login-gate .login-icon{width:52px;height:52px;border-radius:14px;background:var(--brand-050);color:var(--brand);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;}
+  .login-gate h2{font-size:17px;margin-bottom:6px;}
+  .login-gate p{font-size:13px;color:var(--muted);margin-bottom:22px;line-height:1.6;}
+  .login-gate-btn-wrap{display:flex;justify-content:center;}
+  .login-denied{background:var(--danger-bg);border:1px solid var(--danger-line);color:var(--danger);border-radius:10px;padding:12px 14px;font-size:12.5px;text-align:left;margin-top:16px;line-height:1.6;}
+  .hr-account-chip{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:9px;background:rgba(255,255,255,.06);margin-bottom:8px;}
+  .hr-account-chip .avatar{width:26px;height:26px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+  .hr-account-chip .email{font-size:11px;color:rgba(255,255,255,.75);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
+  .hr-signout{font-size:11px;color:rgba(255,255,255,.5);cursor:pointer;flex-shrink:0;}
+  .hr-signout:hover{color:#fff;}
+
+
+  @media(max-width:900px){
+    .sidebar{width:72px;}
+    .sb-title,.sb-sub,.sb-section-label,.sb-item span,.sb-role-label,.role-toggle,.sync-status span{display:none;}
+    .sb-item{justify-content:center;}
+    .main{margin-left:72px;}
+    .sb-foot{display:none;}
+    .sp-jenis-grid{grid-template-columns:repeat(2,1fr);}
+    .sp-panels{grid-template-columns:1fr;}
+    .sp-stat-row{grid-template-columns:repeat(3,1fr);}
+  }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-mark">PIP</div>
+    <div>
+      <div class="sb-title">PIP: We Improve</div>
+      <div class="sb-sub">WM Center &middot; People Development</div>
+    </div>
+  </div>
+  <div class="sb-nav" id="sbNav"></div>
+  <div class="sb-foot">
+    <div id="sbHrAccount"></div>
+    <div class="sync-status" id="syncStatus" onclick="manualSync()"></div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar" id="topbar"></div>
+  <div class="content" id="app"></div>
+</div>
+
+<div id="modalRoot"></div>
+
+<script>
+/* =========================================================================
+   KONFIGURASI GOOGLE SHEETS
+   1. Deploy Code.gs (terlampir terpisah) sebagai Web App di Apps Script.
+   2. Salin URL Web App hasil deploy, tempel di bawah ini.
+   3. Kalau dikosongkan, dashboard tetap jalan dengan data dummy lokal.
+   ========================================================================= */
+const SHEETS_API_URL = "https://script.google.com/macros/s/AKfycbz1TSgbF4wh-M_IBhbpI-SFfRKUYbo2iI5b6sNOdIdTH1GE9dW7zhSNujZhtx_PqGHz/exec"; // <-- TEMPEL URL WEB APP APPS SCRIPT DI SINI
+
+const TEMPLATE_FILE_B64 = "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";
+const TEMPLATE_FILE_NAME = "Form_Coaching_Karyawan_-_WM_Center.docx";
+
+const PAGE_SIZE = 30;
+
+/* =========================================================================
+   KONFIGURASI GOOGLE SIGN-IN (AKSES HALAMAN HR)
+   1. Buat OAuth Client ID di Google Cloud Console (lihat panduan terpisah).
+   2. Tempel Client ID di bawah ini.
+   3. Daftar email yang boleh akses Layer 1 (HR) ada di ALLOWED_HR_EMAILS.
+      Email yang sama HARUS juga ditempel di Code.gs (ALLOWED_HR_EMAILS)
+      supaya validasinya juga jalan di server, bukan cuma di tampilan.
+   ========================================================================= */
+const GOOGLE_CLIENT_ID = "113626255388-sscgtea5u31dvevv48jb3dv2mlg0cjfv.apps.googleusercontent.com";
+const ALLOWED_HR_EMAILS = ["hr@wmcenter.id", "mia@wmcenter.id", "peopledevelopment.wmcenter@gmail.com", "legal@wmcenter.id", "legalwmcenter@gmail.com"];
+
+/* =========================================================================
+   KONFIGURASI AKSES ATASAN (LEADER / CO-LEADER / BRANCH COORDINATOR / HEAD)
+   Setiap orang di sini login dengan emailnya sendiri dan HANYA akan melihat
+   data coaching di mana field "Nama Atasan" cocok dengan namanya di sini
+   (persis sama seperti nama yang dipilih lewat autocomplete EMPLOYEES).
+   Tambahkan baris baru kalau ada leader/coordinator/head baru.
+   ========================================================================= */
+const ACCESS_CONFIG = [
+  // --- Pemuda ---
+  { email: "nataliussinuhaji92@gmail.com", name: "Natalius Sinuhaji", label: "Leader Physiotherapist", cabang: "Pemuda" },
+  { email: "mileniasacola@gmail.com", name: "Milenia Vina Sacola", label: "Co-Leader Physiotherapist", cabang: "Pemuda" },
+  { email: "sanaz.jamalullail@gmail.com", name: "Sabiya Nazneen", label: "Branch Coordinator", cabang: "Pemuda" },
+  // --- Bandung ---
+  { email: "sulistianijun@gmail.com", name: "Sulistiani", label: "Leader Physiotherapist", cabang: "Bandung" },
+  { email: "zhalzaoktavia@gmail.com", name: "Zhalza Oktavia Nuraeni Rahmat", label: "Branch Coordinator", cabang: "Bandung" },
+  // --- BSD ---
+  { email: "pandeka35@gmail.com", name: "Muhammad Reza Vivaldi", label: "Leader Physiotherapist", cabang: "BSD" },
+  { email: "najwakani05@gmail.com", name: "Najwa Kani", label: "Branch Coordinator", cabang: "BSD" },
+  // --- Kemang ---
+  { email: "nizatulmumtazah@gmail.com", name: "Nizatul Mumtazah", label: "Leader Physiotherapist", cabang: "Kemang" },
+  { email: "widyrhy31@gmail.com", name: "Widy Rahayu", label: "Branch Coordinator", cabang: "Kemang" },
+  // --- Cibubur ---
+  { email: "pandufebriyanto76@gmail.com", name: "Pandu Febriyanto", label: "Leader Physiotherapist", cabang: "Cibubur" },
+  { email: "faradillaamalika@gmail.com", name: "Faradila Mutiara Amalika", label: "Branch Coordinator", cabang: "Cibubur" },
+  // --- Kebayoran ---
+  { email: "citrarahmautamixiiak.15@gmail.com", name: "Citra Rahma Utami", label: "Leader Physiotherapist", cabang: "Kebayoran" },
+  { email: "dewikrismonika@gmail.com", name: "Dewi Krismonika", label: "Branch Coordinator", cabang: "Kebayoran" },
+  // --- Surabaya (belum ada Branch Coordinator) ---
+  { email: "davidlaviusprinanuel@gmail.com", name: "David Lavius Prinanuel", label: "Leader Physiotherapist", cabang: "Surabaya" },
+  // --- Puri ---
+  { email: "mtyanr1212@gmail.com", name: "Meutia Nuur Muhshii", label: "Leader Physiotherapist", cabang: "Puri" },
+  { email: "friscilliarizka@gmail.com", name: "Friscillia Rizki Amanda", label: "Branch Coordinator", cabang: "Puri" },
+  // --- Alam Sutera ---
+  { email: "fitrihsb789fisiositihajar@gmail.com", name: "Fitri Hasibuan", label: "Leader Physiotherapist", cabang: "Alam Sutera" },
+  { email: "connectwithyudith@gmail.com", name: "Yudith Melati Ambarningrum", label: "Branch Coordinator", cabang: "Alam Sutera" },
+  // --- Bekasi ---
+  { email: "pnamira8@gmail.com", name: "Namira Putri Komara", label: "Leader Physiotherapist", cabang: "Bekasi" },
+  { email: "tsyapr@icloud.com", name: "Tasya Apriani", label: "Branch Coordinator", cabang: "Bekasi" },
+  // --- Sunter ---
+  { email: "raihandadan@gmail.com", name: "Muhammad Raihan Maulidan", label: "Leader Physiotherapist", cabang: "Sunter" },
+  { email: "verlianastevevai1@gmail.com", name: "Verliana Stevevai", label: "Branch Coordinator", cabang: "Sunter" },
+  // --- Head Office / Department Heads ---
+  { email: "mia@wmcenter.id", name: "Asmiani Fawziah", label: "Head of HRGA & Legal", cabang: "Office" },
+  { email: "babarakbaar@gmail.com", name: "Muhammad Akbar", label: "Head of Finance & Data", cabang: "Office" },
+  { email: "muhammad@wmcenter.id", name: "Muhammad Askar", label: "CEO / Head of Business Development", cabang: "Office" },
+  { email: "bella.indaini@gmail.com", name: "Bella Indaini Haning", label: "Head of Operations", cabang: "Office" },
+  { email: "nanakuinra@gmail.com", name: "Nana Uli", label: "Head of Brand", cabang: "Office" },
+  { email: "lglstr2@gmail.com", name: "Ayu Legi Lestari", label: "Head of Physiotherapist", cabang: "Office" },
+  // --- BOD ---
+  { email: "naufal@wmcenter.id", name: "Muhammad Naufal", label: "CFO", cabang: "Office" },
+];
+const ACCESS_BY_EMAIL = {};
+ACCESS_CONFIG.forEach(a => { ACCESS_BY_EMAIL[a.email.toLowerCase()] = a; });
+
+/* =========================================================================
+   AUTO-RESOLVE ATASAN: dari posisi + divisi + penempatan karyawan, cari
+   siapa yang seharusnya jadi "Nama Atasan" berdasarkan ACCESS_CONFIG.
+   Dipakai HR supaya ga perlu pilih manual saat assign coaching.
+   ========================================================================= */
+const DEPT_HEAD_LABEL = {
+  "HRGA & Legal": "Head of HRGA & Legal",
+  "Finance & Data": "Head of Finance & Data",
+  "Business Development": "CEO / Head of Business Development",
+  "Operations": "Head of Operations",
+  "Brand & Communication": "Head of Brand",
+  "Physiotherapist": "Head of Physiotherapist",
+};
+
+function findAccessByLabel(label, cabang){
+  return ACCESS_CONFIG.find(a => a.label === label && (cabang === undefined || a.cabang === cabang)) || null;
+}
+
+function resolveAtasan(posisi, divisi, penempatan){
+  posisi = (posisi||"").trim();
+  divisi = (divisi||"").trim();
+  penempatan = (penempatan||"").trim();
+
+  if(posisi === "Physiotherapist"){
+    const m = findAccessByLabel("Leader Physiotherapist", penempatan);
+    if(m) return m;
+  }
+  if(posisi === "Front Office" || posisi === "Cleaning Service"){
+    const m = findAccessByLabel("Branch Coordinator", penempatan);
+    if(m) return m;
+  }
+  if(posisi === "Leader Physiotherapist" || posisi === "Co-Leader Physiotherapist"){
+    return findAccessByLabel("Head of Physiotherapist");
+  }
+  if(posisi === "Branch Coordinator"){
+    return findAccessByLabel("Head of Operations");
+  }
+  if(/^Head of /i.test(posisi) || posisi === "BOD" || posisi === "CEO" || posisi === "CFO"){
+    return findAccessByLabel("CEO / Head of Business Development");
+  }
+  const headLabel = DEPT_HEAD_LABEL[divisi];
+  if(headLabel) return findAccessByLabel(headLabel);
+  return null;
+}
+
+function accessConfigByName(name){
+  const n = (name||"").trim().toLowerCase();
+  return ACCESS_CONFIG.find(a => a.name.trim().toLowerCase() === n) || null;
+}
+const STORAGE = {
+  records: [
+    {id:1, namaAtasan:"Budi Santoso", jabatan:"Manager", divisi:"Sales", namaKaryawan:"Andi Prasetyo", posisiKaryawan:"Sales Executive", divisiKaryawan:"Sales", penempatan:"Jakarta Pusat", periode:"2026-07-10", submission:null, status:"uncomplete"},
+    {id:2, namaAtasan:"Budi Santoso", jabatan:"Manager", divisi:"Sales", namaKaryawan:"Rina Wulandari", posisiKaryawan:"Sales Executive", divisiKaryawan:"Sales", penempatan:"Jakarta Pusat", periode:"2026-07-12",
+      submission:{areaCoaching:"Penanganan Komplain", alasan:"Penurunan target penjualan Q2 dan beberapa komplain pelanggan terkait respons yang lambat.", fileName:"form-coaching-rina.pdf", fileDataUrl:null, fileUrl:null, catatan:"Karyawan kooperatif, akan dievaluasi kembali bulan depan.", penempatan:"Jakarta Pusat"}, status:"complete"},
+    {id:3, namaAtasan:"Siti Aminah", jabatan:"Assistant Manager", divisi:"Finance", namaKaryawan:"Dedi Kurniawan", posisiKaryawan:"Finance Staff", divisiKaryawan:"Finance", penempatan:"Surabaya", periode:"2026-07-15", submission:null, status:"uncomplete"},
+    {id:4, namaAtasan:"Siti Aminah", jabatan:"Assistant Manager", divisi:"Finance", namaKaryawan:"Maya Sari", posisiKaryawan:"Finance Staff", divisiKaryawan:"Finance", penempatan:"Surabaya", periode:"2026-07-08",
+      submission:{areaCoaching:"NPS", alasan:"Kesalahan input laporan berulang yang berdampak pada skor kepuasan pelanggan.", fileName:"form-coaching-maya.pdf", fileDataUrl:null, fileUrl:null, catatan:"Perlu pendampingan tambahan 2 minggu ke depan.", penempatan:"Surabaya"}, status:"complete"},
+    {id:5, namaAtasan:"Hendra Wijaya", jabatan:"Team Leader", divisi:"Operasional", namaKaryawan:"Fajar Nugroho", posisiKaryawan:"Staff Operasional", divisiKaryawan:"Operasional", penempatan:"Bandung", periode:"2026-07-18", submission:null, status:"uncomplete"},
+    {id:6, namaAtasan:"Hendra Wijaya", jabatan:"Team Leader", divisi:"Operasional", namaKaryawan:"Lestari Handayani", posisiKaryawan:"Staff Operasional", divisiKaryawan:"Operasional", penempatan:"Bandung", periode:"2026-07-20", submission:null, status:"uncomplete"},
+  ],
+  nextId: 7,
+};
+
+let state = { role: null, view: null, activeRecordId: null, page1: 1, page2: 1, syncing:false, connected:false, googleIdToken:null, googleEmail:null, hrAuthorized:false, atasanName:null, atasanLabel:null, atasanCabang:null, accessDenied:false };
+
+
+const fmtDate = (d) => {
+  if(!d) return "-";
+  const dt = new Date(d+"T00:00:00");
+  return dt.toLocaleDateString("id-ID", {day:"2-digit", month:"short", year:"numeric"});
+};
+const esc = (s) => (s ?? "").toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* =========================================================================
+   MASTER DATA KARYAWAN — untuk autocomplete Nama Atasan / Nama Karyawan.
+   Sumber: Karyawan_WM_Center.xlsx. Update file ini kalau data karyawan
+   berubah (n=nama, p=penempatan, j=posisi/jabatan, d=divisi).
+   ========================================================================= */
+const EMPLOYEES = [{"n":"Abi Gail Marchela Perwitasari Priambodo Putri","p":"Kemang","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Adinda Salfa Sofia","p":"Cibubur","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Adis Saputra","p":"Pemuda","j":"Cleaning Service","d":"Operations"},{"n":"Aditia Saputra","p":"Kemang","j":"Cleaning Service","d":"Operations"},{"n":"Aditya Rahadyan","p":"Office","j":"Staff HRGA & Legal","d":"HRGA & Legal"},{"n":"Agnes Darin Alimah Yusandy","p":"Bekasi","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Ahmad Ibnu Athoillah","p":"Alam Sutera","j":"Front Office","d":"Operations"},{"n":"Ahmad Kelana","p":"Puri","j":"Cleaning Service","d":"Operations"},{"n":"Ahmad Kemal Maulana","p":"Office","j":"Staff Operations","d":"Operations"},{"n":"Ahmad Sayuti","p":"Office","j":"Staff Teknisi","d":"HRGA & Legal"},{"n":"Ainun Nadila Onding","p":"Kuningan","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Aisya Annida Qurany","p":"Kemang","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Aisyah Putri Edisti","p":"Cibubur","j":"Front Office","d":"Operations"},{"n":"Aldhie Alzanuar","p":"Office","j":"Intern Brand","d":"Brand & Communication"},{"n":"Aldi Saputra","p":"BSD","j":"Cleaning Service","d":"Operations"},{"n":"Alfi Dian Purnamasari","p":"Cibubur","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Alfia Khairunnisa","p":"Bandung","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Alifa Akbar","p":"Pemuda","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Alviah Salsabila Rizqi","p":"Bekasi","j":"Front Office","d":"Operations"},{"n":"Alya Nafis Azizah","p":"Surabaya","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Amalina Risti Rahardjo","p":"BSD","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Amira Sofia","p":"Office","j":"Branch Coordinator","d":"Operations"},{"n":"Analiya Putri Rachman","p":"Office","j":"Staff Brand","d":"Brand & Communication"},{"n":"Anand Julio Sulaeman","p":"Office","j":"Intern HRGA & Legal","d":"HRGA & Legal"},{"n":"Anastalia","p":"Pemuda","j":"Front Office","d":"Operations"},{"n":"Anastasia Kartika Niken Aribowo","p":"Pemuda","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Andhika Pradana","p":"Office","j":"Intern HRGA & Legal","d":"HRGA & Legal"},{"n":"Andhika Wirayudha","p":"Bandung","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Andi Alya Amalia Yusuf","p":"Kebayoran","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Andi Sutrisno","p":"Bandung","j":"Cleaning Service","d":"Operations"},{"n":"Anisa Rizki Fadhilah","p":"Sunter","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Aprilia Ayu Pratiwi","p":"Alam Sutera","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Asmiani Fawziah","p":"Office","j":"Head of HRGA & Legal","d":"HRGA & Legal"},{"n":"Asri Darmawanti","p":"BSD","j":"Front Office","d":"Operations"},{"n":"Asri Lutfika Hidayati","p":"Puri","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Aulia Marsha Panandita","p":"Kemang","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Ayu Legi Lestari","p":"Office","j":"Head of Physiotherapist","d":"Physiotherapist"},{"n":"Azmi Mayzardi","p":"Kebayoran","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Bella Indaini Haning","p":"Office","j":"Head of Operations","d":"Operations"},{"n":"Beryl Zumrotusholihah","p":"Office","j":"Staff Brand","d":"Brand & Communication"},{"n":"Choirie Nito Satrio","p":"Office","j":"Staff HRGA & Legal","d":"HRGA & Legal"},{"n":"Citra Rahma Utami","p":"Kebayoran","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Cut Lola Shakira","p":"Bekasi","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Dara Luthfiyah Safinatunnajah","p":"Kemang","j":"Physiotherapist","d":"Physiotherapist"},{"n":"David Lavius Prinanuel","p":"Surabaya","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Dea Ananda Halid","p":"Puri","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Dede Melinda","p":"Puri","j":"Front Office","d":"Operations"},{"n":"Deny Hepi Qoriyah","p":"BSD","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Deogy Ahmad","p":"Office","j":"Staff Finance & Data","d":"Finance & Data"},{"n":"Derio Fakhri Putra","p":"Kemang","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Devi Hernita","p":"Pemuda","j":"Front Office","d":"Operations"},{"n":"Dewi Krismonika","p":"Office","j":"Branch Coordinator","d":"Operations"},{"n":"Dewi Salma","p":"Bekasi","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Dhea Putri Utami","p":"Bandung","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Dika Tiara Salsabila","p":"Puri","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Dilla Ika Virly Erlita","p":"Surabaya","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Dinda Armita","p":"Pemuda","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Dzakira Butsainah","p":"Bekasi","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Eka Safitri Nurhidayah","p":"Pemuda","j":"Front Office","d":"Operations"},{"n":"Eko Suroyo","p":"Kemang","j":"Cleaning Service","d":"Operations"},{"n":"Elisa Isak Ena","p":"Cibubur","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Enny Debora","p":"Office","j":"Staff Operations","d":"Operations"},{"n":"Eri Wiguna Sardi","p":"Office","j":"Staff Operations","d":"Operations"},{"n":"Evi Tri Utami","p":"Sunter","j":"Front Office","d":"Operations"},{"n":"Evita Sari","p":"Kebayoran","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Fadira Lailya Putri","p":"Kemang","j":"Front Office","d":"Operations"},{"n":"Fadly Zakaria Maskat","p":"Office","j":"Staff Brand","d":"Brand & Communication"},{"n":"Faldi Renaldi","p":"Kemang","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Faradila Mutiara Amalika","p":"Office","j":"Branch Coordinator","d":"Operations"},{"n":"Farhan Oktriviyanto","p":"Bekasi","j":"Cleaning Service","d":"Operations"},{"n":"Fathia Noor Zafira","p":"Kebayoran","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Fida Nurahma","p":"Pemuda","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Filomena Fidelia","p":"Pemuda","j":"Front Office","d":"Operations"},{"n":"Fionna Clarissa A Uguy","p":"Office","j":"Staff HRGA & Legal","d":"HRGA & Legal"},{"n":"Fitri Hasibuan","p":"Alam Sutera","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Frensen Meisandy","p":"Office","j":"Staff Finance & Data","d":"Finance & Data"},{"n":"Friscillia Rizki Amanda","p":"Office","j":"Staff Operations","d":"Operations"},{"n":"Galuh Pavita Sari","p":"Office","j":"Staff Brand","d":"Brand & Communication"},{"n":"Ghaitsa Zahira Shofa","p":"Office","j":"Customer Service","d":"Operations"},{"n":"Gres Indah Kasih Telaumbanua","p":"Kebayoran","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Gusti Dwi Apriyanto","p":"Bekasi","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Hanif Massyahhaq","p":"Pemuda","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Hasna Yasmin","p":"Kemang","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Hasnah Hamidah","p":"Puri","j":"Physiotherapist","d":"Physiotherapist"},{"n":"I Putu Eka Pramana Putra","p":"Alam Sutera","j":"Physiotherapist","d":"Physiotherapist"},{"n":"INDRA PERDANA KUSUMA","p":"Surabaya","j":"Security","d":"Operations"},{"n":"Ilham Alamsyah","p":"Pemuda","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Ilham Rafi Syahbana","p":"Bekasi","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Ilma Kafifa Waliyani","p":"Kuningan","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Inez Deviantika","p":"Cibubur","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Irma Rama Danti","p":"Surabaya","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Ismail","p":"Kuningan","j":"Cleaning Service","d":"Operations"},{"n":"Jujun Junaedi","p":"Kebayoran","j":"Cleaning Service","d":"Operations"},{"n":"Kholilah Anis Muryani","p":"Pemuda","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Kirana Rafifa Kusuma","p":"Office","j":"Intern HRGA & Legal","d":"HRGA & Legal"},{"n":"Klarisa Salsa Bila Maharani","p":"Pemuda","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Laely Nur Inayah","p":"Kebayoran","j":"Front Office","d":"Operations"},{"n":"Linggar Antasya Putri","p":"Surabaya","j":"Front Office","d":"Operations"},{"n":"Loviya Azzahra Yahya","p":"Office","j":"Staff Brand","d":"Brand & Communication"},{"n":"Luluk Setya Arimbi","p":"Puri","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Lutvia Aviva Naila Lantana","p":"Office","j":"Customer Service","d":"Operations"},{"n":"Lydia Armalia Kusumadewi Budiman","p":"BSD","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Lydia Rizka Achdenissa","p":"Pemuda","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Maisah Zulfa Alifianti","p":"Office","j":"Staff Finance & Data","d":"Finance & Data"},{"n":"Meutia Nuur Muhshii","p":"Puri","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Milenia Vina Sacola","p":"Pemuda","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Mochammad Abdul Ajis","p":"Surabaya","j":"Cleaning Service","d":"Operations"},{"n":"Mohamad Alvy Dewantara","p":"Office","j":"Staff HRGA & Legal","d":"HRGA & Legal"},{"n":"Mohamad Ramadhan","p":"BSD","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Muhamad Abi Karami","p":"Kebayoran","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Muhamad Azzam Ilham","p":"Office","j":"Staff Brand","d":"Brand & Communication"},{"n":"Muhamad Iqbal Avianto","p":"Surabaya","j":"Cleaning Service","d":"Operations"},{"n":"Muhamad Rizki Ramadhan","p":"Pemuda","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Muhammad Akbar","p":"Office","j":"Head of Finance & Data","d":"Finance & Data"},{"n":"Muhammad Askar","p":"Office","j":"BOD","d":"BOD"},{"n":"Muhammad Bilal Taufiqurrahman","p":"Kemang","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Muhammad Dzulfikar Ghazy Khairuddin","p":"Puri","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Muhammad Faqih","p":"Office","j":"Staff Operations","d":"Operations"},{"n":"Muhammad Ismar Miharja","p":"Alam Sutera","j":"Cleaning Service","d":"Operations"},{"n":"Muhammad Jalaludin","p":"Bekasi","j":"Cleaning Service","d":"Operations"},{"n":"Muhammad Mualfi Fakhrul Hadi","p":"Pemuda","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Muhammad Mubarok","p":"Cibubur","j":"Front Office","d":"Operations"},{"n":"Muhammad Naufal","p":"Office","j":"BOD","d":"BOD"},{"n":"Muhammad Raihan Maulidan","p":"Pemuda","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Muhammad Reza Vivaldi","p":"BSD","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Muhammad Rizki","p":"Puri","j":"Cleaning Service","d":"Operations"},{"n":"Mulia Fitriani","p":"Bandung","j":"Front Office","d":"Operations"},{"n":"Musa'al Kholid","p":"BSD","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Nabilah Musdalifa","p":"Kemang","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Nabilah Nurjihan","p":"Office","j":"Customer Service","d":"Operations"},{"n":"Nadhirah Nur Awliya","p":"Kebayoran","j":"Front Office","d":"Operations"},{"n":"Najwa Kani","p":"Office","j":"Branch Coordinator","d":"Operations"},{"n":"Namira Putri Komara","p":"Bekasi","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Nana Uli","p":"Office","j":"Head of Brand","d":"Brand & Communication"},{"n":"Nanda Putri Ayu Ramadani","p":"Office","j":"Staff HRGA & Legal","d":"HRGA & Legal"},{"n":"Nanda Roby Ardita","p":"Pemuda","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Nani Kusuma Wardani","p":"Puri","j":"Front Office","d":"Operations"},{"n":"Natalius Sinuhaji","p":"Pemuda","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Natasya Aisyah Ulfa","p":"Office","j":"Staff HRGA & Legal","d":"HRGA & Legal"},{"n":"Nikky Novanisa","p":"Office","j":"Staff Business Development","d":"Business Development"},{"n":"Nisa Anita Rahmalia","p":"Alam Sutera","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Nizatul Mumtazah","p":"Kemang","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Nova Candra Kirana","p":"Office","j":"Staff Brand","d":"Brand & Communication"},{"n":"Nur Afni Agustyaningsih","p":"Puri","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Nur Ilma Amalia","p":"Kemang","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Nur Muhammad Thoyib","p":"Surabaya","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Nurdiyah Utari","p":"Office","j":"Staff HRGA & Legal","d":"HRGA & Legal"},{"n":"Nurul Defeyorima","p":"Office","j":"Customer Service","d":"Operations"},{"n":"Nurul Qurrata Ayuni","p":"Office","j":"Staff Brand","d":"Brand & Communication"},{"n":"Nurwahida Adrianti","p":"Surabaya","j":"Front Office","d":"Operations"},{"n":"Nyoto Trisno","p":"Puri","j":"Security","d":"Operations"},{"n":"Oktania Rahmadani","p":"Pemuda","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Oktavia Sukmawati","p":"BSD","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Oryzea Sativa Ilham","p":"Office","j":"Staff Operations","d":"Operations"},{"n":"Pandu Febriyanto","p":"Cibubur","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Patricia Dewi","p":"Kebayoran","j":"Front Office","d":"Operations"},{"n":"Piya Ayu Ramadani","p":"Kebayoran","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Pratama Haris Kurniawan","p":"Alam Sutera","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Puteri Fadeli","p":"Office","j":"Staff Brand","d":"Brand & Communication"},{"n":"Putri Luthfi Amanda","p":"Cibubur","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Rahmahwati Halimah Nurfitriani","p":"Pemuda","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Rahmi Fadhila Rafiantika","p":"Office","j":"Staff HRGA & Legal","d":"HRGA & Legal"},{"n":"Rama Anugrah Tubagus","p":"Bandung","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Ratu Laksmi Zahra Nurwaya","p":"Kebayoran","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Restu Amelia Gunawan","p":"BSD","j":"Front Office","d":"Operations"},{"n":"Revita Safitri Febrianingrum","p":"Sunter","j":"Front Office","d":"Operations"},{"n":"Reyzhar Alfanorizkillah","p":"Surabaya","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Riky Marjuki","p":"Kebayoran","j":"Cleaning Service","d":"Operations"},{"n":"Rini Noeraini","p":"Pemuda","j":"Front Office","d":"Operations"},{"n":"Riyan Ardiansyah","p":"Office","j":"Staff Finance & Data","d":"Finance & Data"},{"n":"Rizka Wahyu Byantari","p":"Bekasi","j":"Front Office","d":"Operations"},{"n":"Rizky Uliansyah Harahap","p":"BSD","j":"Security","d":"Operations"},{"n":"Roby Satria Perdana Perdana","p":"Office","j":"Staff Operations","d":"Operations"},{"n":"Rynjani Hembas Sagara Hendratna","p":"Pemuda","j":"Front Office","d":"Operations"},{"n":"Sabiya Nazneen","p":"Office","j":"Staff Operations","d":"Operations"},{"n":"Salma Jauza","p":"Office","j":"Staff Brand","d":"Brand & Communication"},{"n":"Salma Marcela","p":"Kuningan","j":"Front Office","d":"Operations"},{"n":"Salma Syifanaurah","p":"Office","j":"Staff Brand","d":"Brand & Communication"},{"n":"Sarita Sri Astuti","p":"Cibubur","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Satrio Darmawan","p":"BSD","j":"Cleaning Service","d":"Operations"},{"n":"Selviana Hendarti","p":"Bandung","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Septiani Putri Haryono","p":"Puri","j":"Front Office","d":"Operations"},{"n":"Shabrina Illiyin","p":"Office","j":"Staff Business Development","d":"Business Development"},{"n":"Shafina Salsabila","p":"BSD","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Shara Amalia","p":"Pemuda","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Silfiani","p":"Pemuda","j":"Front Office","d":"Operations"},{"n":"Siska Pramesti","p":"Sunter","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Siti Jasmine Rosyyida","p":"BSD","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Solehudin","p":"Bandung","j":"Cleaning Service","d":"Operations"},{"n":"Su'eng Grace Noftrilia","p":"Office","j":"Staff Business Development","d":"Business Development"},{"n":"Sulistiani","p":"Bandung","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Tasya Apriani","p":"Office","j":"Branch Coordinator","d":"Operations"},{"n":"Tasyah","p":"BSD","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Taufik","p":"Pemuda","j":"Cleaning Service","d":"Operations"},{"n":"Terry Luciano Rasubala","p":"BSD","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Tika Selina BR Tarigan","p":"BSD","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Tommy Ihza Lesmana","p":"Kemang","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Tri Utami","p":"Pemuda","j":"Cleaning Service","d":"Operations"},{"n":"Tria Nur Alizah","p":"Bandung","j":"Front Office","d":"Operations"},{"n":"Vanya Naura Qatrunnada","p":"Sunter","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Verliana Stevevai","p":"Kemang","j":"Front Office","d":"Operations"},{"n":"Vina Rezky Mahardani","p":"Surabaya","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Wahyu Ahmad Shodiqin","p":"Office","j":"Staff Brand","d":"Brand & Communication"},{"n":"Wardana","p":"Cibubur","j":"Cleaning Service","d":"Operations"},{"n":"Widy Rahayu","p":"Bandung","j":"Front Office","d":"Operations"},{"n":"Winda Ari Prehatyani","p":"Pemuda","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Winda Fahiratunnisa","p":"Bandung","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Winda Rahayu Wulandari","p":"Alam Sutera","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Winda Safitri Fakhira","p":"Sunter","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Yesi Damayanti","p":"Alam Sutera","j":"Front Office","d":"Operations"},{"n":"Yoanna Aprillia Sanyoto","p":"Office","j":"Staff Brand","d":"Brand & Communication"},{"n":"Yoni Armansyah","p":"Kebayoran","j":"Security","d":"Operations"},{"n":"Yulia Annisatul Rahma","p":"Office","j":"Staff Brand","d":"Brand & Communication"},{"n":"Yuni Meilani","p":"Bandung","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Yunidar Niken Ayu","p":"Puri","j":"Physiotherapist","d":"Physiotherapist"},{"n":"Zahratul Janah","p":"Kemang","j":"Front Office","d":"Operations"},{"n":"Zhalza Oktavia Nuraeni Rahmat","p":"Office","j":"Staff Operations","d":"Operations"},{"n":"Zulfikar Pangestu","p":"Cibubur","j":"Cleaning Service","d":"Operations"}];
+
+function acHighlight(name, q){
+  if(!q) return esc(name);
+  const idx = name.toLowerCase().indexOf(q.toLowerCase());
+  if(idx === -1) return esc(name);
+  const before = name.slice(0, idx), match = name.slice(idx, idx + q.length), after = name.slice(idx + q.length);
+  return esc(before) + '<span class="ac-match">' + esc(match) + '</span>' + esc(after);
+}
+
+function acApplyCabang(selectId, otherInputId, revealFn, penempatan){
+  const select = document.getElementById(selectId);
+  if(!select) return;
+  const opts = Array.from(select.options).map(o => o.value).filter(v => v && v !== "__other");
+  if(opts.includes(penempatan)){
+    select.value = penempatan;
+  } else {
+    select.value = "__other";
+    if(otherInputId){ const oi = document.getElementById(otherInputId); if(oi) oi.value = penempatan; }
+  }
+  if(revealFn && typeof window[revealFn] === "function") window[revealFn]();
+}
+
+/**
+ * Pasang autocomplete nama karyawan pada sebuah input. cfg bisa berisi:
+ *  - posisi, divisi, penempatan: id field teks yang diisi otomatis
+ *  - cabangSelect, cabangOtherInput, cabangRevealFn: untuk form yang pakai
+ *    dropdown Cabang (bukan field Penempatan bebas teks)
+ */
+function setupEmployeeAutocomplete(nameId, cfg){
+  cfg = cfg || {};
+  const input = document.getElementById(nameId);
+  const list = document.getElementById(nameId + "_ac");
+  if(!input || !list) return;
+
+  function matches(q){ return EMPLOYEES.filter(e => e.n.toLowerCase().includes(q)).slice(0, 8); }
+
+  function show(q){
+    const found = matches(q);
+    if(found.length === 0){ list.style.display = "none"; list.innerHTML = ""; return; }
+    list.innerHTML = found.map((e, i) => `
+      <div class="ac-item" data-i="${i}">
+        <div class="ac-name">${acHighlight(e.n, q)}</div>
+        <div class="ac-sub">${esc(e.p)} &middot; ${esc(e.j)}</div>
+      </div>
+    `).join("");
+    Array.from(list.children).forEach((el, i) => {
+      el.addEventListener("mousedown", (ev) => { ev.preventDefault(); pick(found[i]); });
+    });
+    list.style.display = "block";
+  }
+
+  function pick(emp){
+    input.value = emp.n;
+    list.style.display = "none";
+    if(cfg.posisi && document.getElementById(cfg.posisi)) document.getElementById(cfg.posisi).value = emp.j;
+    if(cfg.divisi && document.getElementById(cfg.divisi)) document.getElementById(cfg.divisi).value = emp.d;
+    if(cfg.penempatan && document.getElementById(cfg.penempatan)) document.getElementById(cfg.penempatan).value = emp.p;
+    if(cfg.cabangSelect) acApplyCabang(cfg.cabangSelect, cfg.cabangOtherInput, cfg.cabangRevealFn, emp.p);
+    if(typeof cfg.onPick === "function") cfg.onPick(emp);
+  }
+
+  input.addEventListener("input", () => {
+    const q = input.value.trim().toLowerCase();
+    if(!q){ list.style.display = "none"; return; }
+    show(q);
+  });
+  input.addEventListener("focus", () => {
+    const q = input.value.trim().toLowerCase();
+    if(q) show(q);
+  });
+  input.addEventListener("blur", () => setTimeout(() => { list.style.display = "none"; }, 120));
+}
+
+
+function setRole(role){
+  state.role = role;
+  state.view = role === "hr" ? "layer1" : "layer2";
+  state.activeRecordId = null;
+  render();
+}
+function setView(view, recordId){
+  state.view = view;
+  if(recordId !== undefined) state.activeRecordId = recordId;
+  render();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+/* ---------- GOOGLE SIGN-IN (GATE UNTUK LAYER 1 / HR) ---------- */
+function decodeJwt(token){
+  try{
+    const payload = token.split(".")[1];
+    const base64 = payload.replace(/-/g,'+').replace(/_/g,'/');
+    const json = decodeURIComponent(atob(base64).split('').map(c => '%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+    return JSON.parse(json);
+  }catch(e){ return null; }
+}
+
+function handleGoogleSignIn(response){
+  const payload = decodeJwt(response.credential);
+  if(!payload || !payload.email){
+    alert("Gagal membaca informasi akun Google. Coba lagi.");
+    return;
+  }
+  const email = payload.email.toLowerCase();
+  state.googleIdToken = response.credential;
+  state.googleEmail = payload.email;
+  state.hrAuthorized = ALLOWED_HR_EMAILS.map(e=>e.toLowerCase()).includes(email);
+
+  if(state.hrAuthorized){
+    state.role = "hr";
+    state.view = "layer1";
+    state.atasanName = null;
+    state.atasanLabel = null;
+    state.atasanCabang = null;
+    state.accessDenied = false;
+  } else if(ACCESS_BY_EMAIL[email]){
+    const acc = ACCESS_BY_EMAIL[email];
+    state.role = "atasan";
+    state.view = "layer2";
+    state.atasanName = acc.name;
+    state.atasanLabel = acc.label;
+    state.atasanCabang = acc.cabang;
+    state.accessDenied = false;
+  } else {
+    state.role = null;
+    state.atasanName = null;
+    state.atasanLabel = null;
+    state.atasanCabang = null;
+    state.accessDenied = true;
+  }
+  render();
+}
+
+function googleSignOut(){
+  state.googleIdToken = null;
+  state.googleEmail = null;
+  state.hrAuthorized = false;
+  state.role = null;
+  state.atasanName = null;
+  state.atasanLabel = null;
+  state.atasanCabang = null;
+  state.accessDenied = false;
+  if(window.google && google.accounts && google.accounts.id){
+    google.accounts.id.disableAutoSelect();
+  }
+  render();
+}
+
+function isGoogleSignInReady(){
+  return !!(window.google && google.accounts && google.accounts.id && GOOGLE_CLIENT_ID && GOOGLE_CLIENT_ID.indexOf("PASTE_") !== 0);
+}
+
+let _gsiRetries = 0;
+function renderGoogleButton(){
+  const el = document.getElementById("googleSignInBtn");
+  if(!el) return;
+
+  if(!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID.indexOf("PASTE_") === 0){
+    el.innerHTML = `<div class="login-denied">GOOGLE_CLIENT_ID belum diisi di kode dashboard.</div>`;
+    return;
+  }
+
+  if(!isGoogleSignInReady()){
+    // Script accounts.google.com/gsi/client belum selesai dimuat — coba lagi
+    // beberapa kali (misalnya koneksi lambat) sebelum menyerah.
+    if(_gsiRetries < 20){
+      _gsiRetries++;
+      el.innerHTML = `<div class="login-denied">Memuat Google Sign-In&hellip;</div>`;
+      setTimeout(renderGoogleButton, 300);
+      return;
+    }
+    el.innerHTML = `
+      <div class="login-denied">
+        Google Sign-In gagal dimuat. Ini biasanya karena:
+        <br>&bull; tidak ada koneksi internet saat halaman dibuka,
+        <br>&bull; file dibuka langsung dari komputer (bukan lewat server/hosting), atau
+        <br>&bull; domain <code>accounts.google.com</code> diblokir jaringan/ad-blocker.
+        <br><button class="btn btn-outline btn-sm" style="margin-top:8px;" onclick="_gsiRetries=0;renderGoogleButton();">Coba Lagi</button>
+      </div>`;
+    return;
+  }
+
+  _gsiRetries = 0;
+  google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleGoogleSignIn });
+  google.accounts.id.renderButton(el, { theme: "outline", size: "large", text: "signin_with", shape: "pill", width: 260 });
+}
+
+/* ---------- ICONS ---------- */
+const ic = {
+  table:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>',
+  list:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>',
+  back:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>',
+  edit:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+  trash:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>',
+  eye:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg>',
+  file:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>',
+  close:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>',
+  download:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>',
+  refresh:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>',
+  alert:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/></svg>',
+};
+
+/* ---------- SIDEBAR NAV ---------- */
+function renderSidebarNav(){
+  let items = [];
+  if(state.role === "hr"){
+    items.push({key:"layer1", label:"Data Master Coaching", icon:ic.table});
+  } else if(state.role === "atasan"){
+    items.push({key:"layer2", label:"Daftar Submission Coaching", icon:ic.list});
+  }
+  document.getElementById("sbNav").innerHTML = `
+    <div class="sb-section-label">Menu</div>
+    ${items.map(it => `
+      <div class="sb-item ${state.view===it.key || (it.key==='layer2' && state.view==='layer3') ? 'active':''}" onclick="setView('${it.key}')">
+        ${it.icon}<span>${it.label}</span>
+      </div>
+    `).join("")}
+  `;
+  const acc = document.getElementById("sbHrAccount");
+  if(state.googleEmail && (state.hrAuthorized || state.atasanName)){
+    const displayName = state.hrAuthorized ? "HR" : state.atasanName;
+    const roleLabel = state.hrAuthorized ? "HR People Development" : state.atasanLabel + (state.atasanCabang && state.atasanCabang !== "Office" ? " &middot; " + esc(state.atasanCabang) : "");
+    acc.innerHTML = `
+      <div class="hr-account-chip">
+        <div class="avatar">${esc(displayName.charAt(0).toUpperCase())}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="email" title="${esc(state.googleEmail)}" style="font-weight:600;">${esc(displayName)}</div>
+          <div class="email" style="font-size:10px;color:rgba(255,255,255,.5);">${roleLabel}</div>
+        </div>
+        <div class="hr-signout" onclick="googleSignOut()">Keluar</div>
+      </div>
+    `;
+  } else {
+    acc.innerHTML = "";
+  }
+  renderSyncStatus();
+}
+
+function renderSyncStatus(){
+  const el = document.getElementById("syncStatus");
+  if(!SHEETS_API_URL){
+    el.innerHTML = `<span class="sync-dot" style="background:#c9a94a;"></span><span>Mode lokal (belum ke Sheets)</span>`;
+  } else if(state.syncing){
+    el.innerHTML = `<span class="sync-dot" style="background:#c9a94a;"></span><span>Menyinkronkan...</span>`;
+  } else if(state.connected){
+    el.innerHTML = `<span class="sync-dot" style="background:#3ddc97;"></span><span>Tersambung ke Sheets</span>`;
+  } else {
+    el.innerHTML = `${ic.refresh}<span>Klik untuk sinkronkan</span>`;
+  }
+}
+
+async function manualSync(){
+  if(!SHEETS_API_URL) return;
+  await loadFromSheets();
+  render();
+}
+
+/* ---------- GOOGLE SHEETS SYNC LAYER ---------- */
+async function loadFromSheets(){
+  if(!SHEETS_API_URL) return;
+  state.syncing = true; renderSyncStatus();
+  try{
+    const res = await fetch(SHEETS_API_URL);
+    const data = await res.json();
+    if(data && data.records){
+      STORAGE.records = data.records.map(r => ({
+        id: r.id, namaAtasan: r.namaAtasan, jabatan: r.jabatan, divisi: r.divisi,
+        namaKaryawan: r.namaKaryawan, posisiKaryawan: r.posisiKaryawan, divisiKaryawan: r.divisiKaryawan,
+        penempatan: r.penempatan, periode: r.periode, status: r.status,
+        submission: r.submission ? {
+          areaCoaching: r.submission.areaCoaching, alasan: r.submission.alasan,
+          penempatan: r.submission.penempatan, catatan: r.submission.catatan,
+          fileName: r.submission.fileName, fileUrl: r.submission.fileUrl, fileDataUrl: null
+        } : null
+      }));
+    }
+    state.connected = true;
+  }catch(err){
+    console.error("Gagal memuat dari Sheets:", err);
+    state.connected = false;
+  }
+  state.syncing = false; renderSyncStatus();
+}
+
+// Trik: pakai Content-Type text/plain supaya browser tidak mengirim preflight OPTIONS
+// (Apps Script Web App tidak menangani preflight CORS dengan baik).
+async function postToSheets(action, payload){
+  if(!SHEETS_API_URL) return null;
+  try{
+    const res = await fetch(SHEETS_API_URL, {
+      method: "POST",
+      headers: {"Content-Type": "text/plain;charset=utf-8"},
+      body: JSON.stringify({ action, ...payload })
+    });
+    return await res.json();
+  }catch(err){
+    console.error("Gagal mengirim ke Sheets:", err);
+    return null;
+  }
+}
+
+/* ---------- PAGINATION HELPERS ---------- */
+function paginate(arr, page){
+  const total = arr.length;
+  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const safePage = Math.min(Math.max(1, page), pages);
+  const start = (safePage - 1) * PAGE_SIZE;
+  return { rows: arr.slice(start, start + PAGE_SIZE), total, pages, page: safePage, start };
+}
+
+function pageButtons(pages, current){
+  let nums = [];
+  if(pages <= 7){
+    nums = Array.from({length:pages}, (_,i)=>i+1);
+  } else {
+    nums = [1];
+    if(current > 3) nums.push("...");
+    for(let p = Math.max(2,current-1); p <= Math.min(pages-1,current+1); p++) nums.push(p);
+    if(current < pages-2) nums.push("...");
+    nums.push(pages);
+  }
+  return nums;
+}
+
+function renderPagination(target, pageInfo, currentPage, onPageFn){
+  if(pageInfo.total === 0) return "";
+  const nums = pageButtons(pageInfo.pages, pageInfo.page);
+  const btns = nums.map(n => n === "..."
+    ? `<span class="page-ellipsis">&hellip;</span>`
+    : `<button class="page-btn ${n===pageInfo.page ? 'active':''}" onclick="${onPageFn}(${n})">${n}</button>`
+  ).join("");
+  return `
+    <div class="pagination">
+      <div class="pagination-info">Menampilkan ${pageInfo.start+1}&ndash;${Math.min(pageInfo.start+PAGE_SIZE, pageInfo.total)} dari ${pageInfo.total} data</div>
+      <div class="pagination-pages">
+        <button class="page-btn" ${pageInfo.page<=1?'disabled':''} onclick="${onPageFn}(${pageInfo.page-1})">&lsaquo;</button>
+        ${btns}
+        <button class="page-btn" ${pageInfo.page>=pageInfo.pages?'disabled':''} onclick="${onPageFn}(${pageInfo.page+1})">&rsaquo;</button>
+      </div>
+    </div>
+  `;
+}
+function goPage1(p){ state.page1 = p; render(); }
+function goPage2(p){ state.page2 = p; render(); }
+
+/* ---------- TOPBAR ---------- */
+function renderTopbar(){
+  const top = document.getElementById("topbar");
+  if(!state.googleEmail || state.accessDenied){
+    top.innerHTML = `
+      <div>
+        <div class="page-title">PIP: We Improve</div>
+        <div class="page-desc">Sistem penanganan performa berjenjang &mdash; WM Center</div>
+      </div>
+    `;
+  } else if(state.role === "hr"){
+    top.innerHTML = `
+      <div>
+        <div class="page-title">Data Master Coaching</div>
+        <div class="page-desc">Kelola penugasan coaching. Halaman ini hanya bisa diakses dan diubah oleh HR &mdash; hasil submission atasan otomatis tersinkron di sini.</div>
+      </div>
+      ${state.hrAuthorized ? `<button class="btn btn-primary" onclick="openRecordModal(null)">+ Tambah Data</button>` : ''}
+    `;
+  } else if(state.view === "layer3"){
+    const r = STORAGE.records.find(x => x.id === state.activeRecordId);
+    top.innerHTML = `
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="icon-btn" onclick="setView('layer2')">${ic.back}</div>
+        <div>
+          <div class="page-title">Form Submission Coaching</div>
+          <div class="page-desc">${r ? esc(r.namaKaryawan)+' &middot; Periode '+fmtDate(r.periode) : ''}</div>
+        </div>
+      </div>
+    `;
+  } else {
+    top.innerHTML = `
+      <div>
+        <div class="page-title">Daftar Submission Coaching</div>
+        <div class="page-desc">Isi form coaching untuk setiap karyawan yang ditugaskan kepada Anda. Setiap baris hanya bisa diisi satu kali.</div>
+      </div>
+    `;
+  }
+}
+
+/* ---------- LAYER 1 : HR MASTER DATA ---------- */
+function renderLayer1(){
+  const pg = paginate(STORAGE.records, state.page1);
+  const rows = pg.rows.map((r, i) => {
+    const hasFile = !!(r.submission && (r.submission.fileDataUrl || r.submission.fileUrl));
+    const fileHref = r.submission ? (r.submission.fileUrl || r.submission.fileDataUrl) : null;
+    const docCell = hasFile
+      ? `<a href="${fileHref}" target="_blank" class="btn-link-sm">${ic.file}${esc(r.submission.fileName || 'Dokumen')}</a>`
+      : r.status === "complete"
+        ? `<span class="cell-muted">Terisi, tanpa file</span>`
+        : `<span class="cell-muted">&mdash;</span>`;
+    return `
+    <tr>
+      <td class="cell-muted">${pg.start+i+1}</td>
+      <td class="font-medium">${esc(r.namaAtasan)}<div class="cell-sub">${esc(r.jabatan)} &middot; ${esc(r.divisi)}</div></td>
+      <td class="font-medium">${esc(r.namaKaryawan)}<div class="cell-sub">${esc(r.posisiKaryawan)} &middot; ${esc(r.divisiKaryawan)}</div></td>
+      <td>${esc(r.penempatan)}</td>
+      <td>${fmtDate(r.periode)}</td>
+      <td>${docCell}</td>
+      <td>${statusBadge(r.status)}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div class="icon-btn" onclick="openDetailModal(${r.id})" title="Lihat detail">${ic.eye}</div>
+          <div class="icon-btn" onclick="openRecordModal(${r.id})" title="Edit">${ic.edit}</div>
+          <div class="icon-btn" onclick="deleteRecord(${r.id})" title="Hapus">${ic.trash}</div>
+        </div>
+      </td>
+    </tr>
+  `;
+  }).join("");
+
+  return `
+    <div class="card" style="overflow-x:auto;">
+      <table>
+        <thead><tr>
+          <th style="width:36px;">No</th><th>Atasan</th><th>Karyawan</th>
+          <th>Penempatan</th><th>Periode</th><th>Dokumen Coaching</th><th>Status</th><th style="width:110px;">Aksi</th>
+        </tr></thead>
+        <tbody>${rows || `<tr><td colspan="8"><div class="empty-state">Belum ada data. Klik "Tambah Data" untuk memulai.</div></td></tr>`}</tbody>
+      </table>
+      ${renderPagination('layer1', pg, state.page1, 'goPage1')}
+    </div>
+  `;
+}
+
+function statusBadge(status){
+  return status === "complete"
+    ? `<span class="badge badge-ok"><span class="badge-dot"></span>Complete</span>`
+    : `<span class="badge badge-danger"><span class="badge-dot"></span>Uncomplete</span>`;
+}
+
+/* ---------- LAYER 2 : ATASAN SUBMISSION LIST ---------- */
+function myRecords(){
+  if(!state.atasanName) return [];
+  const mine = state.atasanName.trim().toLowerCase();
+  return STORAGE.records.filter(r => (r.namaAtasan||"").trim().toLowerCase() === mine);
+}
+
+function renderLayer2(){
+  const records = myRecords();
+  const total = records.length;
+  const done = records.filter(r=>r.status==="complete").length;
+  const pct = total ? Math.round((done/total)*100) : 0;
+  const pg = paginate(records, state.page2);
+
+  const rows = pg.rows.map((r,i) => {
+    const isDone = r.status === "complete";
+    const fileHref = r.submission ? (r.submission.fileUrl || r.submission.fileDataUrl) : null;
+    const submitCell = isDone
+      ? `<div style="display:flex;align-items:center;gap:8px;">
+           <button class="btn btn-disabled btn-sm" disabled>Sudah Diisi</button>
+           ${fileHref ? `<a href="${fileHref}" target="_blank" class="icon-btn" title="Lihat dokumen">${ic.eye}</a>` : ''}
+         </div>`
+      : `<button class="btn btn-primary btn-sm" onclick="setView('layer3', ${r.id})">Upload Disini</button>`;
+    return `
+      <tr>
+        <td class="cell-muted">${pg.start+i+1}</td>
+        <td class="font-medium">${esc(r.namaAtasan)}<div class="cell-sub">${esc(r.jabatan)} &middot; ${esc(r.divisi)}</div></td>
+        <td class="font-medium">${esc(r.namaKaryawan)}<div class="cell-sub">${esc(r.posisiKaryawan)} &middot; ${esc(r.divisiKaryawan)}</div></td>
+        <td>${esc(r.penempatan)}</td>
+        <td>${fmtDate(r.periode)}</td>
+        <td>${submitCell}</td>
+        <td>${statusBadge(r.status)}</td>
+      </tr>
+    `;
+  }).join("");
+
+  return `
+    <div class="card template-card">
+      <div class="template-icon">${ic.download}</div>
+      <div style="flex:1;">
+        <div class="template-title">Download Template Form Coaching</div>
+        <div class="template-sub">Unduh dan isi form ini sebelum diunggah pada Section 3 &mdash; Upload Form Coaching. Punya coaching yang belum ada di daftar? Tambahkan manual di sini.</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <a class="btn btn-outline btn-sm" href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,${TEMPLATE_FILE_B64}" download="${TEMPLATE_FILE_NAME}">${ic.download} Download</a>
+        <button class="btn btn-primary btn-sm" onclick="openManualCoachingModal()">+ Tambah Coaching Manual</button>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px;">
+      <div class="card stat-card"><div class="stat-label">Total penugasan</div><div class="stat-value">${total}</div></div>
+      <div class="card stat-card"><div class="stat-label">Selesai diisi</div><div class="stat-value" style="color:var(--ok)">${done}</div></div>
+      <div class="card stat-card">
+        <div class="stat-label">Progress kelengkapan</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:3px;">
+          <div class="progress-track" style="flex:1;"><div class="progress-fill" style="width:${pct}%"></div></div>
+          <span class="font-display" style="font-weight:700;font-size:13.5px;">${pct}%</span>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="overflow-x:auto;">
+      <table>
+        <thead><tr>
+          <th style="width:36px;">No</th><th>Atasan</th><th>Karyawan</th>
+          <th>Penempatan</th><th>Periode</th><th>Submission</th><th>Status</th>
+        </tr></thead>
+        <tbody>${rows || `<tr><td colspan="7"><div class="empty-state">Belum ada penugasan coaching untuk Anda.</div></td></tr>`}</tbody>
+      </table>
+      ${renderPagination('layer2', pg, state.page2, 'goPage2')}
+    </div>
+  `;
+}
+
+/* ---------- LAYER 3 : SUBMISSION FORM ---------- */
+function renderLayer3(){
+  const r = STORAGE.records.find(x => x.id === state.activeRecordId);
+  const mine = state.atasanName ? state.atasanName.trim().toLowerCase() : null;
+  if(!r || (mine && (r.namaAtasan||"").trim().toLowerCase() !== mine)){
+    return `<div class="card empty-state">Data tidak ditemukan atau bukan milik Anda. <span class="btn-link-sm" style="display:inline" onclick="setView('layer2')">Kembali ke daftar submission</span></div>`;
+  }
+  const s = r.submission || {};
+  const readonly = r.status === "complete";
+
+  return `
+    <form id="submissionForm" style="display:flex;flex-direction:column;gap:16px;max-width:760px;">
+      <div class="card" style="padding:20px;">
+        <div class="section-title" style="margin-bottom:16px;"><span class="section-num">1</span>Data Atasan</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+          <div><label class="field-label">Nama Atasan</label><input type="text" value="${esc(r.namaAtasan)}" disabled></div>
+          <div><label class="field-label">Posisi</label><input type="text" value="${esc(r.jabatan)}" disabled></div>
+          <div><label class="field-label">Divisi</label><input type="text" value="${esc(r.divisi)}" disabled></div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:20px;">
+        <div class="section-title" style="margin-bottom:16px;"><span class="section-num">2</span>Data Karyawan yang Bersangkutan</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+          <div><label class="field-label">Nama Karyawan</label><input type="text" value="${esc(r.namaKaryawan)}" disabled></div>
+          <div><label class="field-label">Posisi Karyawan</label><input type="text" value="${esc(r.posisiKaryawan)}" disabled></div>
+          <div><label class="field-label">Divisi Karyawan</label><input type="text" value="${esc(r.divisiKaryawan)}" disabled></div>
+        </div>
+        <div style="margin-top:14px;">
+          <label class="field-label">Penempatan</label>
+          <input type="text" id="f_penempatan" placeholder="Contoh: Jakarta Pusat" value="${esc(s.penempatan ?? r.penempatan ?? '')}" ${readonly ? 'disabled':''}>
+        </div>
+      </div>
+
+      <div class="card" style="padding:20px;">
+        <div class="section-title" style="margin-bottom:16px;"><span class="section-num">3</span>Detail Coaching</div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div>
+            <label class="field-label">Area Coaching</label>
+            <input type="text" id="f_area" placeholder="" value="${esc(s.areaCoaching ?? '')}" ${readonly ? 'disabled':''}>
+            <div class="field-hint">Sesuaikan dengan agenda di Surat Pemanggilan Coaching.</div>
+          </div>
+          <div>
+            <label class="field-label">Alasan Pemberian Coaching</label>
+            <input type="text" id="f_alasan" placeholder="Contoh: Penurunan performa target Q2" value="${esc(s.alasan ?? '')}" ${readonly ? 'disabled':''}>
+          </div>
+          <div>
+            <label class="field-label">Catatan Coaching</label>
+            <textarea id="f_catatan" rows="3" placeholder="Catatan tambahan, komitmen, atau rencana tindak lanjut..." ${readonly ? 'disabled':''}>${esc(s.catatan ?? '')}</textarea>
+          </div>
+          <div>
+            <label class="field-label">Upload Form Coaching (PDF)</label>
+            ${readonly
+              ? `<div class="file-chip">${ic.file}${esc(s.fileName ?? 'form-coaching.pdf')}${(s.fileUrl || s.fileDataUrl) ? `<a href="${s.fileUrl || s.fileDataUrl}" target="_blank" style="margin-left:6px;">Buka file</a>` : ''}</div>`
+              : `<div class="file-drop">
+                  <input type="file" id="f_file" accept="application/pdf" style="border:none;padding:0;font-size:13px;">
+                  <div style="font-size:11.5px;color:var(--muted);margin-top:5px;">Format PDF, maksimal 10MB. Gunakan form hasil download di halaman sebelumnya.</div>
+                </div>`
+            }
+          </div>
+        </div>
+      </div>
+
+      ${readonly
+        ? `<div style="font-size:13px;color:var(--muted);padding:0 2px;">Submission ini sudah dikirim dan tidak dapat diubah kembali.</div>`
+        : `<div style="display:flex;justify-content:flex-end;gap:10px;">
+            <button type="button" class="btn btn-outline" onclick="setView('layer2')">Batal</button>
+            <button type="submit" class="btn btn-primary" id="submitBtn">Kirim Submission</button>
+          </div>`
+      }
+    </form>
+  `;
+}
+
+function attachLayer3Handlers(){
+  const form = document.getElementById("submissionForm");
+  if(!form) return;
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const r = STORAGE.records.find(x => x.id === state.activeRecordId);
+    if(!r) return;
+    const alasan = document.getElementById("f_alasan").value.trim();
+    const areaCoaching = document.getElementById("f_area").value.trim();
+    const catatan = document.getElementById("f_catatan").value.trim();
+    const penempatan = document.getElementById("f_penempatan").value.trim();
+    const fileInput = document.getElementById("f_file");
+    const file = fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+
+    if(!areaCoaching || !alasan){
+      alert("Mohon lengkapi Area Coaching dan Alasan Pemberian Coaching sebelum mengirim.");
+      return;
+    }
+
+    const submitBtn = document.getElementById("submitBtn");
+    if(submitBtn){ submitBtn.disabled = true; submitBtn.textContent = "Mengirim..."; }
+
+    const finish = async (fileName, fileDataUrl) => {
+      const submissionData = { areaCoaching, alasan, catatan, penempatan, fileName, fileDataUrl, fileUrl: null };
+      r.submission = submissionData;
+      r.status = "complete";
+
+      if(SHEETS_API_URL){
+        const res = await postToSheets("submitCoaching", {
+          id: r.id,
+          data: { areaCoaching, alasan, catatan, penempatan, fileName, fileBase64: fileDataUrl }
+        });
+        if(res && res.fileUrl) r.submission.fileUrl = res.fileUrl;
+      }
+      setView("layer2");
+    };
+
+    if(file){
+      const reader = new FileReader();
+      reader.onload = () => finish(file.name, reader.result);
+      reader.readAsDataURL(file);
+    } else {
+      await finish(null, null);
+    }
+  });
+}
+
+
+/* ---------- MODAL: TAMBAH / EDIT LAYER 1 ---------- */
+function openRecordModal(id){
+  const r = id ? STORAGE.records.find(x => x.id === id) : null;
+  document.getElementById("modalRoot").innerHTML = `
+    <div class="modal-backdrop" onclick="if(event.target===this) closeModal()">
+      <div class="card" style="padding:22px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+          <div class="page-title" style="font-size:16px;">${r ? "Edit" : "Tambah"} Data Coaching</div>
+          <div class="icon-btn" onclick="closeModal()">${ic.close}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div>
+            <div style="font-size:11.5px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;">Data Atasan</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div style="grid-column:1/-1;">
+                <label class="field-label">Nama Atasan</label>
+                <input type="text" id="m_namaAtasan" value="${esc(r?.namaAtasan)}" disabled style="background:#F4F6F5;">
+                <select id="m_namaAtasan_select" style="display:none;"></select>
+                <div class="field-hint" id="m_namaAtasan_hint"></div>
+              </div>
+              <div><label class="field-label">Jabatan</label><input type="text" id="m_jabatan" value="${esc(r?.jabatan)}" disabled style="background:#F4F6F5;"></div>
+              <div><label class="field-label">Divisi</label><input type="text" id="m_divisi" value="${esc(r?.divisi)}" disabled style="background:#F4F6F5;"></div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:11.5px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;">Data Karyawan</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div style="grid-column:1/-1;"><label class="field-label">Nama Karyawan</label><div class="ac-wrap"><input type="text" id="m_namaKaryawan" value="${esc(r?.namaKaryawan)}" placeholder="Nama lengkap karyawan" autocomplete="off"><div class="ac-list" id="m_namaKaryawan_ac"></div></div></div>
+              <div><label class="field-label">Posisi Karyawan</label><input type="text" id="m_posisiKaryawan" value="${esc(r?.posisiKaryawan)}" placeholder="Contoh: Staff" oninput="refreshAtasanField()"></div>
+              <div><label class="field-label">Divisi Karyawan</label><input type="text" id="m_divisiKaryawan" value="${esc(r?.divisiKaryawan)}" placeholder="Contoh: Sales" oninput="refreshAtasanField()"></div>
+              <div><label class="field-label">Penempatan</label><input type="text" id="m_penempatan" value="${esc(r?.penempatan)}" placeholder="Contoh: Jakarta Pusat" oninput="refreshAtasanField()"></div>
+              <div><label class="field-label">Periode Coaching</label><input type="date" id="m_periode" value="${r?.periode ?? ''}"></div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:22px;">
+          <button class="btn btn-outline" onclick="closeModal()">Batal</button>
+          <button class="btn btn-primary" onclick="saveRecord(${r ? r.id : 'null'})">Simpan</button>
+        </div>
+      </div>
+    </div>
+  `;
+  setupEmployeeAutocomplete("m_namaKaryawan", { posisi: "m_posisiKaryawan", divisi: "m_divisiKaryawan", penempatan: "m_penempatan", onPick: refreshAtasanField });
+  populateAtasanSelect();
+  refreshAtasanField();
+}
+
+/* ---------- AUTO-RESOLVE ATASAN FIELD (modal Tambah/Edit Data - HR) ---------- */
+function populateAtasanSelect(){
+  const sel = document.getElementById("m_namaAtasan_select");
+  if(!sel) return;
+  const sorted = ACCESS_CONFIG.slice().sort((a,b) => a.name.localeCompare(b.name));
+  sel.innerHTML = `<option value="">— Pilih atasan —</option>` + sorted.map(a =>
+    `<option value="${esc(a.name)}" data-label="${esc(a.label)}" data-cabang="${esc(a.cabang)}">${esc(a.name)} &middot; ${esc(a.label)}${a.cabang && a.cabang!=='Office' ? ' ('+esc(a.cabang)+')' : ''}</option>`
+  ).join("");
+  sel.onchange = () => {
+    const opt = sel.selectedOptions[0];
+    document.getElementById("m_jabatan").value = opt ? (opt.dataset.label || "") : "";
+    document.getElementById("m_divisi").value = opt ? (opt.dataset.cabang || "") : "";
+  };
+}
+
+function refreshAtasanField(){
+  const posisi = document.getElementById("m_posisiKaryawan").value;
+  const divisi = document.getElementById("m_divisiKaryawan").value;
+  const penempatan = document.getElementById("m_penempatan").value;
+  const input = document.getElementById("m_namaAtasan");
+  const sel = document.getElementById("m_namaAtasan_select");
+  const hint = document.getElementById("m_namaAtasan_hint");
+  const jabatan = document.getElementById("m_jabatan");
+  const divisiEl = document.getElementById("m_divisi");
+
+  const match = resolveAtasan(posisi, divisi, penempatan);
+  if(match){
+    input.value = match.name;
+    input.style.display = "";
+    sel.style.display = "none";
+    jabatan.value = match.label;
+    divisiEl.value = match.cabang;
+    hint.textContent = "Otomatis terisi berdasarkan posisi & penempatan karyawan.";
+    hint.style.color = "var(--ok)";
+  } else {
+    input.style.display = "none";
+    sel.style.display = "";
+    jabatan.value = "";
+    divisiEl.value = "";
+    hint.textContent = "Tidak ada auto-match — pilih atasan secara manual dari daftar yang terdaftar.";
+    hint.style.color = "var(--amber-line)";
+    // preselect existing value if it's a registered name (edit mode)
+    if(input.value && sel.querySelector(`option[value="${CSS.escape(input.value)}"]`)){
+      sel.value = input.value;
+      sel.onchange();
+    }
+  }
+}
+
+/* ---------- MODAL: DETAIL (HR read-only compile view) ---------- */
+function openDetailModal(id){
+  const r = STORAGE.records.find(x => x.id === id);
+  if(!r) return;
+  const s = r.submission;
+  const fileHref = s ? (s.fileUrl || s.fileDataUrl) : null;
+  document.getElementById("modalRoot").innerHTML = `
+    <div class="modal-backdrop" onclick="if(event.target===this) closeModal()">
+      <div class="card" style="padding:22px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <div class="page-title" style="font-size:16px;">Detail Coaching</div>
+          <div class="icon-btn" onclick="closeModal()">${ic.close}</div>
+        </div>
+        <div style="font-size:12.5px;color:var(--muted);margin-bottom:16px;">${esc(r.namaKaryawan)} &middot; ${fmtDate(r.periode)}</div>
+
+        <div class="divider" style="margin-bottom:16px;"></div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px;margin-bottom:18px;">
+          <div><div class="field-label">Nama Atasan</div>${esc(r.namaAtasan)}</div>
+          <div><div class="field-label">Jabatan / Divisi</div>${esc(r.jabatan)} &middot; ${esc(r.divisi)}</div>
+          <div><div class="field-label">Nama Karyawan</div>${esc(r.namaKaryawan)}</div>
+          <div><div class="field-label">Posisi / Divisi</div>${esc(r.posisiKaryawan)} &middot; ${esc(r.divisiKaryawan)}</div>
+          <div><div class="field-label">Penempatan</div>${esc((s && s.penempatan) || r.penempatan)}</div>
+          <div><div class="field-label">Status</div>${statusBadge(r.status)}</div>
+        </div>
+
+        ${s ? `
+          <div class="divider" style="margin-bottom:16px;"></div>
+          <div style="display:flex;flex-direction:column;gap:12px;font-size:13px;">
+            <div><div class="field-label">Area Coaching</div>${s.areaCoaching ? esc(s.areaCoaching) : '<span class="cell-muted">&mdash;</span>'}</div>
+            <div><div class="field-label">Alasan Pemberian Coaching</div>${esc(s.alasan)}</div>
+            <div><div class="field-label">Catatan Coaching</div>${s.catatan ? esc(s.catatan) : '<span class="cell-muted">&mdash;</span>'}</div>
+            <div>
+              <div class="field-label">Dokumen Coaching</div>
+              ${fileHref
+                ? `<a href="${fileHref}" target="_blank" class="file-chip" style="display:inline-flex;">${ic.file}${esc(s.fileName)}</a>`
+                : `<span class="cell-muted">Tidak ada file diunggah</span>`}
+            </div>
+          </div>
+        ` : `<div class="empty-state" style="padding:20px 0;">Atasan belum mengisi form submission untuk baris ini.</div>`}
+      </div>
+    </div>
+  `;
+}
+
+function closeModal(){ document.getElementById("modalRoot").innerHTML = ""; }
+
+/* ---------- MODAL: TAMBAH COACHING MANUAL (ATASAN) ----------
+   Sama persis strukturnya dengan form submission otomatis (Layer 3):
+   Data Atasan, Data Karyawan, dan Detail Coaching — bedanya semua field
+   di sini bisa diisi/diedit sendiri karena belum ada data penugasan
+   dari HR untuk baris ini. */
+function openManualCoachingModal(){
+  document.getElementById("modalRoot").innerHTML = `
+    <div class="modal-backdrop" onclick="if(event.target===this) closeModal()">
+      <div class="card" style="padding:22px;width:100%;max-width:640px;max-height:90vh;overflow-y:auto;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <div class="page-title" style="font-size:16px;">Tambah Coaching Manual</div>
+          <div class="icon-btn" onclick="closeModal()">${ic.close}</div>
+        </div>
+        <div style="font-size:12.5px;color:var(--muted);margin-bottom:16px;">Isi lengkap seperti form submission coaching biasa — data ini langsung tercatat sebagai selesai (complete).</div>
+
+        <div style="display:flex;flex-direction:column;gap:18px;">
+          <div>
+            <div class="section-title" style="margin-bottom:12px;"><span class="section-num">1</span>Data Atasan</div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+              <div><label class="field-label">Nama Atasan</label><input type="text" id="mc_namaAtasan" value="${esc(state.atasanName||'')}" disabled></div>
+              <div><label class="field-label">Posisi</label><input type="text" id="mc_jabatan" value="${esc(state.atasanLabel||'')}" disabled></div>
+              <div><label class="field-label">Divisi</label><input type="text" id="mc_divisi" value="${esc(state.atasanCabang||'')}" disabled></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="section-title" style="margin-bottom:12px;"><span class="section-num">2</span>Data Karyawan yang Bersangkutan</div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+              <div><label class="field-label">Nama Karyawan</label><div class="ac-wrap"><input type="text" id="mc_namaKaryawan" placeholder="Nama lengkap" autocomplete="off"><div class="ac-list" id="mc_namaKaryawan_ac"></div></div></div>
+              <div><label class="field-label">Posisi Karyawan</label><input type="text" id="mc_posisiKaryawan" placeholder="Contoh: Staff"></div>
+              <div><label class="field-label">Divisi Karyawan</label><input type="text" id="mc_divisiKaryawan" placeholder="Contoh: Sales"></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
+              <div><label class="field-label">Penempatan</label><input type="text" id="mc_penempatan" placeholder="Contoh: Jakarta Pusat"></div>
+              <div><label class="field-label">Periode Coaching</label><input type="date" id="mc_periode"></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="section-title" style="margin-bottom:12px;"><span class="section-num">3</span>Detail Coaching</div>
+            <div style="display:flex;flex-direction:column;gap:14px;">
+              <div>
+                <label class="field-label">Area Coaching</label>
+                <input type="text" id="mc_area" placeholder="">
+                <div class="field-hint">Sesuaikan dengan agenda di Surat Pemanggilan Coaching.</div>
+              </div>
+              <div>
+                <label class="field-label">Alasan Pemberian Coaching</label>
+                <input type="text" id="mc_alasan" placeholder="Contoh: Penurunan performa target Q2">
+              </div>
+              <div>
+                <label class="field-label">Catatan Coaching</label>
+                <textarea id="mc_catatan" rows="3" placeholder="Catatan tambahan, komitmen, atau rencana tindak lanjut..."></textarea>
+              </div>
+              <div>
+                <label class="field-label">Upload Form Coaching (PDF)</label>
+                <div class="file-drop">
+                  <input type="file" id="mc_file" accept="application/pdf" style="border:none;padding:0;font-size:13px;">
+                  <div style="font-size:11.5px;color:var(--muted);margin-top:5px;">Format PDF, maksimal 10MB. Gunakan form hasil download di atas.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:22px;">
+          <button class="btn btn-outline" onclick="closeModal()">Batal</button>
+          <button class="btn btn-primary" id="mcSaveBtn" onclick="saveManualCoaching()">Simpan</button>
+        </div>
+      </div>
+    </div>
+  `;
+  setupEmployeeAutocomplete("mc_namaKaryawan", { posisi: "mc_posisiKaryawan", divisi: "mc_divisiKaryawan", penempatan: "mc_penempatan" });
+}
+
+async function saveManualCoaching(){
+  const get = (k) => document.getElementById(k).value.trim();
+  const data = {
+    namaAtasan: get("mc_namaAtasan"), jabatan: get("mc_jabatan"), divisi: get("mc_divisi"),
+    namaKaryawan: get("mc_namaKaryawan"), posisiKaryawan: get("mc_posisiKaryawan"), divisiKaryawan: get("mc_divisiKaryawan"),
+    penempatan: get("mc_penempatan"), periode: get("mc_periode"),
+  };
+  const areaCoaching = get("mc_area");
+  const alasan = get("mc_alasan");
+  const catatan = get("mc_catatan");
+  const fileInput = document.getElementById("mc_file");
+  const file = fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+
+  if(!data.namaAtasan || !data.namaKaryawan || !data.periode){
+    alert("Mohon lengkapi minimal Nama Atasan, Nama Karyawan, dan Periode Coaching.");
+    return;
+  }
+  if(!areaCoaching || !alasan){
+    alert("Mohon lengkapi Area Coaching dan Alasan Pemberian Coaching sebelum menyimpan.");
+    return;
+  }
+
+  const btn = document.getElementById("mcSaveBtn");
+  if(btn){ btn.disabled = true; btn.textContent = "Menyimpan..."; }
+
+  const finish = async (fileName, fileDataUrl) => {
+    const submission = { areaCoaching, alasan, catatan, penempatan: data.penempatan, fileName, fileUrl: null, fileDataUrl };
+
+    if(SHEETS_API_URL){
+      const addRes = await postToSheets("addRecordManual", { data });
+      if(!addRes || addRes.error){
+        alert("Gagal menyimpan data: " + (addRes && addRes.error ? addRes.error : "tidak ada respons dari server. Coba lagi."));
+        if(btn){ btn.disabled = false; btn.textContent = "Simpan"; }
+        return;
+      }
+      const newId = addRes.id;
+      const subRes = await postToSheets("submitCoaching", {
+        id: newId,
+        data: { areaCoaching, alasan, catatan, penempatan: data.penempatan, fileName, fileBase64: fileDataUrl }
+      });
+      if(subRes && subRes.fileUrl) submission.fileUrl = subRes.fileUrl;
+      STORAGE.records.push({ id: newId, ...data, submission, status: "complete" });
+    } else {
+      const localId = STORAGE.nextId++;
+      STORAGE.records.push({ id: localId, ...data, submission, status: "complete" });
+    }
+    closeModal();
+    render();
+  };
+
+  if(file){
+    const reader = new FileReader();
+    reader.onload = () => finish(file.name, reader.result);
+    reader.onerror = () => {
+      alert("Gagal membaca file. Coba tanpa lampiran atau ulangi.");
+      if(btn){ btn.disabled = false; btn.textContent = "Simpan"; }
+    };
+    reader.readAsDataURL(file);
+  } else {
+    await finish(null, null);
+  }
+}
+
+async function saveRecord(id){
+  const get = (k) => document.getElementById(k).value.trim();
+  const atasanSelect = document.getElementById("m_namaAtasan_select");
+  const namaAtasan = (atasanSelect && atasanSelect.style.display !== "none") ? atasanSelect.value.trim() : get("m_namaAtasan");
+  const atasanAccess = accessConfigByName(namaAtasan);
+  const data = {
+    namaAtasan: namaAtasan, jabatan: get("m_jabatan"), divisi: get("m_divisi"),
+    namaKaryawan: get("m_namaKaryawan"), posisiKaryawan: get("m_posisiKaryawan"), divisiKaryawan: get("m_divisiKaryawan"),
+    penempatan: get("m_penempatan"), periode: get("m_periode"),
+    atasanEmail: atasanAccess ? atasanAccess.email : "",
+  };
+  if(!data.namaAtasan || !data.namaKaryawan || !data.periode){
+    alert("Mohon lengkapi minimal Nama Atasan, Nama Karyawan, dan Periode Coaching.");
+    return;
+  }
+  if(!atasanAccess){
+    alert("Nama Atasan belum terdaftar di sistem akses (ACCESS_CONFIG). Pilih dari daftar yang tersedia di dropdown.");
+    return;
+  }
+
+  if(SHEETS_API_URL){
+    const res = id
+      ? await postToSheets("updateRecord", { id, data, idToken: state.googleIdToken })
+      : await postToSheets("addRecord", { data, idToken: state.googleIdToken, notify: !id });
+    if(!res || res.error){
+      alert("Gagal menyimpan: " + (res && res.error ? res.error : "tidak ada respons dari server. Coba lagi."));
+      return;
+    }
+    if(id){
+      Object.assign(STORAGE.records.find(x => x.id === id), data);
+    } else {
+      STORAGE.records.push({ id: res.id, ...data, submission:null, status:"uncomplete" });
+    }
+  } else {
+    if(id){
+      Object.assign(STORAGE.records.find(x => x.id === id), data);
+    } else {
+      const localId = STORAGE.nextId++;
+      STORAGE.records.push({ id: localId, ...data, submission:null, status:"uncomplete" });
+    }
+  }
+  closeModal();
+  render();
+}
+
+async function deleteRecord(id){
+  if(!confirm("Hapus data coaching ini? Data submission terkait juga akan terhapus.")) return;
+
+  if(SHEETS_API_URL){
+    const res = await postToSheets("deleteRecord", { id, idToken: state.googleIdToken });
+    if(!res || res.error){
+      alert("Gagal menghapus: " + (res && res.error ? res.error : "tidak ada respons dari server. Coba lagi."));
+      return;
+    }
+  }
+  STORAGE.records = STORAGE.records.filter(x => x.id !== id);
+  render();
+}
+
+/* ---------- RENDER ---------- */
+function renderLoginGate(){
+  return `
+    <div class="card login-gate">
+      <div class="login-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+      <h2>Masuk untuk Melanjutkan</h2>
+      <div class="login-gate-btn-wrap"><div id="googleSignInBtn"></div></div>
+    </div>
+  `;
+}
+
+function renderAccessDenied(){
+  return `
+    <div class="card login-gate">
+      <div class="login-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+      <h2>Akun Belum Terdaftar</h2>
+      <p>Akun <strong>${esc(state.googleEmail)}</strong> belum terdaftar di sistem. Hubungi HR People Development untuk didaftarkan sesuai peranmu.</p>
+      <button class="btn btn-outline" onclick="googleSignOut()">Ganti Akun</button>
+    </div>
+  `;
+}
+
+function render(){
+  renderSidebarNav();
+  renderTopbar();
+  const app = document.getElementById("app");
+  let html = "";
+  if(!SHEETS_API_URL){
+    html += `<div class="banner banner-warn">${ic.file} Dashboard belum tersambung ke Google Sheets &mdash; saat ini memakai data dummy lokal. Tempel URL Web App Apps Script di variabel <code>SHEETS_API_URL</code> pada kode untuk mengaktifkan sinkronisasi.</div>`;
+  }
+
+  let needsGoogleButton = false;
+
+  if(!state.googleEmail){
+    html += renderLoginGate();
+    needsGoogleButton = true;
+  } else if(state.accessDenied){
+    html += renderAccessDenied();
+  } else if(state.role === "hr"){
+    html += renderLayer1();
+  } else if(state.view === "layer3" && state.activeRecordId){
+    html += renderLayer3();
+  } else {
+    html += renderLayer2();
+  }
+
+  app.innerHTML = html;
+  if(needsGoogleButton){
+    renderGoogleButton();
+  }
+  if(state.role === "atasan" && state.view === "layer3" && state.activeRecordId){
+    attachLayer3Handlers();
+  }
+}
+
+(async function init(){
+  if(SHEETS_API_URL){ await loadFromSheets(); }
+  render();
+})();
+</script>
+</body>
+</html>
