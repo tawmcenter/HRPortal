@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>We Choice — Vote</title>
+<title>We Choice</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#FBF4ED;
@@ -13,446 +13,692 @@
     --border:#E7DDD1;
     --text:#2B2420;
     --text-secondary:#8A7C6F;
-    --accent:#E2661D;
-    --accent-light:#FDEAD9;
-    --accent-dark:#9A3E12;
+    --primary:#9A3E12;
+    --primary-dark:#2B2420;
+    --gold:#E2661D;
+    --gold-light:#FDEAD9;
+    --gold-dark:#9A3E12;
+    --hero:#F0601A;
+    --hero-deep:#D34A08;
+    --sun:#FFC83D;
     --danger:#A32D2D;
     --danger-bg:#FCEBEB;
-    --radius:10px;
+    --radius:12px;
   }
   *{box-sizing:border-box;}
-  body{margin:0;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);}
-  .wrap{max-width:640px;margin:0 auto;padding:32px 20px 60px;}
-  .brand{display:flex;align-items:baseline;gap:10px;margin-bottom:8px;}
-  .brand-mark{font-family:'Fraunces',serif;font-weight:600;font-size:22px;color:var(--accent-dark);}
-  .brand-sub{font-size:13px;color:var(--text-secondary);}
-  .session-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;font-size:13px;color:var(--text-secondary);}
-  .tabs{display:flex;gap:8px;margin-bottom:24px;}
-  .tab-btn{flex:1;padding:10px 14px;border:1px solid var(--border);background:var(--surface);border-radius:8px;font-size:14px;font-weight:500;font-family:inherit;color:var(--text-secondary);cursor:pointer;}
-  .tab-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+  body{margin:0;font-family:'Figtree',sans-serif;background:var(--bg);color:var(--text);}
+  .wrap{max-width:640px;margin:0 auto;padding:28px 20px 60px;}
+  .nav{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px 16px;margin-bottom:36px;}
+  .brand{font-family:'Bricolage Grotesque',sans-serif;font-size:20px;font-weight:800;color:var(--primary);}
+  .nav-links{display:flex;gap:16px;align-items:center;flex-wrap:wrap;}
+  .nav-link{font-size:13px;color:var(--text-secondary);text-decoration:none;cursor:pointer;background:none;border:none;font-family:inherit;padding:0;}
+  .nav-link.active{color:var(--primary);font-weight:600;}
+  .session-tag{font-size:12px;color:var(--text-secondary);}
+
+  .we-hero{position:relative;overflow:hidden;background:var(--hero);color:#fff;border-radius:26px;padding:22px 22px 52px;}
+  .we-blob{position:absolute;top:-80px;right:-70px;width:240px;height:240px;border-radius:50%;background:var(--hero-deep);opacity:.55;}
+  .we-top{position:relative;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;min-height:92px;}
+  .we-pill{display:inline-block;background:var(--sun);color:var(--text);font-size:13px;font-weight:600;padding:6px 14px;border-radius:999px;}
+  .we-ballot{width:74px;height:86px;flex-shrink:0;transform:rotate(9deg);filter:drop-shadow(0 6px 10px rgba(90,30,0,.28));}
+  .we-mark{position:relative;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:clamp(46px,14vw,64px);line-height:.95;letter-spacing:-0.03em;margin:6px 0 14px;}
+  .we-check{display:inline-flex;align-items:center;justify-content:center;width:.5em;height:.5em;margin-left:.12em;border-radius:50%;background:var(--sun);transform:rotate(-12deg) translateY(-.08em);vertical-align:middle;}
+  .we-check svg{width:62%;height:62%;}
+  .we-question{position:relative;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:21px;line-height:1.25;margin:0 0 10px;}
+  .we-lede{position:relative;font-size:14px;line-height:1.55;margin:0;max-width:30em;color:#FFE6D4;}
+  .we-card{position:relative;margin:-26px 12px 24px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:22px 20px 20px;box-shadow:0 14px 34px rgba(120,50,10,.14);text-align:center;}
+  .we-card .predikat-label{margin-bottom:4px;}
+  .we-card .predikat-name{font-size:26px;margin:0 0 6px;}
+  .we-card .predikat-q{margin:0 0 20px;}
+  .steps{list-style:none;margin:0 0 20px;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .step-ico{width:46px;height:46px;margin:0 auto 8px;border-radius:50%;background:var(--gold-light);display:flex;align-items:center;justify-content:center;}
+  .step-ico svg{width:22px;height:22px;stroke:var(--gold-dark);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .step-title{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:15px;margin:0;}
+  .step-sub{font-size:12px;line-height:1.4;color:var(--text-secondary);margin:2px 0 0;}
+
+  .medallion{width:118px;height:118px;border-radius:50%;border:3px solid var(--gold);background:var(--gold-light);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;}
+  .medallion svg{width:44px;height:44px;color:var(--gold-dark);}
+
+  .predikat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px 24px;text-align:center;margin-bottom:24px;}
+  .predikat-label{font-size:12px;color:var(--text-secondary);margin:0 0 6px;}
+  .predikat-name{font-family:'Bricolage Grotesque',sans-serif;font-size:24px;font-weight:600;color:var(--primary);margin:0 0 10px;}
+  .predikat-q{font-size:14px;color:var(--text-secondary);margin:0;}
+
+  .btn{display:inline-block;padding:13px 28px;border-radius:999px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;border:none;text-align:center;}
+  .btn-primary{background:var(--primary-dark);color:#fff;}
+  .btn-primary:hover:not(:disabled){background:var(--primary);}
+  .btn:focus-visible{outline:3px solid var(--sun);outline-offset:2px;}
+  .btn-primary:disabled{opacity:0.5;cursor:not-allowed;}
+  .btn-ghost{background:var(--surface);color:var(--primary);border:1px solid var(--border);}
+  .btn-block{width:100%;}
+  .btn-row{display:flex;gap:12px;}
+
   .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;}
-  .field{margin-bottom:16px;}
-  label{display:block;font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;}
-  input,select{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;background:#fff;color:var(--text);}
-  input:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent);}
-  .section-title{font-family:'Fraunces',serif;font-size:19px;font-weight:600;margin:0 0 4px;}
-  .section-sub{font-size:13px;color:var(--text-secondary);margin:0 0 18px;}
-  .divider{height:1px;background:var(--border);margin:26px 0;}
-  button.submit{width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:500;font-family:inherit;cursor:pointer;margin-top:6px;}
-  button.submit:disabled{opacity:0.5;cursor:not-allowed;}
-  button.ghost{padding:8px 14px;background:var(--surface);color:var(--accent-dark);border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;cursor:pointer;}
-  button.link{background:none;border:none;color:var(--accent-dark);font-size:13px;font-family:inherit;cursor:pointer;text-decoration:underline;padding:0;}
-  .msg{margin-top:14px;padding:10px 12px;border-radius:8px;font-size:13px;display:none;}
+  .field{margin-bottom:16px;text-align:left;}
+  label{display:block;font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:6px;}
+  input,select{width:100%;padding:11px 13px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;background:#fff;color:var(--text);}
+  input:focus,select:focus{outline:2px solid var(--gold);outline-offset:1px;border-color:var(--gold);}
+
+  .msg{margin-top:14px;padding:11px 13px;border-radius:8px;font-size:13px;display:none;text-align:left;}
   .msg.show{display:block;}
-  .msg.success{background:var(--accent-light);color:var(--accent-dark);}
+  .msg.success{background:var(--gold-light);color:var(--gold-dark);}
   .msg.error{background:var(--danger-bg);color:var(--danger);}
-  .msg.notice{background:var(--accent-light);color:var(--accent-dark);}
-  .login-wrap{min-height:70vh;display:flex;align-items:center;justify-content:center;}
-  .login-card{max-width:380px;width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px 26px;text-align:center;}
-  .login-card .brand{justify-content:center;margin-bottom:2px;}
-  .login-card p.section-sub{margin-bottom:20px;}
-  .summary-row{display:flex;gap:12px;margin-bottom:20px;}
-  .summary-card{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;}
-  .summary-num{font-family:'Fraunces',serif;font-size:24px;font-weight:600;}
-  .summary-label{font-size:12px;color:var(--text-secondary);margin-top:2px;}
-  .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;}
-  .row{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
-  .row:last-child{margin-bottom:0;}
-  .rank{width:24px;height:24px;border-radius:50%;background:var(--accent-light);color:var(--accent-dark);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;}
-  .row-body{flex:1;min-width:0;}
-  .row-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
-  .row-name{font-weight:500;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .row-count{color:var(--text-secondary);font-size:13px;flex-shrink:0;}
-  .row-sub{font-size:12px;color:var(--text-secondary);margin-top:1px;}
-  .bar-track{height:8px;background:var(--bg);border-radius:4px;overflow:hidden;margin-top:6px;}
-  .bar-fill{height:100%;background:var(--accent);border-radius:4px;}
-  .empty{color:var(--text-secondary);font-size:13px;padding:8px 0;}
-  .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
-  .loading{color:var(--text-secondary);font-size:13px;}
-  .period-tag{font-size:12px;color:var(--accent-dark);background:var(--accent-light);padding:3px 10px;border-radius:999px;font-weight:500;}
+
+  .autocomplete{position:relative;}
+  .ac-list{position:absolute;left:0;right:0;top:calc(100% + 4px);background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 14px rgba(36,30,40,0.08);max-height:230px;overflow-y:auto;z-index:5;display:none;}
+  .ac-list.show{display:block;}
+  .ac-item{padding:10px 13px;cursor:pointer;font-size:14px;}
+  .ac-item:hover{background:var(--gold-light);}
+  .ac-item .ac-sub{font-size:12px;color:var(--text-secondary);margin-top:1px;}
+  .ac-empty{padding:10px 13px;font-size:13px;color:var(--text-secondary);}
+
+  .confirm-box{text-align:center;padding:8px 0;}
+  .confirm-box p{font-size:15px;line-height:1.5;margin:0 0 24px;}
+  .confirm-box .name{font-weight:600;color:var(--primary);}
+
+  .thanks{text-align:center;padding:40px 20px;}
+  .thanks .medallion{margin-bottom:24px;}
+  .thanks h2{font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:600;margin:0 0 10px;}
+  .thanks p{font-size:14px;color:var(--text-secondary);}
+
+  .stat-row{display:flex;gap:12px;margin-bottom:20px;}
+  .stat-card{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;}
+  .stat-num{font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:600;color:var(--primary);}
+  .stat-label{font-size:11px;color:var(--text-secondary);margin-top:2px;}
+
+  .lb-row{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+  .lb-rank{width:24px;height:24px;border-radius:50%;background:var(--gold-light);color:var(--gold-dark);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+  .lb-body{flex:1;}
+  .lb-top{display:flex;justify-content:space-between;font-size:14px;}
+  .lb-name{font-weight:600;}
+  .lb-count{color:var(--text-secondary);font-size:13px;}
+  .lb-track{height:6px;background:var(--bg);border-radius:4px;overflow:hidden;margin-top:5px;}
+  .lb-fill{height:100%;background:var(--gold);}
+
+  .hof-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;text-align:center;margin-bottom:14px;}
+  .hof-card .medallion{width:64px;height:64px;margin-bottom:14px;}
+  .hof-card .medallion svg{width:26px;height:26px;}
+  .hof-name{font-family:'Bricolage Grotesque',sans-serif;font-size:18px;font-weight:600;color:var(--primary);margin:0 0 4px;}
+  .hof-predikat{font-size:13px;color:var(--gold-dark);margin:0 0 4px;}
+  .hof-period{font-size:12px;color:var(--text-secondary);margin:0;}
+
+  .empty{text-align:center;color:var(--text-secondary);font-size:14px;padding:40px 20px;}
+  #homeContent > .empty{padding-top:28px;}
+  .toolbar{display:flex;justify-content:flex-end;margin-bottom:14px;}
+  .btn-small{padding:7px 14px;font-size:12px;}
+
+  .admin-title{font-family:'Bricolage Grotesque',sans-serif;font-size:19px;font-weight:600;color:var(--primary);margin:0 0 6px;}
+  .admin-sub{font-size:13px;color:var(--text-secondary);margin:0 0 18px;line-height:1.5;}
+  .recent-row{padding:10px 0;border-top:1px solid var(--border);font-size:14px;}
+  .recent-row:first-child{border-top:none;}
+  .recent-sub{font-size:12px;color:var(--text-secondary);margin-top:1px;}
+  .hidden{display:none;}
 </style>
 </head>
 <body>
-<style>.wmhrga-back-fab{position:fixed;bottom:16px;left:16px;z-index:99999;display:inline-flex;align-items:center;gap:6px;background:#14213D;color:#fff;text-decoration:none;font-family:'Plus Jakarta Sans',-apple-system,sans-serif;font-size:12.5px;font-weight:600;padding:9px 15px;border-radius:999px;box-shadow:0 6px 18px rgba(20,33,61,.35);transition:transform .15s ease,box-shadow .15s ease;}.wmhrga-back-fab:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(20,33,61,.45);}@media print{.wmhrga-back-fab{display:none;}}</style>
-<a href="index.html" class="wmhrga-back-fab">&#8592; Dashboard</a>
-
 <div class="wrap">
+  <div class="nav">
+    <span class="brand">We Choice</span>
+    <div class="nav-links">
+      <button class="nav-link active" id="navHome" type="button">Home</button>
+      <button class="nav-link" id="navDash" type="button">Dashboard</button>
+      <button class="nav-link" id="navHof" type="button">Hall of Recognition</button>
+      <button class="nav-link" id="navAdmin" type="button">Admin</button>
+    </div>
+  </div>
+  <div class="session-tag" id="sessionTag" style="text-align:right;margin-bottom:16px;"></div>
 
-  <div id="viewLogin" class="login-wrap">
-    <div class="login-card">
-      <div class="brand"><span class="brand-mark">We Choice</span></div>
-      <p class="section-sub">Masukkan email kamu untuk masuk dan mulai vote.</p>
-      <div class="field">
-        <label for="loginEmail">Email</label>
-        <input type="email" id="loginEmail" placeholder="nama@email.com" required>
+  <div id="viewHome">
+    <header class="we-hero">
+      <span class="we-blob" aria-hidden="true"></span>
+      <div class="we-top">
+        <span class="we-pill">Apresiasi bulanan WM</span>
+        <svg class="we-ballot" viewBox="0 0 120 140" aria-hidden="true">
+          <rect x="6" y="6" width="108" height="128" rx="15" fill="#fff"/>
+          <rect x="22" y="24" width="40" height="40" rx="10" fill="#FFC83D"/>
+          <path d="M31 45l8 8 14-16" fill="none" stroke="#2B2420" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="70" y="30" width="28" height="8" rx="4" fill="#F3DCC7"/>
+          <rect x="70" y="47" width="18" height="8" rx="4" fill="#F3DCC7"/>
+          <rect x="22" y="82" width="76" height="8" rx="4" fill="#F3DCC7"/>
+          <rect x="22" y="99" width="58" height="8" rx="4" fill="#F3DCC7"/>
+          <rect x="22" y="116" width="40" height="8" rx="4" fill="#F3DCC7"/>
+        </svg>
       </div>
-      <button type="button" class="submit" id="loginBtn">Masuk</button>
+      <h1 class="we-mark">We Choice<span class="we-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#2B2420" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span></h1>
+      <p class="we-question">Tentukan pilihanmu sekarang!</p>
+      <p class="we-lede">Tiap bulan ada satu predikat, dan seluruh WM vote 1 rekan kerja yang paling pantas mendapatkannya. Cuma semenit, dampaknya lama.</p>
+    </header>
+    <div id="homeContent"></div>
+  </div>
+
+  <div id="viewLogin" class="hidden">
+    <div class="card">
+      <div class="field autocomplete">
+        <label for="loginName">Masukkan nama kamu</label>
+        <input type="text" id="loginName" placeholder="Ketik nama kamu" autocomplete="off">
+        <div class="ac-list" id="loginAcList"></div>
+      </div>
+      <button class="btn btn-primary btn-block" id="loginBtn" type="button" disabled>Login &amp; vote</button>
       <div id="loginMsg" class="msg"></div>
     </div>
   </div>
 
-  <div id="viewApp" style="display:none;">
-    <div class="brand">
-      <span class="brand-mark">We Choice</span>
-      <span class="brand-sub">Recognition vote</span>
-    </div>
-    <div class="session-bar">
-      <span id="sessionEmail"></span>
-      <button type="button" class="link" id="logoutBtn">Keluar</button>
-    </div>
-
-    <div class="tabs">
-      <button id="tabFormBtn" class="tab-btn active" type="button">Isi form</button>
-      <button id="tabDashBtn" class="tab-btn" type="button">Dashboard</button>
-      <button id="tabHofBtn" class="tab-btn" type="button">Hall of fame</button>
-    </div>
-
-    <div id="viewForm">
-      <form id="voteForm" class="card">
-        <p class="section-title">Data diri</p>
-        <p class="section-sub">Isi data kamu sebelum vote.</p>
-
-        <div class="field">
-          <label for="pNama">Nama</label>
-          <input type="text" id="pNama" required>
-        </div>
-        <div class="field">
-          <label for="pPosisi">Posisi</label>
-          <input type="text" id="pPosisi" placeholder="contoh: Fisioterapis" required>
-        </div>
-        <div class="field">
-          <label for="pCabang">Cabang</label>
-          <select id="pCabang" required></select>
-        </div>
-
-        <div class="divider"></div>
-
-        <p class="section-title">Vote</p>
-        <p class="section-sub">Pilih 1 rekan kerja yang menurutmu paling layak diapresiasi bulan ini.</p>
-
-        <div class="field">
-          <label for="vNama">Nama yang dipilih</label>
-          <input type="text" id="vNama" required>
-        </div>
-        <div class="field">
-          <label for="vPosisi">Posisi</label>
-          <input type="text" id="vPosisi" placeholder="contoh: Front office" required>
-        </div>
-        <div class="field">
-          <label for="vCabang">Cabang</label>
-          <select id="vCabang" required></select>
-        </div>
-
-        <button type="submit" class="submit" id="submitBtn">Kirim vote</button>
-        <div id="formMsg" class="msg"></div>
-      </form>
-    </div>
-
-    <div id="viewDash" style="display:none;">
-      <div class="toolbar">
-        <span class="loading" id="dashStatus">Memuat data...</span>
-        <button class="ghost" id="refreshBtn" type="button">Refresh</button>
+  <div id="viewVote" class="hidden">
+    <div class="card">
+      <p class="predikat-label" id="votePredikatLabel"></p>
+      <p style="font-size:14px;color:var(--text-secondary);margin:0 0 18px;" id="voteQuestion"></p>
+      <div class="field autocomplete">
+        <label for="voteSearch">Nama pilihanmu</label>
+        <input type="text" id="voteSearch" placeholder="Ketik nama employee" autocomplete="off">
+        <div class="ac-list" id="acList"></div>
       </div>
-      <div id="dashSummary"></div>
-      <div id="dashContent"></div>
+      <button class="btn btn-primary btn-block" id="voteSubmitBtn" type="button" disabled>Submit my vote</button>
+      <div id="voteMsg" class="msg"></div>
     </div>
 
-    <div id="viewHof" style="display:none;">
-      <div class="toolbar">
-        <span class="loading" id="hofStatus">Memuat data...</span>
-        <button class="ghost" id="hofRefreshBtn" type="button">Refresh</button>
+    <div id="voteConfirm" class="card hidden" style="margin-top:16px;">
+      <div class="confirm-box">
+        <p>Kamu memilih <span class="name" id="confirmName"></span> sebagai <span class="name" id="confirmPredikat"></span> bulan ini. Sudah yakin dengan pilihanmu?</p>
+        <div class="btn-row">
+          <button class="btn btn-ghost btn-block" id="confirmCancelBtn" type="button">Cancel</button>
+          <button class="btn btn-primary btn-block" id="confirmYesBtn" type="button">Yes, submit my vote</button>
+        </div>
       </div>
-      <div id="hofContent"></div>
     </div>
   </div>
 
+  <div id="viewThanks" class="hidden">
+    <div class="thanks">
+      <div class="medallion"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M17 5h3a2 2 0 0 1-2 4M7 5H4a2 2 0 0 0 2 4"/></svg></div>
+      <h2 id="thanksTitle">Terima kasih!</h2>
+      <p id="thanksBody">Kamu sudah memberikan vote bulan ini. Terima kasih sudah ikut memberikan apresiasi.</p>
+    </div>
+  </div>
+
+  <div id="viewDash" class="hidden">
+    <div class="toolbar"><button class="btn btn-ghost btn-small" id="dashRefreshBtn" type="button">Refresh</button></div>
+    <div id="dashContent"></div>
+  </div>
+
+  <div id="viewAdmin" class="hidden">
+    <div class="card">
+      <p class="admin-title">Tambah karyawan baru</p>
+      <p class="admin-sub">Karyawan yang disimpan langsung muncul di pencarian nama dan bisa dipilih saat vote.</p>
+      <div class="field">
+        <label for="adminNama">Nama lengkap</label>
+        <input type="text" id="adminNama" placeholder="contoh: Andi Pratama" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="adminEmailInput">Email karyawan</label>
+        <input type="email" id="adminEmailInput" placeholder="nama@email.com" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="adminPosisi">Posisi (opsional)</label>
+        <input type="text" id="adminPosisi" placeholder="contoh: Fisioterapis" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="adminCabang">Cabang</label>
+        <select id="adminCabang"></select>
+      </div>
+      <button class="btn btn-primary btn-block" id="adminSaveBtn" type="button">Simpan karyawan</button>
+      <div id="adminMsg" class="msg"></div>
+    </div>
+    <div class="card" style="margin-top:16px;">
+      <p class="admin-title">Terakhir ditambahkan</p>
+      <p class="admin-sub" id="adminTotal">Memuat...</p>
+      <div id="adminRecent"></div>
+    </div>
+  </div>
+
+  <div id="viewHof" class="hidden">
+    <div class="toolbar"><button class="btn btn-ghost btn-small" id="hofRefreshBtn" type="button">Refresh</button></div>
+    <div id="hofContent"></div>
+  </div>
 </div>
 
 <script>
-// GANTI URL DI BAWAH INI dengan URL deployment Apps Script kamu (.../exec)
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby3QuiM_T9C5Spxn5O8i_4F4mE736ltSq12y4z2pk3XSMzRV3KCcm2NttUZPWO-pnj9dw/exec';
-
-const CABANG_OPTIONS = ['Kuningan', 'BSD', 'Kebayoran', 'Cibubur', 'Bandung', 'Surabaya', 'Kemang', 'Puri', 'Alam Sutra', 'Bekasi', 'Pemuda', 'Head Office'];
-
-function fillCabang(select) {
-  select.innerHTML = '<option value="" disabled selected>Pilih cabang</option>' +
-    CABANG_OPTIONS.map(function(c) { return '<option value="' + c + '">' + c + '</option>'; }).join('');
-}
-fillCabang(document.getElementById('pCabang'));
-fillCabang(document.getElementById('vCabang'));
-
-let currentEmail = null;
-
-const viewLogin = document.getElementById('viewLogin');
-const viewApp = document.getElementById('viewApp');
-const loginBtn = document.getElementById('loginBtn');
-const loginEmail = document.getElementById('loginEmail');
-const loginMsg = document.getElementById('loginMsg');
-const sessionEmail = document.getElementById('sessionEmail');
-const logoutBtn = document.getElementById('logoutBtn');
-const submitBtn = document.getElementById('submitBtn');
-const formMsg = document.getElementById('formMsg');
-
-function showLoginMsg(text, type) {
-  loginMsg.textContent = text;
-  loginMsg.className = 'msg show ' + type;
-}
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx12oarGNwQd2_pj6OadvlqLcgm77kRct1X_4ll6ywhUxTmWcX5LGTJKQLw_9cj6vabeQ/exec';
 
 let jsonpCounter = 0;
 function jsonpFetch(url) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     const callbackName = 'jsonp_cb_' + (jsonpCounter++) + '_' + Date.now();
     const script = document.createElement('script');
     let settled = false;
-
-    const cleanup = function() {
-      delete window[callbackName];
-      if (script.parentNode) script.parentNode.removeChild(script);
-    };
-
-    window[callbackName] = function(data) {
-      settled = true;
-      cleanup();
-      resolve(data);
-    };
-
-    script.onerror = function() {
-      if (!settled) { cleanup(); reject(new Error('Gagal memuat data dari Apps Script')); }
-    };
-
-    const separator = url.indexOf('?') === -1 ? '?' : '&';
-    script.src = url + separator + 'callback=' + callbackName;
+    const cleanup = function () { delete window[callbackName]; if (script.parentNode) script.parentNode.removeChild(script); };
+    window[callbackName] = function (data) { settled = true; cleanup(); resolve(data); };
+    script.onerror = function () { if (!settled) { cleanup(); reject(new Error('Gagal memuat data')); } };
+    const sep = url.indexOf('?') === -1 ? '?' : '&';
+    script.src = url + sep + 'callback=' + callbackName;
     document.body.appendChild(script);
-
-    setTimeout(function() {
-      if (!settled) { cleanup(); reject(new Error('Timeout memuat data')); }
-    }, 10000);
+    setTimeout(function () { if (!settled) { cleanup(); reject(new Error('Timeout')); } }, 10000);
   });
 }
 
-async function checkAlreadyVoted(email) {
+function esc(v) {
+  return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+
+function subLine(parts) {
+  return parts.filter(function (x) { return String(x == null ? '' : x).trim() !== ''; }).map(esc).join(' &middot; ');
+}
+
+const CABANG_OPTIONS = ['Kuningan', 'BSD', 'Kebayoran', 'Cibubur', 'Bandung', 'Surabaya', 'Kemang', 'Puri', 'Alam Sutra', 'Bekasi', 'Pemuda', 'Head Office'];
+
+let loginIntent = 'vote';
+function setLoginIntent(intent) {
+  loginIntent = intent;
+  document.getElementById('loginBtn').textContent = intent === 'admin' ? 'Login' : 'Login & vote';
+}
+
+let currentEmail = null;
+let currentName = null;
+let selectedCandidate = null;
+let selectedLoginEmployee = null;
+let activePeriod = null;
+
+const views = ['Home', 'Login', 'Vote', 'Thanks', 'Dash', 'Hof', 'Admin'];
+function showView(name) {
+  views.forEach(function (v) { document.getElementById('view' + v).classList.toggle('hidden', v !== name); });
+  document.getElementById('navHome').classList.toggle('active', name === 'Home');
+  document.getElementById('navDash').classList.toggle('active', name === 'Dash');
+  document.getElementById('navHof').classList.toggle('active', name === 'Hof');
+  document.getElementById('navAdmin').classList.toggle('active', name === 'Admin');
+}
+
+function updateSessionTag() {
+  const tag = document.getElementById('sessionTag');
+  tag.textContent = currentName ? ('Masuk sebagai: ' + currentName) : '';
+}
+
+document.getElementById('navHome').addEventListener('click', function () { loadHome(); showView('Home'); });
+document.getElementById('navDash').addEventListener('click', function () { showView('Dash'); loadDashboard(); });
+document.getElementById('navHof').addEventListener('click', function () { showView('Hof'); loadHallOfRecognition(); });
+document.getElementById('dashRefreshBtn').addEventListener('click', loadDashboard);
+document.getElementById('hofRefreshBtn').addEventListener('click', loadHallOfRecognition);
+
+async function loadHome() {
+  const el = document.getElementById('homeContent');
+  el.innerHTML = '<p class="empty">Memuat predikat bulan ini...</p>';
   try {
-    const json = await jsonpFetch(APPS_SCRIPT_URL + '?checkEmail=' + encodeURIComponent(email));
-    return json.alreadyVoted === true;
-  } catch (err) {
-    return false;
-  }
-}
-
-loginBtn.addEventListener('click', async function() {
-  const email = loginEmail.value.trim().toLowerCase();
-  if (!email || !email.includes('@')) {
-    showLoginMsg('Masukkan email yang valid.', 'error');
-    return;
-  }
-  loginBtn.disabled = true;
-  loginMsg.className = 'msg';
-
-  currentEmail = email;
-  sessionEmail.textContent = 'Masuk sebagai: ' + email;
-  viewLogin.style.display = 'none';
-  viewApp.style.display = '';
-  loginBtn.disabled = false;
-
-  const alreadyVoted = await checkAlreadyVoted(email);
-  if (alreadyVoted) {
-    formMsg.textContent = 'Kamu sudah vote bulan ini menggunakan email ini. Bulan depan bisa vote lagi. Kamu masih bisa lihat dashboard.';
-    formMsg.className = 'msg show notice';
-    submitBtn.disabled = true;
-  }
-});
-
-logoutBtn.addEventListener('click', function() {
-  currentEmail = null;
-  loginEmail.value = '';
-  submitBtn.disabled = false;
-  formMsg.className = 'msg';
-  viewApp.style.display = 'none';
-  viewLogin.style.display = '';
-  tabFormBtn.click();
-});
-
-const tabFormBtn = document.getElementById('tabFormBtn');
-const tabDashBtn = document.getElementById('tabDashBtn');
-const tabHofBtn = document.getElementById('tabHofBtn');
-const viewForm = document.getElementById('viewForm');
-const viewDash = document.getElementById('viewDash');
-const viewHof = document.getElementById('viewHof');
-
-function setActiveTab(btn) {
-  [tabFormBtn, tabDashBtn, tabHofBtn].forEach(function(b) { b.classList.remove('active'); });
-  btn.classList.add('active');
-  viewForm.style.display = btn === tabFormBtn ? '' : 'none';
-  viewDash.style.display = btn === tabDashBtn ? '' : 'none';
-  viewHof.style.display = btn === tabHofBtn ? '' : 'none';
-}
-
-tabFormBtn.addEventListener('click', function() {
-  setActiveTab(tabFormBtn);
-});
-tabDashBtn.addEventListener('click', function() {
-  setActiveTab(tabDashBtn);
-  loadDashboard();
-});
-tabHofBtn.addEventListener('click', function() {
-  setActiveTab(tabHofBtn);
-  loadHallOfFame();
-});
-document.getElementById('refreshBtn').addEventListener('click', loadDashboard);
-document.getElementById('hofRefreshBtn').addEventListener('click', loadHallOfFame);
-
-const form = document.getElementById('voteForm');
-
-function showFormMsg(text, type) {
-  formMsg.textContent = text;
-  formMsg.className = 'msg show ' + type;
-}
-
-form.addEventListener('submit', async function(e) {
-  e.preventDefault();
-  if (!currentEmail) return;
-  submitBtn.disabled = true;
-  formMsg.className = 'msg';
-
-  try {
-    const alreadyVoted = await checkAlreadyVoted(currentEmail);
-    if (alreadyVoted) {
-      showFormMsg('Email ini sudah vote bulan ini. Satu email hanya bisa vote sekali per bulan.', 'error');
+    const json = await jsonpFetch(APPS_SCRIPT_URL);
+    activePeriod = json.period || null;
+    if (!activePeriod) {
+      el.innerHTML = '<p class="empty">Periode voting belum dibuka. Tunggu pengumuman predikat bulan ini ya.</p>';
       return;
     }
+    el.innerHTML =
+      '<div class="we-card">' +
+        '<p class="predikat-label">' + esc(activePeriod.bulanLabel) + '</p>' +
+        '<p class="predikat-name">' + esc(activePeriod.predikat) + '</p>' +
+        '<p class="predikat-q">Menurutmu, siapa yang paling pantas bulan ini?</p>' +
+        '<ol class="steps">' +
+          '<li><div class="step-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></div><p class="step-title">Login</p><p class="step-sub">Cari namamu</p></li>' +
+          '<li><div class="step-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg></div><p class="step-title">Vote</p><p class="step-sub">Pilih 1 rekan favoritmu</p></li>' +
+          '<li><div class="step-ico"><svg viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M17 5h3a2 2 0 0 1-2 4M7 5H4a2 2 0 0 0 2 4"/></svg></div><p class="step-title">Juara</p><p class="step-sub">Terbanyak masuk Hall of Recognition</p></li>' +
+        '</ol>' +
+        '<button class="btn btn-primary btn-block" id="voteNowBtn" type="button">Vote now</button>' +
+      '</div>';
+    document.getElementById('voteNowBtn').addEventListener('click', onVoteNowClick);
+  } catch (err) {
+    el.innerHTML = '<p class="empty">Gagal memuat data. Coba refresh halaman ini.</p>';
+  }
+}
 
+async function onVoteNowClick() {
+  if (!activePeriod) return;
+  if (!currentEmail) {
+    setLoginIntent('vote');
+    showView('Login');
+    return;
+  }
+  await enterVoteFlow();
+}
+
+let loginAcDebounce = null;
+const loginName = document.getElementById('loginName');
+const loginAcList = document.getElementById('loginAcList');
+loginName.addEventListener('input', function () {
+  selectedLoginEmployee = null;
+  document.getElementById('loginBtn').disabled = true;
+  const q = loginName.value.trim();
+  clearTimeout(loginAcDebounce);
+  if (q.length < 2) { loginAcList.classList.remove('show'); return; }
+  loginAcDebounce = setTimeout(async function () {
+    try {
+      const json = await jsonpFetch(APPS_SCRIPT_URL + '?action=searchEmployees&mode=login&q=' + encodeURIComponent(q));
+      const results = json.results || [];
+      if (results.length === 0) {
+        loginAcList.innerHTML = '<div class="ac-empty">Tidak ada nama yang cocok</div>';
+      } else {
+        loginAcList.innerHTML = results.map(function (r, i) {
+          return '<div class="ac-item" data-idx="' + i + '"><div>' + esc(r.nama) + '</div><div class="ac-sub">' + subLine([r.posisi, r.cabang]) + '</div></div>';
+        }).join('');
+        Array.prototype.forEach.call(loginAcList.querySelectorAll('.ac-item'), function (item) {
+          item.addEventListener('click', function () {
+            const idx = Number(item.getAttribute('data-idx'));
+            selectedLoginEmployee = results[idx];
+            loginName.value = selectedLoginEmployee.nama;
+            loginAcList.classList.remove('show');
+            document.getElementById('loginBtn').disabled = false;
+          });
+        });
+      }
+      loginAcList.classList.add('show');
+    } catch (err) {
+      loginAcList.classList.remove('show');
+    }
+  }, 250);
+});
+
+document.getElementById('loginBtn').addEventListener('click', async function () {
+  const msg = document.getElementById('loginMsg');
+  if (!selectedLoginEmployee) {
+    msg.textContent = 'Pilih nama kamu dari daftar yang muncul ya.';
+    msg.className = 'msg show error';
+    return;
+  }
+  currentEmail = selectedLoginEmployee.email;
+  currentName = selectedLoginEmployee.nama;
+  updateSessionTag();
+  if (loginIntent === 'admin') { await enterAdminFlow(); } else { await enterVoteFlow(); }
+});
+
+async function enterVoteFlow() {
+  try {
+    const json = await jsonpFetch(APPS_SCRIPT_URL + '?action=checkVoted&email=' + encodeURIComponent(currentEmail));
+    if (json.noPeriod) {
+      document.getElementById('thanksTitle').textContent = 'Belum ada periode aktif';
+      document.getElementById('thanksBody').textContent = 'Periode voting belum dibuka bulan ini.';
+      showView('Thanks');
+      return;
+    }
+    activePeriod = json.period;
+    if (json.voted) {
+      document.getElementById('thanksTitle').textContent = 'Kamu sudah vote bulan ini';
+      document.getElementById('thanksBody').textContent = 'Kamu sudah memberikan vote bulan ini. Terima kasih sudah ikut memberikan apresiasi.';
+      showView('Thanks');
+      return;
+    }
+    document.getElementById('votePredikatLabel').textContent = activePeriod.bulanLabel + ' — ' + activePeriod.predikat;
+    document.getElementById('voteQuestion').textContent = 'Siapa yang menurutmu paling pantas mendapatkan predikat ini?';
+    document.getElementById('voteSearch').value = '';
+    document.getElementById('voteSubmitBtn').disabled = true;
+    document.getElementById('voteConfirm').classList.add('hidden');
+    document.getElementById('voteMsg').className = 'msg';
+    selectedCandidate = null;
+    showView('Vote');
+  } catch (err) {
+    document.getElementById('thanksTitle').textContent = 'Terjadi kendala';
+    document.getElementById('thanksBody').textContent = 'Gagal memuat status voting. Coba lagi sebentar lagi.';
+    showView('Thanks');
+  }
+}
+
+let acDebounce = null;
+const voteSearch = document.getElementById('voteSearch');
+const acList = document.getElementById('acList');
+voteSearch.addEventListener('input', function () {
+  selectedCandidate = null;
+  document.getElementById('voteSubmitBtn').disabled = true;
+  const q = voteSearch.value.trim();
+  clearTimeout(acDebounce);
+  if (q.length < 2) { acList.classList.remove('show'); return; }
+  acDebounce = setTimeout(async function () {
+    try {
+      const json = await jsonpFetch(APPS_SCRIPT_URL + '?action=searchEmployees&q=' + encodeURIComponent(q) + '&voterEmail=' + encodeURIComponent(currentEmail || ''));
+      const results = json.results || [];
+      if (results.length === 0) {
+        acList.innerHTML = '<div class="ac-empty">Tidak ada nama yang cocok</div>';
+      } else {
+        acList.innerHTML = results.map(function (r, i) {
+          return '<div class="ac-item" data-idx="' + i + '"><div>' + esc(r.nama) + '</div><div class="ac-sub">' + subLine([r.posisi, r.cabang]) + '</div></div>';
+        }).join('');
+        Array.prototype.forEach.call(acList.querySelectorAll('.ac-item'), function (item) {
+          item.addEventListener('click', function () {
+            const idx = Number(item.getAttribute('data-idx'));
+            selectedCandidate = results[idx];
+            voteSearch.value = selectedCandidate.nama;
+            acList.classList.remove('show');
+            document.getElementById('voteSubmitBtn').disabled = false;
+          });
+        });
+      }
+      acList.classList.add('show');
+    } catch (err) {
+      acList.classList.remove('show');
+    }
+  }, 250);
+});
+
+document.getElementById('voteSubmitBtn').addEventListener('click', function () {
+  if (!selectedCandidate) {
+    const msg = document.getElementById('voteMsg');
+    msg.textContent = 'Pilih nama dari daftar yang muncul ya.';
+    msg.className = 'msg show error';
+    return;
+  }
+  document.getElementById('confirmName').textContent = selectedCandidate.nama;
+  document.getElementById('confirmPredikat').textContent = activePeriod.predikat;
+  document.getElementById('voteConfirm').classList.remove('hidden');
+});
+
+document.getElementById('confirmCancelBtn').addEventListener('click', function () {
+  document.getElementById('voteConfirm').classList.add('hidden');
+});
+
+document.getElementById('confirmYesBtn').addEventListener('click', async function () {
+  const btn = this;
+  btn.disabled = true;
+  try {
     const record = {
-      namaPeserta: document.getElementById('pNama').value.trim(),
-      posisiPeserta: document.getElementById('pPosisi').value.trim(),
-      cabangPeserta: document.getElementById('pCabang').value,
-      email: currentEmail,
-      namaVote: document.getElementById('vNama').value.trim(),
-      posisiVote: document.getElementById('vPosisi').value.trim(),
-      cabangVote: document.getElementById('vCabang').value
+      emailVoter: currentEmail,
+      namaDipilih: selectedCandidate.nama,
+      emailDipilih: selectedCandidate.email
+    };
+    const url = APPS_SCRIPT_URL + '?action=vote&payload=' + encodeURIComponent(JSON.stringify(record));
+    const result = await jsonpFetch(url);
+
+    const statusMessages = {
+      duplicate: ['Kamu sudah vote bulan ini', 'Satu email hanya bisa vote sekali per periode.'],
+      self: ['Tidak bisa vote diri sendiri', 'Pilih rekan kerja yang lain ya.'],
+      excluded: ['Nama ini tidak bisa dipilih', 'Karyawan ini pernah menang dan dikecualikan periode ini.'],
+      invalid: ['Nama tidak ditemukan', 'Pilih nama dari daftar autocomplete ya.'],
+      closed: ['Periode sudah ditutup', 'Voting untuk periode ini sudah berakhir.']
     };
 
-    await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(record)
-    });
-
-    showFormMsg('Vote kamu berhasil dikirim. Terima kasih!', 'success');
-    form.reset();
-    fillCabang(document.getElementById('pCabang'));
-    fillCabang(document.getElementById('vCabang'));
-    submitBtn.disabled = true;
+    if (result.status === 'success') {
+      document.getElementById('thanksTitle').textContent = 'Terima kasih!';
+      document.getElementById('thanksBody').textContent = 'Vote kamu untuk ' + selectedCandidate.nama + ' sudah tersimpan. Terima kasih sudah ikut memberikan apresiasi.';
+      showView('Thanks');
+    } else if (statusMessages[result.status]) {
+      document.getElementById('thanksTitle').textContent = statusMessages[result.status][0];
+      document.getElementById('thanksBody').textContent = statusMessages[result.status][1];
+      showView('Thanks');
+    } else {
+      throw new Error('unknown status');
+    }
   } catch (err) {
-    showFormMsg('Terjadi kendala saat mengirim vote (' + err.message + '). Coba lagi sebentar lagi.', 'error');
-    submitBtn.disabled = false;
+    const msg = document.getElementById('voteMsg');
+    msg.textContent = 'Terjadi kendala saat mengirim vote (' + err.message + '). Coba lagi.';
+    msg.className = 'msg show error';
+    document.getElementById('voteConfirm').classList.add('hidden');
   }
+  btn.disabled = false;
 });
 
 async function loadDashboard() {
-  const status = document.getElementById('dashStatus');
-  const summaryEl = document.getElementById('dashSummary');
-  const contentEl = document.getElementById('dashContent');
-  status.textContent = 'Memuat data...';
-  contentEl.innerHTML = '';
-  summaryEl.innerHTML = '';
-
+  const el = document.getElementById('dashContent');
+  el.innerHTML = '<p class="empty">Memuat dashboard...</p>';
   try {
-    const json = await jsonpFetch(APPS_SCRIPT_URL);
-    const rows = json.data || [];
-
-    const now = new Date();
-    const records = rows.filter(function(r) {
-      const d = new Date(r.timestamp);
-      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-    });
-
-    const monthLabel = now.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
-    status.innerHTML = 'Periode <span class="period-tag">' + monthLabel + '</span>';
-    renderDashboard(records, summaryEl, contentEl);
-  } catch (err) {
-    status.textContent = '';
-    contentEl.innerHTML = '<p class="empty">Gagal memuat data dashboard. Pastikan URL Apps Script sudah benar.</p>';
-  }
-}
-
-async function loadHallOfFame() {
-  const status = document.getElementById('hofStatus');
-  const contentEl = document.getElementById('hofContent');
-  status.textContent = 'Memuat data...';
-  contentEl.innerHTML = '';
-
-  try {
-    const json = await jsonpFetch(APPS_SCRIPT_URL + '?winners=1');
-    const winners = (json.winners || []).slice().reverse();
-
-    status.textContent = 'Arsip pemenang dari semua periode';
-
-    if (winners.length === 0) {
-      contentEl.innerHTML = '<p class="empty">Belum ada periode yang ditutup. Pemenang akan muncul di sini setelah bulan berjalan ditutup lewat menu di Google Sheet.</p>';
+    const json = await jsonpFetch(APPS_SCRIPT_URL + '?action=leaderboard');
+    if (json.noPeriod) {
+      el.innerHTML = '<p class="empty">Belum ada periode aktif saat ini.</p>';
       return;
     }
+    const pct = Math.round((json.participation || 0) * 1000) / 10;
+    let html =
+      '<div class="predikat-card">' +
+        '<p class="predikat-label">' + json.period.bulanLabel + '</p>' +
+        '<p class="predikat-name">' + json.period.predikat + '</p>' +
+      '</div>' +
+      '<div class="stat-row">' +
+        '<div class="stat-card"><div class="stat-num">' + json.totalEmployees + '</div><div class="stat-label">Employees</div></div>' +
+        '<div class="stat-card"><div class="stat-num">' + json.totalVotes + '</div><div class="stat-label">Votes</div></div>' +
+        '<div class="stat-card"><div class="stat-num">' + pct + '%</div><div class="stat-label">Participation</div></div>' +
+      '</div>';
 
-    let html = '<div class="chart-card">';
-    winners.forEach(function(w) {
-      html +=
-        '<div class="row">' +
-          '<div class="rank">&#127942;</div>' +
-          '<div class="row-body">' +
-            '<div class="row-top"><span class="row-name">' + w.nama + '</span><span class="period-tag">' + w.periode + '</span></div>' +
-            '<div class="row-sub">' + w.kategori + ' &middot; ' + w.cabang + ' &middot; ' + w.jumlahSuara + ' suara</div>' +
-          '</div>' +
-        '</div>';
-    });
-    html += '</div>';
-    contentEl.innerHTML = html;
+    if (json.hidden) {
+      html += '<p class="empty">Hasil voting dirahasiakan sampai periode ini ditutup.</p>';
+    } else if (json.leaderboard && json.leaderboard.length > 0) {
+      const max = json.leaderboard[0].count;
+      html += '<div class="card">';
+      json.leaderboard.forEach(function (row, i) {
+        const w = Math.round((row.count / max) * 100);
+        html +=
+          '<div class="lb-row">' +
+            '<div class="lb-rank">' + (i + 1) + '</div>' +
+            '<div class="lb-body">' +
+              '<div class="lb-top"><span class="lb-name">' + esc(row.nama) + '</span><span class="lb-count">' + row.count + ' votes</span></div>' +
+              '<div class="lb-track"><div class="lb-fill" style="width:' + w + '%;"></div></div>' +
+            '</div>' +
+          '</div>';
+      });
+      html += '</div>';
+    } else {
+      html += '<p class="empty">Belum ada vote yang masuk.</p>';
+    }
+    el.innerHTML = html;
   } catch (err) {
-    status.textContent = '';
-    contentEl.innerHTML = '<p class="empty">Gagal memuat data Hall of Fame.</p>';
+    el.innerHTML = '<p class="empty">Gagal memuat dashboard.</p>';
   }
 }
 
-function renderDashboard(records, summaryEl, contentEl) {
-  const totalCandidates = {};
-  records.forEach(function(rec) {
-    const key = rec.namaVote.toLowerCase() + '|' + rec.cabangVote;
-    if (!totalCandidates[key]) {
-      totalCandidates[key] = { nama: rec.namaVote, posisi: rec.posisiVote, cabang: rec.cabangVote, count: 0 };
+async function loadHallOfRecognition() {
+  const el = document.getElementById('hofContent');
+  el.innerHTML = '<p class="empty">Memuat Hall of Recognition...</p>';
+  try {
+    const json = await jsonpFetch(APPS_SCRIPT_URL + '?action=hallOfRecognition');
+    const winners = (json.winners || []).slice().reverse();
+    if (winners.length === 0) {
+      el.innerHTML = '<p class="empty">Belum ada pemenang. Pemenang pertama akan muncul di sini setelah periode pertama ditutup.</p>';
+      return;
     }
-    totalCandidates[key].count += 1;
-  });
+    el.innerHTML = winners.map(function (w) {
+      return '<div class="hof-card">' +
+        '<div class="medallion"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M17 5h3a2 2 0 0 1-2 4M7 5H4a2 2 0 0 0 2 4"/></svg></div>' +
+        '<p class="hof-name">' + esc(w.nama) + '</p>' +
+        '<p class="hof-predikat">' + w.predikat + '</p>' +
+        '<p class="hof-period">' + w.bulanLabel + '</p>' +
+      '</div>';
+    }).join('');
+  } catch (err) {
+    el.innerHTML = '<p class="empty">Gagal memuat Hall of Recognition.</p>';
+  }
+}
 
-  const entries = Object.values(totalCandidates).sort(function(a, b) { return b.count - a.count; });
+document.getElementById('adminCabang').innerHTML = '<option value="" disabled selected>Pilih cabang</option>' +
+  CABANG_OPTIONS.map(function (c) { return '<option value="' + esc(c) + '">' + esc(c) + '</option>'; }).join('');
 
-  summaryEl.innerHTML =
-    '<div class="summary-row">' +
-      '<div class="summary-card"><div class="summary-num">' + records.length + '</div><div class="summary-label">Total suara bulan ini</div></div>' +
-      '<div class="summary-card"><div class="summary-num">' + entries.length + '</div><div class="summary-label">Kandidat menerima suara</div></div>' +
-    '</div>';
-
-  if (entries.length === 0) {
-    contentEl.innerHTML = '<p class="empty">Belum ada vote bulan ini.</p>';
+document.getElementById('navAdmin').addEventListener('click', async function () {
+  if (!currentEmail) {
+    setLoginIntent('admin');
+    showView('Login');
     return;
   }
+  await enterAdminFlow();
+});
 
-  const max = entries[0].count;
-  let html = '<div class="chart-card">';
-  entries.forEach(function(entry, idx) {
-    const pct = Math.round((entry.count / max) * 100);
-    html +=
-      '<div class="row">' +
-        '<div class="rank">' + (idx + 1) + '</div>' +
-        '<div class="row-body">' +
-          '<div class="row-top"><span class="row-name">' + entry.nama + '</span><span class="row-count">' + entry.count + ' suara</span></div>' +
-          '<div class="row-sub">' + entry.posisi + ' &middot; ' + entry.cabang + '</div>' +
-          '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%;"></div></div>' +
-        '</div>' +
-      '</div>';
-  });
-  html += '</div>';
-
-  contentEl.innerHTML = html;
+async function enterAdminFlow() {
+  try {
+    const json = await jsonpFetch(APPS_SCRIPT_URL + '?action=isAdmin&email=' + encodeURIComponent(currentEmail));
+    if (!json.isAdmin) {
+      document.getElementById('thanksTitle').textContent = 'Akses admin tidak tersedia';
+      document.getElementById('thanksBody').textContent = 'Akun ini belum terdaftar sebagai admin. Hubungi tim Employer Branding untuk meminta akses.';
+      showView('Thanks');
+      return;
+    }
+    showView('Admin');
+    await loadAdminSummary();
+  } catch (err) {
+    document.getElementById('thanksTitle').textContent = 'Terjadi kendala';
+    document.getElementById('thanksBody').textContent = 'Gagal memeriksa akses admin. Coba lagi sebentar lagi.';
+    showView('Thanks');
+  }
 }
+
+function renderAdminSummary(json) {
+  document.getElementById('adminTotal').textContent = json.totalAktif + ' karyawan aktif terdaftar. Berikut 5 data terakhir.';
+  const rows = json.recent || [];
+  document.getElementById('adminRecent').innerHTML = rows.length === 0
+    ? '<p class="empty" style="padding:12px 0;">Belum ada data karyawan.</p>'
+    : rows.map(function (r) {
+        return '<div class="recent-row"><div>' + esc(r.nama) + '</div><div class="recent-sub">' +
+          subLine([r.posisi, r.cabang, r.email]) + '</div></div>';
+      }).join('');
+}
+
+async function loadAdminSummary() {
+  document.getElementById('adminTotal').textContent = 'Memuat...';
+  try {
+    const json = await jsonpFetch(APPS_SCRIPT_URL + '?action=adminSummary&adminEmail=' + encodeURIComponent(currentEmail));
+    if (json.status === 'unauthorized') {
+      document.getElementById('adminTotal').textContent = 'Akses admin ditolak untuk akun ini.';
+      return;
+    }
+    renderAdminSummary(json);
+  } catch (err) {
+    document.getElementById('adminTotal').textContent = 'Gagal memuat daftar karyawan.';
+  }
+}
+
+document.getElementById('adminSaveBtn').addEventListener('click', async function () {
+  const btn = this;
+  const msg = document.getElementById('adminMsg');
+  const rec = {
+    nama: document.getElementById('adminNama').value.trim(),
+    email: document.getElementById('adminEmailInput').value.trim().toLowerCase(),
+    posisi: document.getElementById('adminPosisi').value.trim(),
+    cabang: document.getElementById('adminCabang').value
+  };
+  if (!rec.nama || !rec.cabang || rec.email.indexOf('@') === -1) {
+    msg.textContent = 'Lengkapi nama, email yang valid, dan cabang dulu ya.';
+    msg.className = 'msg show error';
+    return;
+  }
+  btn.disabled = true;
+  msg.className = 'msg';
+  try {
+    const url = APPS_SCRIPT_URL + '?action=addEmployee&adminEmail=' + encodeURIComponent(currentEmail) +
+      '&payload=' + encodeURIComponent(JSON.stringify(rec));
+    const result = await jsonpFetch(url);
+    if (result.status === 'success') {
+      msg.textContent = rec.nama + ' berhasil ditambahkan dan sudah bisa dipilih saat vote.';
+      msg.className = 'msg show success';
+      document.getElementById('adminNama').value = '';
+      document.getElementById('adminEmailInput').value = '';
+      document.getElementById('adminPosisi').value = '';
+      document.getElementById('adminCabang').selectedIndex = 0;
+      renderAdminSummary(result);
+    } else if (result.status === 'duplicate') {
+      msg.textContent = 'Email ini sudah terdaftar di daftar karyawan.';
+      msg.className = 'msg show error';
+    } else if (result.status === 'unauthorized') {
+      msg.textContent = 'Akses admin ditolak untuk akun ini.';
+      msg.className = 'msg show error';
+    } else {
+      msg.textContent = 'Data belum lengkap atau tidak valid. Periksa lagi isiannya.';
+      msg.className = 'msg show error';
+    }
+  } catch (err) {
+    msg.textContent = 'Gagal menyimpan (' + err.message + '). Coba lagi.';
+    msg.className = 'msg show error';
+  }
+  btn.disabled = false;
+});
+
+loadHome();
 </script>
 </body>
 </html>
