@@ -228,10 +228,6 @@
         <input type="text" id="adminNama" placeholder="contoh: Andi Pratama" autocomplete="off">
       </div>
       <div class="field">
-        <label for="adminEmailInput">Email karyawan</label>
-        <input type="email" id="adminEmailInput" placeholder="nama@email.com" autocomplete="off">
-      </div>
-      <div class="field">
         <label for="adminPosisi">Posisi (opsional)</label>
         <input type="text" id="adminPosisi" placeholder="contoh: Fisioterapis" autocomplete="off">
       </div>
@@ -284,7 +280,7 @@ function subLine(parts) {
   return parts.filter(function (x) { return String(x == null ? '' : x).trim() !== ''; }).map(esc).join(' &middot; ');
 }
 
-const CABANG_OPTIONS = ['Kuningan', 'BSD', 'Kebayoran', 'Cibubur', 'Bandung', 'Surabaya', 'Kemang', 'Puri', 'Alam Sutra', 'Bekasi', 'Pemuda', 'Head Office'];
+const CABANG_OPTIONS = ['Head Office', 'WM Center Kuningan', 'WM Center Puri', 'WM Center Alam Sutera', 'WM Center Pemuda', 'WM Center Bekasi', 'WM Center Sunter', 'WM Center Kemang', 'WM Center BSD', 'WM Center Cibubur', 'WM Center Kebayoran'];
 
 let loginIntent = 'vote';
 function setLoginIntent(intent) {
@@ -292,7 +288,6 @@ function setLoginIntent(intent) {
   document.getElementById('loginBtn').textContent = intent === 'admin' ? 'Login' : 'Login & vote';
 }
 
-let currentEmail = null;
 let currentName = null;
 let selectedCandidate = null;
 let selectedLoginEmployee = null;
@@ -348,7 +343,7 @@ async function loadHome() {
 
 async function onVoteNowClick() {
   if (!activePeriod) return;
-  if (!currentEmail) {
+  if (!currentName) {
     setLoginIntent('vote');
     showView('Login');
     return;
@@ -399,7 +394,6 @@ document.getElementById('loginBtn').addEventListener('click', async function () 
     msg.className = 'msg show error';
     return;
   }
-  currentEmail = selectedLoginEmployee.email;
   currentName = selectedLoginEmployee.nama;
   updateSessionTag();
   if (loginIntent === 'admin') { await enterAdminFlow(); } else { await enterVoteFlow(); }
@@ -407,7 +401,7 @@ document.getElementById('loginBtn').addEventListener('click', async function () 
 
 async function enterVoteFlow() {
   try {
-    const json = await jsonpFetch(APPS_SCRIPT_URL + '?action=checkVoted&email=' + encodeURIComponent(currentEmail));
+    const json = await jsonpFetch(APPS_SCRIPT_URL + '?action=checkVoted&nama=' + encodeURIComponent(currentName));
     if (json.noPeriod) {
       document.getElementById('thanksTitle').textContent = 'Belum ada periode aktif';
       document.getElementById('thanksBody').textContent = 'Periode voting belum dibuka bulan ini.';
@@ -447,7 +441,7 @@ voteSearch.addEventListener('input', function () {
   if (q.length < 2) { acList.classList.remove('show'); return; }
   acDebounce = setTimeout(async function () {
     try {
-      const json = await jsonpFetch(APPS_SCRIPT_URL + '?action=searchEmployees&q=' + encodeURIComponent(q) + '&voterEmail=' + encodeURIComponent(currentEmail || ''));
+      const json = await jsonpFetch(APPS_SCRIPT_URL + '?action=searchEmployees&q=' + encodeURIComponent(q) + '&voterNama=' + encodeURIComponent(currentName || ''));
       const results = json.results || [];
       if (results.length === 0) {
         acList.innerHTML = '<div class="ac-empty">Tidak ada nama yang cocok</div>';
@@ -493,15 +487,14 @@ document.getElementById('confirmYesBtn').addEventListener('click', async functio
   btn.disabled = true;
   try {
     const record = {
-      emailVoter: currentEmail,
-      namaDipilih: selectedCandidate.nama,
-      emailDipilih: selectedCandidate.email
+      namaVoter: currentName,
+      namaDipilih: selectedCandidate.nama
     };
     const url = APPS_SCRIPT_URL + '?action=vote&payload=' + encodeURIComponent(JSON.stringify(record));
     const result = await jsonpFetch(url);
 
     const statusMessages = {
-      duplicate: ['Kamu sudah vote bulan ini', 'Satu email hanya bisa vote sekali per periode.'],
+      duplicate: ['Kamu sudah vote bulan ini', 'Satu nama hanya bisa vote sekali per periode.'],
       self: ['Tidak bisa vote diri sendiri', 'Pilih rekan kerja yang lain ya.'],
       excluded: ['Nama ini tidak bisa dipilih', 'Karyawan ini pernah menang dan dikecualikan periode ini.'],
       invalid: ['Nama tidak ditemukan', 'Pilih nama dari daftar autocomplete ya.'],
@@ -602,7 +595,7 @@ document.getElementById('adminCabang').innerHTML = '<option value="" disabled se
   CABANG_OPTIONS.map(function (c) { return '<option value="' + esc(c) + '">' + esc(c) + '</option>'; }).join('');
 
 document.getElementById('navAdmin').addEventListener('click', async function () {
-  if (!currentEmail) {
+  if (!currentName) {
     setLoginIntent('admin');
     showView('Login');
     return;
@@ -612,10 +605,10 @@ document.getElementById('navAdmin').addEventListener('click', async function () 
 
 async function enterAdminFlow() {
   try {
-    const json = await jsonpFetch(APPS_SCRIPT_URL + '?action=isAdmin&email=' + encodeURIComponent(currentEmail));
+    const json = await jsonpFetch(APPS_SCRIPT_URL + '?action=isAdmin&nama=' + encodeURIComponent(currentName));
     if (!json.isAdmin) {
       document.getElementById('thanksTitle').textContent = 'Akses admin tidak tersedia';
-      document.getElementById('thanksBody').textContent = 'Akun ini belum terdaftar sebagai admin. Hubungi tim Employer Branding untuk meminta akses.';
+      document.getElementById('thanksBody').textContent = 'Nama ini belum terdaftar sebagai admin. Hubungi tim Employer Branding untuk meminta akses.';
       showView('Thanks');
       return;
     }
@@ -635,14 +628,14 @@ function renderAdminSummary(json) {
     ? '<p class="empty" style="padding:12px 0;">Belum ada data karyawan.</p>'
     : rows.map(function (r) {
         return '<div class="recent-row"><div>' + esc(r.nama) + '</div><div class="recent-sub">' +
-          subLine([r.posisi, r.cabang, r.email]) + '</div></div>';
+          subLine([r.posisi, r.cabang]) + '</div></div>';
       }).join('');
 }
 
 async function loadAdminSummary() {
   document.getElementById('adminTotal').textContent = 'Memuat...';
   try {
-    const json = await jsonpFetch(APPS_SCRIPT_URL + '?action=adminSummary&adminEmail=' + encodeURIComponent(currentEmail));
+    const json = await jsonpFetch(APPS_SCRIPT_URL + '?action=adminSummary&adminNama=' + encodeURIComponent(currentName));
     if (json.status === 'unauthorized') {
       document.getElementById('adminTotal').textContent = 'Akses admin ditolak untuk akun ini.';
       return;
@@ -658,31 +651,29 @@ document.getElementById('adminSaveBtn').addEventListener('click', async function
   const msg = document.getElementById('adminMsg');
   const rec = {
     nama: document.getElementById('adminNama').value.trim(),
-    email: document.getElementById('adminEmailInput').value.trim().toLowerCase(),
     posisi: document.getElementById('adminPosisi').value.trim(),
     cabang: document.getElementById('adminCabang').value
   };
-  if (!rec.nama || !rec.cabang || rec.email.indexOf('@') === -1) {
-    msg.textContent = 'Lengkapi nama, email yang valid, dan cabang dulu ya.';
+  if (!rec.nama || !rec.cabang) {
+    msg.textContent = 'Lengkapi nama dan cabang dulu ya.';
     msg.className = 'msg show error';
     return;
   }
   btn.disabled = true;
   msg.className = 'msg';
   try {
-    const url = APPS_SCRIPT_URL + '?action=addEmployee&adminEmail=' + encodeURIComponent(currentEmail) +
+    const url = APPS_SCRIPT_URL + '?action=addEmployee&adminNama=' + encodeURIComponent(currentName) +
       '&payload=' + encodeURIComponent(JSON.stringify(rec));
     const result = await jsonpFetch(url);
     if (result.status === 'success') {
       msg.textContent = rec.nama + ' berhasil ditambahkan dan sudah bisa dipilih saat vote.';
       msg.className = 'msg show success';
       document.getElementById('adminNama').value = '';
-      document.getElementById('adminEmailInput').value = '';
       document.getElementById('adminPosisi').value = '';
       document.getElementById('adminCabang').selectedIndex = 0;
       renderAdminSummary(result);
     } else if (result.status === 'duplicate') {
-      msg.textContent = 'Email ini sudah terdaftar di daftar karyawan.';
+      msg.textContent = 'Nama ini sudah ada di daftar karyawan.';
       msg.className = 'msg show error';
     } else if (result.status === 'unauthorized') {
       msg.textContent = 'Akses admin ditolak untuk akun ini.';
