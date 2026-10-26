@@ -12,7 +12,7 @@ body{font-family:'DM Sans',sans-serif;background:#fff;color:var(--text);overflow
 nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 48px;background:rgba(255,255,255,0.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);}
 .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
 .nav-logo img{width:34px;height:34px;border-radius:8px;object-fit:cover;}
-.nav-brand{font-weight:700;font-size:14px;color:var(--navy);}
+.nav-brand{font-weight:700;font-size:14px;color:var(--navy);white-space:nowrap;}
 .nav-links{display:flex;gap:24px;}
 .nav-links a{color:var(--muted);text-decoration:none;font-size:13px;font-weight:500;transition:color .2s;}
 .nav-links a:hover{color:var(--orange);}
@@ -89,6 +89,15 @@ section{padding:88px 48px;}
 .form-select{width:100%;background:var(--offwhite);border:1.5px solid var(--border);border-radius:10px;padding:10px 13px;color:var(--navy);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:all .2s;}
 .form-select:focus{border-color:var(--orange);background:#fff;}
 .form-select option{background:#fff;}
+/* DECK (Canva embed) */
+.deck-wrap{margin-top:38px;}
+.deck-frame{position:relative;width:100%;padding-top:56.25%;border-radius:18px;overflow:hidden;background:var(--navy);box-shadow:0 18px 44px rgba(13,31,78,.18);}
+.deck-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:none;}
+.deck-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:rgba(255,255,255,.75);font-size:14px;padding:24px;gap:8px;}
+.deck-empty strong{color:#fff;font-size:16px;}
+.deck-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);}
+.deck-btn{padding:8px 16px;border-radius:100px;font-size:12px;font-weight:700;border:1.5px solid var(--border);background:#fff;color:var(--navy);text-decoration:none;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.deck-btn:hover{border-color:var(--orange);color:var(--orange);}
 /* FAQ */
 .faq-list{display:flex;flex-direction:column;gap:12px;margin-top:40px;max-width:780px;}
 .faq-item{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:all .25s;}
@@ -102,13 +111,13 @@ section{padding:88px 48px;}
 .fade-in.visible{opacity:1;transform:translateY(0);}
 footer{padding:36px 48px;text-align:center;border-top:1px solid var(--border);color:var(--muted);font-size:12px;}
 footer strong{color:var(--orange);}
+.nav-links a{white-space:nowrap;}
+@media(max-width:1100px){nav{padding:14px 24px;}.nav-links{gap:16px;}}
+@media(max-width:920px){.nav-links{display:none;}}
 @media(max-width:768px){nav{padding:14px 18px;}.nav-links{display:none;}section{padding:64px 18px;}.checklist-container,.ce-container{padding:22px 16px;}.cl-row{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
-<style>.wmhrga-back-fab{position:fixed;bottom:16px;left:16px;z-index:99999;display:inline-flex;align-items:center;gap:6px;background:#14213D;color:#fff;text-decoration:none;font-family:'Plus Jakarta Sans',-apple-system,sans-serif;font-size:12.5px;font-weight:600;padding:9px 15px;border-radius:999px;box-shadow:0 6px 18px rgba(20,33,61,.35);transition:transform .15s ease,box-shadow .15s ease;}.wmhrga-back-fab:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(20,33,61,.45);}@media print{.wmhrga-back-fab{display:none;}}</style>
-<a href="index.html" class="wmhrga-back-fab">&#8592; Dashboard</a>
-
 
 <nav>
   <a href="#home" class="nav-logo">
@@ -116,6 +125,7 @@ footer strong{color:var(--orange);}
     <span class="nav-brand">WM Center</span>
   </a>
   <div class="nav-links">
+    <a href="#deck">Onboarding Deck</a>
     <a href="#team">Meet the Team</a>
     <a href="#goto">Who to Go To</a>
     <a href="#checklist">Onboarding Checklist</a>
@@ -132,8 +142,27 @@ footer strong{color:var(--orange);}
   <h1>You're officially<br><em>WM Peeps!</em> 🎉</h1>
   <p>Welcome to the team. Explore who your colleagues are, complete your onboarding checklist, and let us know how your journey went.</p>
   <div class="hero-cta">
-    <a href="#team" class="btn-orange">Meet the Team →</a>
+    <a href="#deck" class="btn-orange">Start Onboarding Deck →</a>
+    <a href="#team" class="btn-ghost">Meet the Team</a>
     <a href="#checklist" class="btn-ghost">Onboarding Checklist</a>
+  </div>
+</section>
+
+<!-- ONBOARDING DECK -->
+<section id="deck">
+  <div class="container fade-in">
+    <div class="sec-label">Start Here</div>
+    <h2 class="sec-title">Onboarding Deck 📖</h2>
+    <p class="sec-sub">Kenali WM Center lebih dalam — profil, struktur organisasi, hak karyawan, sampai aktivitas WM Peeps. Link di dalam slide bisa langsung diklik.</p>
+    <div class="deck-wrap">
+      <div class="deck-frame" id="deck-frame">
+        <div class="deck-empty" id="deck-empty"><strong>Onboarding Deck belum terpasang</strong>Isi CANVA_EMBED_URL di bagian script.</div>
+      </div>
+      <div class="deck-bar">
+        <span>💡 Klik ⛶ di pojok kanan bawah slide untuk fullscreen.</span>
+        <a class="deck-btn" id="deck-open" href="#" target="_blank" rel="noopener">Buka di tab baru ↗</a>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -270,6 +299,7 @@ footer strong{color:var(--orange);}
         </div>
         <div class="cl-section-label">🎓 Training</div>
         <div class="cl-items">
+          <label class="cl-item"><input type="checkbox" id="cl-deck"> <span>Read the Onboarding Deck</span></label>
           <label class="cl-item"><input type="checkbox" id="cl-induction"> <span>General Induction WM Center</span></label>
           <label class="cl-item"><input type="checkbox" id="cl-talenta"> <span>Talenta Usage Guideline</span></label>
           <label class="cl-item"><input type="checkbox" id="cl-training"> <span>Basic Position Training (Division)</span></label>
@@ -411,13 +441,13 @@ async function submitChecklist() {
   try {
     await fetch(SCRIPT_URL, {
       method: 'POST', mode: 'no-cors',
-      headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type': 'text/plain;charset=utf-8'},
       body: JSON.stringify({
         formType: 'icebreaker', nama, posisi,
         pkwt: getCheck('cl-pkwt'), email_perusahaan: getCheck('cl-email'),
         hris_talenta: getCheck('cl-hris'), laptop: getCheck('cl-laptop'),
         onboarding_kit: getCheck('cl-kit'), seragam: getCheck('cl-seragam'),
-        name_plate: getCheck('cl-nameplate'), general_induction: getCheck('cl-induction'),
+        name_plate: getCheck('cl-nameplate'), baca_deck: getCheck('cl-deck'), general_induction: getCheck('cl-induction'),
         guideline_talenta: getCheck('cl-talenta'), training_posisi: getCheck('cl-training'),
         session_supervisor: getCheck('cl-supervisor'), grup_divisi: getCheck('cl-grup-divisi'),
         grup_internal: getCheck('cl-grup-internal'), grup_full_team: getCheck('cl-grup-full'),
@@ -438,7 +468,7 @@ async function submitFeedback() {
   try {
     await fetch(SCRIPT_URL, {
       method: 'POST', mode: 'no-cors',
-      headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type': 'text/plain;charset=utf-8'},
       body: JSON.stringify({
         formType: 'candidate', nama, posisi, rating: currentRating,
         kejelasan: document.getElementById('ce-kejelasan').value,
@@ -450,6 +480,24 @@ async function submitFeedback() {
   document.getElementById('ce-form').style.display = 'none';
   document.getElementById('ce-success').style.display = 'block';
 }
+
+
+// ===== ONBOARDING DECK (Canva embed) =====
+// Tempel link dari Canva: Share → Lihat lainnya → Sematkan/Embed → salin "Smart embed link"
+// Contoh: https://www.canva.com/design/DAG3iKUFc_g/XXXXXXXX/view?embed
+const CANVA_EMBED_URL = "https://www.canva.com/design/DAG3iKUFc_g/Itv7miMARYEGylFdzaTB6w/view?embed";
+(function(){
+  const url = CANVA_EMBED_URL.trim();
+  const open = document.getElementById('deck-open');
+  if (!url) { open.style.display = 'none'; return; }
+  const embed = url.includes('embed') ? url : url + (url.includes('?') ? '&' : '?') + 'embed';
+  const f = document.createElement('iframe');
+  f.src = embed; f.loading = 'lazy'; f.title = 'Onboarding Deck WM Center';
+  f.allow = 'fullscreen'; f.setAttribute('allowfullscreen', '');
+  document.getElementById('deck-empty').remove();
+  document.getElementById('deck-frame').appendChild(f);
+  open.href = embed.replace(/[?&]embed\b/, '').replace(/\?$/, '');
+})();
 
 const obs = new IntersectionObserver(entries => {
   entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
